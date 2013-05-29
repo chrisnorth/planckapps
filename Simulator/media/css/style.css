@@ -1,6 +1,7 @@
 body {
 	margin: 0px;
 	padding: 16px;
+	font-family: Helvetica, Arial, sans-serif;
 }
 #page {
 	display: table;
@@ -26,8 +27,18 @@ body {
 
 .parameter { margin-bottom: 16px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }
+.parameter .ui-slider { margin-top: 0.6em; }
 
 /* Set the colours for the slider bars */
 #omega_b_holder .ui-widget-header { background-color: red; }
 #omega_c_holder .ui-widget-header { background-color: blue; }
 #omega_l_holder .ui-widget-header { background-color: green; }
+
+.ui-widget-content .ui-slider-handle {
+	border: 1px solid #999999;
+	background: #d6d6d6;
+}
+.ui-widget-content .ui-state-hover {
+	border: 1px solid #aaaaaa;
+	background: #f6f6f6;
+}

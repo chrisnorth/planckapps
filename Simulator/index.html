@@ -64,6 +64,7 @@
 			var _obj = this;
 
 			this.slider = $( "<div id='"+_obj.select.attr('id')+"_slider'><\/div>" ).insertAfter( select ).slider({
+				animate: "fast",
 				min: 1,
 				max: this.opts.length,
 				range: "min",
@@ -129,7 +130,7 @@
 			<div id="parameters">
 				<form id="omegas">
 					<div id="omega_b_holder" class="parameter">
-						<label for="omega_b">Omega<sub>b</sub></label>
+						<label for="omega_b">Normal Matter (&Omega;<sub>b</sub>)</label>
 						<select name="omega_b" id="omega_b">
 							<option>0.0</option>
 							<option selected="selected">0.05</option>
@@ -155,7 +156,7 @@
 						</select>
 					</div>
 					<div id="omega_c_holder" class="parameter">
-						<label for="omega_c">Omega<sub>c</sub></label>
+						<label for="omega_c">Dark Matter (&Omega;<sub>c</sub>)</label>
 						<select name="omega_c" id="omega_c">
 							<option>0.0</option>
 							<option>0.05</option>
@@ -181,7 +182,7 @@
 						</select>
 					</div>
 					<div id="omega_l_holder" class="parameter">
-						<label for="omega_l">Omega<sub>&Lambda;</sub></label>
+						<label for="omega_l">Dark Energy (&Omega;<sub>&Lambda;</sub>)</label>
 						<select name="omega_l" id="omega_l">
 							<option>0.0</option>
 							<option>0.05</option>

@@ -1,9 +1,27 @@
-#omega_b .ui-widget-header {
-	background-color: red;
+body {
+	margin: 0px;
+	padding: 16px;
 }
-#omega_c .ui-widget-header {
-	background-color: blue;
+#page {
+	display: table;
+	width: 100%;
 }
-#omega_l .ui-widget-header {
-	background-color: green;
+#container {
+	display: table-row;
 }
+
+#parameters {
+	display: table-cell;
+	width: 50%;
+	padding-right: 16px;
+}
+
+#map {
+	display: table-cell;
+	border: 1px solid black;
+	background-color: #444;
+}
+
+#omega_b .ui-widget-header { background-color: red; }
+#omega_c .ui-widget-header { background-color: blue; }
+#omega_l .ui-widget-header { background-color: green; }

@@ -8,11 +8,19 @@
 	<script src="media/js/jquery-1.10.0.min.js"></script>
 	<script src="media/js/jquery-ui-1.10.3.custom.min.js"></script>
 	<!--<link rel="stylesheet" href="/resources/demos/style.css" />-->
+	<script src="media/js/raphael-min.js"></script>
 	<script src="media/js/simulator.js"></script>
 	<script>
 	$(document).ready(function(){
 
-		var sim = $.simulator({});
+		// Load the Simulator
+		var sim = $.simulator({
+			'omega_b': 'omega_b',	// The ID for the Omega_baryon
+			'omega_c': 'omega_c',	// The ID for the Omega_darkmatter
+			'omega_l': 'omega_l',	// The ID for the Omega_darkenergy
+			'ps': 'powerspectrum',	// The ID for the powerspectrum HTML element
+			'map': 'map'	// The ID for the map HTML element
+		});
 
 	});
 	</script>
@@ -105,9 +113,10 @@
 					</div>
 				</form>
 			</div>
-		
-			<div id="map">
-			</div>
+
+			<div id="powerspectrum"></div>
+
+			<div id="map"></div>
 	
 		</div>
 

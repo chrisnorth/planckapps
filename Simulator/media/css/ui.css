@@ -172,8 +172,8 @@
 	font-size: 1em;
 }
 .ui-widget-content {
-	border: 1px solid #dddddd;
-	background: #eeeeee url(images/ui-bg_highlight-soft_100_eeeeee_1x100.png) 50% top repeat-x;
+	border: 1px solid #aaaaaa;
+	background: #f6f6f6;
 	color: #333333;
 }
 .ui-widget-content a {
@@ -238,6 +238,15 @@
 	text-decoration: none;
 }
 
+
+.ui-widget-content .ui-slider-handle {
+	border: 1px solid #999999;
+	background: #e6e6e6;
+}
+.ui-widget-content .ui-state-hover {
+	border: 1px solid #aaaaaa;
+	background: #f6f6f6;
+}
 /* Interaction Cues
 ----------------------------------*/
 .ui-state-highlight,

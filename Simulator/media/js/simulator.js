@@ -60,12 +60,18 @@
 			max: this.opts.length,
 			range: "min",
 			value: _obj.index + 1,
-			slide: function( event, ui ) {
+			slide: function( event, ui ){
 				// Get the current values
 				_obj.updateOptsByIndex(ui.value - 1);
 
 				// Fire the callback
 				_obj.change();
+			},
+			start: function( event, ui ){
+				console.log('grabbed the slider');
+			},
+			stop: function( event, ui ){
+				console.log('let go of slider');
 			}
 		});
 

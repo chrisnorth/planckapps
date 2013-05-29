@@ -217,6 +217,7 @@
 	// Function to hide/show the power spectrum
 	PowerSpectrum.prototype.toggle = function(){
 		this.el.toggleClass('hidden');
+		$('body').toggleClass('adv');
 		this.resize();
 	}
 

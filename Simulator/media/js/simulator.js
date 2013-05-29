@@ -136,6 +136,8 @@
 			}
 		}
 
+console.log(this.el,$('#map').height())
+
 		// Update the plot
 		this.create();
 		this.draw();
@@ -209,7 +211,28 @@
 
 		// If any of the chart elements exist, remove them
 		if(this.chart.label) this.chart.label.remove();
+		if(this.chart.ps) this.chart.ps.remove();
+		
+		
+		
 		this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
+
+		// Build the power spectrum curve
+		var y,x,t,bgpp;
+		var data = [[7,35,44,52,57,60,62.5,64.5,67,68,69.5,70,71.5],[1,1.5,2.5,5.6,2.4,3.7,2.6,3.5,1.5,1.8,1,1.2,0.4]];
+		var Xrange = Math.max.apply(Math, data[0])*1.1;
+		var Xscale = (this.chart.offset.width) / Xrange;
+		var Yrange = Math.max.apply(Math, data[1])*1.1;
+		var Yscale = (this.chart.offset.height) / Yrange;
+		this.chart.ps = this.chart.holder.path().attr({stroke: "black", "stroke-width": 2, "stroke-linejoin": "round"})
+		for (var i = 0; i < data[0].length; i++) {
+			y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * data[1][i]);
+			x = Math.round(this.chart.offset.left + Xscale * data[0][i]);
+			if(!i) p = ["M", x, y, "R"];
+			else p = p.concat([x, y]);
+//			var dot = this.chart.holder.circle(x, y, 4).attr({fill: "#333", stroke: 'red', "stroke-width": 2});
+		}
+		this.chart.ps.attr({path: p});
 
 		return this;
 	}
@@ -220,6 +243,7 @@
 		$('body').toggleClass('adv');
 		this.resize();
 	}
+
 
 	function Simulator(inp){
 
@@ -261,12 +285,10 @@
 			//if(c == 'w'){ box.supernovaWarning(); }
 		});
 		
-//		// Bind window resize event for when people change the size of their browser
-//		$(window).bind("resize",{me:this},function(ev){
-//			ev.data.me.resize();
-//		});
-
-
+		// Bind window resize event for when people change the size of their browser
+		$(window).bind("resize",{me:this},function(ev){
+			ev.data.me.resize();
+		});
 
 		return this;
 	}

@@ -30,6 +30,7 @@ body {
 }
 
 #map {
+	color: white;
 	background: #45484d; /* Old browsers */
 	background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
@@ -38,8 +39,13 @@ body {
 	background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
-	height: 300px;
 	width: 300px;
+	height: 300px;
+	line-height: 0px;
+}
+#map canvas, #map img {
+	width: 300px;
+	height: 300px;
 }
 
 body .advanced { display: none; }
@@ -69,6 +75,7 @@ body.adv .advanced { display: inline-block; }
 	#container { display: block; }
 	#parameters, #powerspectrum, #map {	display: block; padding: 0px; width: 100%; }
 	#map, #powerspectrum { margin-top: 64px; }
+	#map, #map img, #map canvas { width: 100%; height: auto; }
 }
 
 @media (max-width: 500px), (max-device-width: 500px) {

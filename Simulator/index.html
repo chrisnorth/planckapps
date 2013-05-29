@@ -20,7 +20,6 @@
 			this.select = inp.select;
 
 			this.index = this.select[0].selectedIndex;
-
 			// If a starting index is provided, we will use that instead
 			if(typeof inp.index==="number" && parseFloat(inp.index) == parseInt(inp.index)){
 				this.index = inp.index;
@@ -96,21 +95,21 @@
 
 		// Set up the three Omega sliders
 		var omega_b = new ParameterSlider({
-			select: $("#omega_bs"),
+			select: $("#omega_b"),
 			change: function(e){
 				console.log(e)
 			}
 		});
 
 		var omega_m = new ParameterSlider({
-			select: $("#omega_cs"),
+			select: $("#omega_c"),
 			change: function(e){
 				console.log(e)
 			}
 		});
 
 		var omega_l = new ParameterSlider({
-			select: $("#omega_ls"),
+			select: $("#omega_l"),
 			change: function(e){
 				console.log(e)			
 			}
@@ -129,9 +128,9 @@
 		
 			<div id="parameters">
 				<form id="omegas">
-					<div id="omega_b">
-						<label for="omega_bs">Omega<sub>b</sub></label>
-						<select name="omega_bs" id="omega_bs">
+					<div id="omega_b_holder">
+						<label for="omega_b">Omega<sub>b</sub></label>
+						<select name="omega_b" id="omega_b">
 							<option>0.0</option>
 							<option selected="selected">0.05</option>
 							<option>0.1</option>
@@ -155,9 +154,9 @@
 							<option>1.0</option>
 						</select>
 					</div>
-					<div id="omega_c">
-						<label for="omega_cs">Omega<sub>c</sub></label>
-						<select name="omega_cs" id="omega_cs">
+					<div id="omega_c_holder">
+						<label for="omega_c">Omega<sub>c</sub></label>
+						<select name="omega_c" id="omega_c">
 							<option>0.0</option>
 							<option>0.05</option>
 							<option>0.1</option>
@@ -181,9 +180,9 @@
 							<option>1.0</option>
 						</select>
 					</div>
-					<div id="omega_l">
-						<label for="omega_ls">Omega<sub>&Lambda;</sub></label>
-						<select name="omega_ls" id="omega_ls">
+					<div id="omega_l_holder">
+						<label for="omega_l">Omega<sub>&Lambda;</sub></label>
+						<select name="omega_l" id="omega_l">
 							<option>0.0</option>
 							<option>0.05</option>
 							<option>0.1</option>

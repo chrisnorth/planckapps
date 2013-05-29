@@ -22,6 +22,6 @@ body {
 	background-color: #444;
 }
 
-#omega_b .ui-widget-header { background-color: red; }
-#omega_c .ui-widget-header { background-color: blue; }
-#omega_l .ui-widget-header { background-color: green; }
+#omega_b_holder .ui-widget-header { background-color: red; }
+#omega_c_holder .ui-widget-header { background-color: blue; }
+#omega_l_holder .ui-widget-header { background-color: green; }

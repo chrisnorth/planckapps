@@ -1,21 +1,65 @@
 body {
 	margin: 0px;
 	padding: 64px;
-	color: #111111;
+	color: #4D4E53; /* To match to RS Summer Exhibition 2013 site */
 	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-size: 1em;
+	line-height: 1.4;
 }
 body .advanced { display: none; }
 body.adv .advanced { display: inline-block; }
 
-
-#page {
-	display: table;
-	width: 100%;
+*::-moz-selection {
+	background: none repeat scroll 0 0 #FF5E99;
+	color: white;
+	text-shadow: none;
 }
 
 h1 {
 	margin: 0px;
-	font-weight: normal;
+	margin-bottom: 16px;
+	font-weight: 500;
+}
+h1 small {
+	color: #aaaaaa;
+	font-weight: 200;
+	font-size: 0.5em;
+}
+h3 { margin-top: 32px; }
+h3:first-child { margin-top: 0px;}
+p { margin-bottom: 0px; }
+/* Colours from RS Summer Exhibition 2013 site */
+a { color: #E13F29; text-decoration: none; }
+a:hover { color: #F16F25; text-decoration: underline; }
+a:visited { color: #E13F29; }
+a:active { color: #4D4E53; }
+
+#help { font-size: 1.5em; }
+#help a {
+	color: white;
+	background-color: #049CDB;
+	width: 1.4em;
+	display: inline-block;
+	font-style: italic;
+	font-family: serif;
+	text-decoration: none;
+	text-align: center;
+	border-radius: 1em;
+}
+
+#about {
+	display: block; 
+	background-color: #111111; 
+	color: white;
+	margin-left: -64px;
+	margin-right: -64px;
+	margin-bottom: 64px;
+	padding: 32px 64px;
+}
+
+#app {
+	display: table;
+	width: 100%;
 }
 
 #container {
@@ -74,22 +118,24 @@ h1 {
 #powerspectrum.hidden { display: none; }
 
 
-
 /* Responsive Styles */
 @media (max-width: 1000px), (max-device-width: 1000px) {
-	#page { display: block; }
+	#app { display: block; }
 	#container { display: block; }
 	.parameter { margin-bottom: 16px; }
 	#parameters, #powerspectrum, #map {	display: block; padding: 0px; width: 100%; }
 	#map, #powerspectrum { margin-top: 64px; }
 	#map, #map img, #map canvas { width: 100%; height: auto; }
 	h1 { margin-bottom: 32px; }
+	h1 small { display: block; }
+	.wide { display: none; }
 }
 
 @media (max-width: 500px), (max-device-width: 500px) {
 	body { padding: 32px; }
 	#map, #powerspectrum { margin-top: 32px; }
 	h1 { margin-bottom: 16px; }
+	h3 { margin-top: 16px; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {

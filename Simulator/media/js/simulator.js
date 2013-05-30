@@ -96,6 +96,7 @@
 
 		var fs = parseInt(getStyle(this.id, 'font-size'));
 		var ff = getStyle(this.id, 'font-family');
+		var co = getStyle(this.id, 'color');
 
 		this.chart = {
 			'offset' : {
@@ -121,7 +122,7 @@
 					'min': 3, // 3
 					'max': 5.85, // 6.4
 					'label': {
-						'color': "rgb(0,0,0)",
+						'color': co,
 						'font' : "Times"
 					}
 				},
@@ -129,7 +130,7 @@
 					'min': -6.4, //-11
 					'max': 6.5, //8
 					'label': {
-						'color': "rgb(0,0,0)",
+						'color': co,
 						'font' : "Times"
 					}
 				}
@@ -224,7 +225,7 @@ console.log(this.el,$('#map').height())
 		var Xscale = (this.chart.offset.width) / Xrange;
 		var Yrange = Math.max.apply(Math, data[1])*1.1;
 		var Yscale = (this.chart.offset.height) / Yrange;
-		this.chart.ps = this.chart.holder.path().attr({stroke: "black", "stroke-width": 2, "stroke-linejoin": "round"})
+		this.chart.ps = this.chart.holder.path().attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round"})
 		for (var i = 0; i < data[0].length; i++) {
 			y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * data[1][i]);
 			x = Math.round(this.chart.offset.left + Xscale * data[0][i]);
@@ -279,16 +280,41 @@ console.log(this.el,$('#map').height())
 			sim = e.data.sim;
 			var code = e.keyCode || e.charCode || e.which || 0;
 			var c = String.fromCharCode(code).toLowerCase();
-			if(code==32) sim.ps.toggle();
-			//else if(code == 37 /* left */){ box.animateStep(-1); }
-			//else if(code == 39 /* right */){ box.animateStep(1); }
-			//if(c == 'w'){ box.supernovaWarning(); }
+			if(c=='a') sim.ps.toggle();
+			if(c=='i') window.location.href = switchHash();
 		});
 		
 		// Bind window resize event for when people change the size of their browser
 		$(window).bind("resize",{me:this},function(ev){
 			ev.data.me.resize();
 		});
+		
+
+		// Hide the About section
+		$('#about').hide();
+		// Function to return the correct page anchor
+		function switchHash(){
+			if(location.hash.substring(1)=="about") return "#";
+			else return "#about";
+		}
+		// Build element that will let the user toggle the About section
+		function toggleAbout(key){
+			$('#help').toggle();
+			$('#about').slideToggle();
+		}
+		var newdiv = $('<div id="help"><a href="#about">i</a></div>').css({'float':'right'});
+		$('h1').before(newdiv);
+		$('#help a').on('click',toggleAbout);
+		// As we are using the hash anchor, we need to monitor it to check for changes
+		
+		var hashstate = "";
+		setInterval(function(){
+			if(location.hash.substring(1)=="about"){
+				if(!$('#about').is(':visible')) toggleAbout();
+			}else{
+				if($('#about').is(':visible')) toggleAbout();			
+			}
+		},500);
 
 		return this;
 	}

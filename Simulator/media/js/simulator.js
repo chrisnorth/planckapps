@@ -248,6 +248,9 @@ console.log(this.el,$('#map').height())
 
 	function Simulator(inp){
 
+		// We obviously have Javascript enabled to be here so we will remove the hiding class
+		$('.scriptonly').removeClass('scriptonly');
+
 		if(!inp) inp = {};
 		
 		// Set up the three Omega sliders

@@ -36,7 +36,6 @@ a:active { color: #4D4E53; }
 
 #help { font-size: 1.4em; margin-top: 0.2em; }
 #help a {
-	width: 1.4em;
 	display: inline-block;
 	font-family: serif;
 	text-decoration: none;
@@ -49,6 +48,7 @@ a:active { color: #4D4E53; }
 	display: none;
 }
 #help .abouton a {
+	width: 1.4em;
 	color: white;
 	font-style: italic;
 	border-radius: 1em;
@@ -125,6 +125,7 @@ a:active { color: #4D4E53; }
 .hidden { display: none; }
 /* We need this one to ensure the display: table-cell doesn't take precedence */
 #powerspectrum.hidden { display: none; }
+.scriptonly { display: none!important; }
 
 
 /* Responsive Styles */

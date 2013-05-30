@@ -299,20 +299,20 @@ console.log(this.el,$('#map').height())
 		}
 		// Build element that will let the user toggle the About section
 		function toggleAbout(key){
-			$('#help').toggle();
+			$('#help').toggleClass('on');
 			$('#about').slideToggle();
 		}
-		var newdiv = $('<div id="help"><a href="#about">i</a></div>').css({'float':'right'});
+		var newdiv = $('<div id="help"><span class="abouton"><a href="#about">i</a></span><span class="aboutoff"><a href="#">&#8679;</a></span></div>').css({'float':'right'});
 		$('h1').before(newdiv);
-		$('#help a').on('click',toggleAbout);
+		$('#help .abouton a, #help .aboutoff a').on('click',toggleAbout);
 		// As we are using the hash anchor, we need to monitor it to check for changes
 		
 		var hashstate = "";
 		setInterval(function(){
 			if(location.hash.substring(1)=="about"){
-				if(!$('#about').is(':visible')) toggleAbout();
+				if(!$('#help').hasClass('on')) toggleAbout();
 			}else{
-				if($('#about').is(':visible')) toggleAbout();			
+				if($('#help').hasClass('on')) toggleAbout();			
 			}
 		},500);
 

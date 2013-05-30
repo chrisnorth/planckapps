@@ -37,7 +37,7 @@ a:active { color: #4D4E53; }
 #help { font-size: 1.4em; margin-top: 0.2em; }
 #help a {
 	color: white;
-	background-color: #049CDB;
+	background-color: #AAAAAA;
 	width: 1.4em;
 	display: inline-block;
 	font-style: italic;
@@ -46,6 +46,7 @@ a:active { color: #4D4E53; }
 	text-align: center;
 	border-radius: 1em;
 }
+#help a:hover { background-color: #049CDB; transition: background-color 1s; }
 
 #about {
 	display: block; 

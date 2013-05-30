@@ -195,7 +195,7 @@ console.log(this.el,$('#map').height())
 		this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 
 		// Draw the axes
-		this.chart.axes = this.chart.holder.rect(this.chart.offset.left,this.chart.offset.top,this.chart.offset.width,this.chart.offset.height).translate(0.5,-0.5).attr({stroke:'black','stroke-width':1});
+		this.chart.axes = this.chart.holder.rect(this.chart.offset.left,this.chart.offset.top,this.chart.offset.width,this.chart.offset.height).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
 		this.chart.yLabel = this.chart.holder.text(this.chart.offset.left/2, this.chart.offset.top+(this.chart.offset.height/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);

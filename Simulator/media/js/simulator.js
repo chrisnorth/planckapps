@@ -19,10 +19,11 @@
 		this.updateOptsByIndex(this.index);
 
 		// Store the callbacks and a context which will be used for the "this"
-		this.callback = { change: "", start: "", stop: "", context: (typeof inp.context==="object") ? inp.context : this };
+		this.callback = { change: "", start: "", stop: "", mouseenter: "", context: (typeof inp.context==="object") ? inp.context : this };
 		if(typeof inp.change==="function") this.callback.change = inp.change;
 		if(typeof inp.start==="function") this.callback.start = inp.start;
 		if(typeof inp.stop==="function") this.callback.stop = inp.stop;
+		if(typeof inp.mouseenter==="function") this.callback.mouseenter = inp.mouseenter;
 
 		// Set up the slider - attaches jQuery UI functions
 		this.init();
@@ -72,6 +73,11 @@
 				if(typeof _obj.callback.stop==="function") _obj.callback.stop.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			}
 		});
+		if(typeof _obj.callback.mouseenter==="function"){
+			$('#'+_obj.select.attr('id')+"_slider").on('mouseenter',function(e){
+				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
+			});
+		}
 
 		this.select.change(function() {
 			// If the select drop down is updated we need to update the slider
@@ -272,7 +278,8 @@
 
 	PowerSpectrum.prototype.loadData = function(id,b,c,l){
 
-		var file = "";
+		var file = "";		
+
 
 		// If nothing has changed, do nothing
 		//if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
@@ -281,7 +288,7 @@
 		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_lin.json"		
 		else if(id=="omega_l") file = this.dir+"Ob"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_lin.json"		
 
-		if(!file) return;
+		if(!file || file == this.lastload) return;
 
 		console.log('Getting '+file+' for '+id)
 
@@ -307,12 +314,14 @@
 			},
 			timeout: 4000
 		});
+
+		this.lastload = file;
 	
 	}
 	
 	PowerSpectrum.prototype.getData = function(id,b,c,l){
 
-console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
+		//console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
 
 		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
@@ -380,12 +389,8 @@ console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
 		var change = function(e){
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
 		},
-		start = function(e){
-			console.log('grabbed',e,this,this.omega_b.value);
+		mouseenter = function(e){
 			this.ps.loadData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
-		},
-		stop = function(e){
-			//console.log('let go',e);
 		}
 		
 		var _obj = this;
@@ -395,24 +400,21 @@ console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
 			select: $("#"+((inp.omega_b && typeof inp.omega_b==="string") ? inp.omega_b : "omega_b")),
 			context: _obj,
 			change: change,
-			start: start,
-			stop: stop
+			mouseenter: mouseenter
 		});
 	
 		this.omega_c = new ParameterSlider({
 			select: $("#"+((inp.omega_c && typeof inp.omega_c==="string") ? inp.omega_c : "omega_c")),
 			context: _obj,
 			change: change,
-			start: start,
-			stop: stop
+			mouseenter: mouseenter
 		});
 	
 		this.omega_l = new ParameterSlider({
 			select: $("#"+((inp.omega_l && typeof inp.omega_l==="string") ? inp.omega_l : "omega_l")),
 			context: _obj,
 			change: change,
-			start: start,
-			stop: stop
+			mouseenter: mouseenter
 		});
 
 		// Replace our "inp" Omegas with the values from the sliders

@@ -18,11 +18,11 @@
 
 		this.updateOptsByIndex(this.index);
 
-		// Is a callback provided for the change() function?
-		if(typeof inp.change==="function"){
-			var _obj = this;
-			this.change = function(){ inp.change.call(_obj,{ value: _obj.value, id: _obj.select.attr('id')}); }
-		}
+		// Store the callbacks and a context which will be used for the "this"
+		this.callback = { change: "", start: "", stop: "", context: (typeof inp.context==="object") ? inp.context : this };
+		if(typeof inp.change==="function") this.callback.change = inp.change;
+		if(typeof inp.start==="function") this.callback.start = inp.start;
+		if(typeof inp.stop==="function") this.callback.stop = inp.stop;
 
 		// Set up the slider - attaches jQuery UI functions
 		this.init();
@@ -42,9 +42,7 @@
 		this.value = this.opts[this.index];
 
 		// Update the select drop down if necessary
-		if(orig != this.index){
-			this.select[0].selectedIndex = this.index;
-		}
+		if(orig != this.index) this.select[0].selectedIndex = this.index;
 	}
 
 	// Set up the jQuery UI slider and add some properties/callbacks to our variable.
@@ -65,13 +63,13 @@
 				_obj.updateOptsByIndex(ui.value - 1);
 
 				// Fire the callback
-				_obj.change();
+				if(typeof _obj.callback.change==="function") _obj.callback.change.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			},
 			start: function( event, ui ){
-				console.log('grabbed the slider');
+				if(typeof _obj.callback.start==="function") _obj.callback.start.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			},
 			stop: function( event, ui ){
-				console.log('let go of slider');
+				if(typeof _obj.callback.stop==="function") _obj.callback.stop.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			}
 		});
 
@@ -93,11 +91,13 @@
 
 		this.id = (inp.ps && typeof inp.ps==="string") ? inp.ps : "powerspectrum";
 		this.el = $('#'+this.id);
+		this.dir = (inp.dir && typeof inp.dir==="string") ? inp.dir : "db/";
+		this.omega = { b: "", c:"", l:"" }
 
 		var fs = parseInt(getStyle(this.id, 'font-size'));
 		var ff = getStyle(this.id, 'font-family');
 		var co = getStyle(this.id, 'color');
-
+		
 		this.chart = {
 			'offset' : {
 				top: 1,
@@ -137,14 +137,15 @@
 			}
 		}
 
-console.log(this.el,$('#map').height())
-
 		// Update the plot
 		this.create();
-		this.draw();
+		// Load the initial data
+		this.loadData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
+		// Set to current Omegas
+		this.getData(inp.omega_b,inp.omega_c,inp.omega_l);
 		
 		// Hide it initially
-		this.el.addClass('hidden');
+		this.el.toggleClass('hidden');
 
 		// Bind window resize event for when people change the size of their browser
 		$(window).on("resize",{me:this},function(ev){
@@ -184,23 +185,21 @@ console.log(this.el,$('#map').height())
 		this.chart.offset.width = this.chart.width-this.chart.offset.right-this.chart.offset.left;
 		this.chart.offset.height = this.chart.height-this.chart.offset.bottom-this.chart.offset.top;
 
-		// Remove any existing chart
-		if(this.chart.holder) this.chart.holder.remove();
+		// Create the Raphael object to hold the vector graphics
+		if(this.chart.holder) this.chart.holder.setSize(this.chart.width, this.chart.height)
+		else this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 
-
-		// Clear the existing furniture
-		if(this.chart.axes) this.chart.axes.remove();
-		if(this.chart.yLabel) this.chart.yLabel.remove();
-		if(this.chart.xLabel) this.chart.xLabel.remove();
-
-		this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 
 		// Draw the axes
-		this.chart.axes = this.chart.holder.rect(this.chart.offset.left,this.chart.offset.top,this.chart.offset.width,this.chart.offset.height).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
+		if(this.chart.axes) this.chart.axes.attr({x:this.chart.offset.left+0.5,y:this.chart.offset.top-0.5,width:this.chart.offset.width,height:this.chart.offset.height});
+		else this.chart.axes = this.chart.holder.rect(this.chart.offset.left,this.chart.offset.top,this.chart.offset.width,this.chart.offset.height).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		this.chart.yLabel = this.chart.holder.text(this.chart.offset.left/2, this.chart.offset.top+(this.chart.offset.height/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
-		this.chart.xLabel = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top + this.chart.offset.height + this.chart.offset.bottom/2, "Spherical Harmonic l").attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: this.chart.offset.left/2, y:this.chart.offset.top+(this.chart.offset.height/2)})
+		else this.chart.yLabel = this.chart.holder.text(this.chart.offset.left/2, this.chart.offset.top+(this.chart.offset.height/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
+		
+		if(this.chart.xLabel) this.chart.xLabel.attr({x: this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top + this.chart.offset.height + this.chart.offset.bottom/2})
+		else this.chart.xLabel = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top + this.chart.offset.height + this.chart.offset.bottom/2, "Spherical Harmonic l").attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}
 	
@@ -210,30 +209,37 @@ console.log(this.el,$('#map').height())
 		// Check we have somewhere to draw
 		if(!this.chart.holder) return this;
 
-		// If any of the chart elements exist, remove them
-		if(this.chart.label) this.chart.label.remove();
-		if(this.chart.ps) this.chart.ps.remove();
 		
-		
-		
-		this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
+		// Create a temporary label
+		if(this.chart.label) this.chart.label.attr({x:this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top+(this.chart.offset.height/2)});
+		else this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
 
 		// Build the power spectrum curve
-		var y,x,t,bgpp;
-		var data = [[7,35,44,52,57,60,62.5,64.5,67,68,69.5,70,71.5],[1,1.5,2.5,5.6,2.4,3.7,2.6,3.5,1.5,1.8,1,1.2,0.4]];
-		var Xrange = Math.max.apply(Math, data[0])*1.1;
-		var Xscale = (this.chart.offset.width) / Xrange;
-		var Yrange = Math.max.apply(Math, data[1])*1.1;
-		var Yscale = (this.chart.offset.height) / Yrange;
-		this.chart.ps = this.chart.holder.path().attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round"})
-		for (var i = 0; i < data[0].length; i++) {
-			y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * data[1][i]);
-			x = Math.round(this.chart.offset.left + Xscale * data[0][i]);
-			if(!i) p = ["M", x, y, "R"];
-			else p = p.concat([x, y]);
-//			var dot = this.chart.holder.circle(x, y, 4).attr({fill: "#333", stroke: 'red', "stroke-width": 2});
+		if(this.data){		
+
+			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
+			
+			var y,x,t,n,bgpp,data,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			data = this.data;
+			Ymin = Math.min.apply(Math, data[1]);
+			Ymax = Math.max.apply(Math, data[1]);
+			Xrange = (Math.max.apply(Math, data[0]))*1.1;
+			Xscale = (this.chart.offset.width) / Xrange;
+			Yrange = (Ymax-Ymin)*1.1;
+			Yscale = (this.chart.offset.height) / Yrange;
+
+			for (var i = 0; i < data[0].length; i++) {
+				y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i]));
+				x = Math.round(this.chart.offset.left + Xscale * data[0][i]);
+				if(!i) p = ["M", x, y, "R"];
+				else p = p.concat([x, y]);
+				if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
+				else this.chart.dots[i].animate({cx: x, cy: y},100);
+			}
+			if(this.chart.line) this.chart.line.animate({path: p},100);
+			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round"})
+			
 		}
-		this.chart.ps.attr({path: p});
 
 		return this;
 	}
@@ -245,6 +251,99 @@ console.log(this.el,$('#map').height())
 		this.resize();
 	}
 
+	PowerSpectrum.prototype.loadData = function(id,b,c,l){
+
+		var file = "";
+
+		// If nothing has changed, do nothing
+		//if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
+
+		if(id=="omega_b") file = this.dir+"varOb_Oc"+c.toFixed(2)+"_Ol"+l.toFixed(2)+"_lin.json"
+		else if(id=="omega_c") file = this.dir+"varOb"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_log.json"		
+		else if(id=="omega_l") file = this.dir+"varOb"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_log.json"		
+
+		if(!file) return;
+
+		console.log('Getting '+file)
+
+		var _obj = this;
+
+		// Reset data
+		this.json = "";
+
+		// Bug fix for reading local JSON file in FF3
+		$.ajaxSetup({async:false,'beforeSend': function(xhr){ if (xhr.overrideMimeType) xhr.overrideMimeType("text/plain"); } });
+
+		$.ajax({
+			dataType: "json", 
+			url: file,
+			context: _obj,
+			success: function(data){
+				this.json = data;
+				this.data = "";
+			},
+			error: function(e){
+				this.error("We couldn't load the properties of this Universe for some reason. That sucks. :-(");
+			},
+			timeout: 4000
+		});
+	
+	}
+	
+	PowerSpectrum.prototype.getData = function(b,c,l){
+
+		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
+
+		if(this.json){
+			if(this.json.extrema && this.json.extrema.length > 1){
+				var i, j, data;
+				
+				for(i = 0 ; i < this.json.extrema.length ; i++){
+					if(this.json.extrema[i][0]==b) break;
+				}
+				
+				if(i >= this.json.extrema.length) this.error("Oh dear. There is something wrong with this Universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
+				else {
+					data = new Array(this.json.extrema[i].length);
+					for(j = 0 ; j < this.json.extrema[i].length ; j++){
+						data[j] = this.json.extrema[i][j]+0
+					}
+				}
+
+				if(!data) return;
+				
+				// Remove the first value from the array as it is the Omega value
+				data.shift();
+				
+				// Restructure data
+				n = data.length/2;
+				x = new Array(n);
+				y = new Array(n);
+				for(var i = 0; i < n ; i++){
+					x[i] = Math.log(data[i*2]*(data[i*2]+1));
+					y[i] = data[i*2 + 1];
+				}
+				data = [x,y];
+				this.data = data;
+	
+				//console.log('getData',b,c,l,this.omega.b,this.omega.c,this.omega.l)
+
+				// Re-draw the data
+				this.draw();
+			}
+		}else{
+			this.error("Something went wrong with the Universe. &Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l)
+		}
+		this.omega = { b:b, c:c, l:l };
+	}
+
+	// An error function
+	PowerSpectrum.prototype.error = function(txt){
+		$('#error').finish();
+		$('#error').html(txt).show().delay(4000).fadeOut();
+		return;
+	}
+	
 
 	function Simulator(inp){
 
@@ -252,30 +351,53 @@ console.log(this.el,$('#map').height())
 		$('.scriptonly').removeClass('scriptonly');
 
 		if(!inp) inp = {};
+
+		// Define some callback functions
+		var change = function(e){
+			this.ps.getData(this.omega_b.value,this.omega_c.value,this.omega_l.value);
+		},
+		start = function(e){
+			console.log('grabbed',e,this,this.omega_b.value);
+			this.ps.loadData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
+		},
+		stop = function(e){
+			//console.log('let go',e);
+		}
+		
+		var _obj = this;
 		
 		// Set up the three Omega sliders
 		this.omega_b = new ParameterSlider({
 			select: $("#"+((inp.omega_b && typeof inp.omega_b==="string") ? inp.omega_b : "omega_b")),
-			change: function(e){
-				console.log(e)
-			}
+			context: _obj,
+			change: change,
+			start: start,
+			stop: stop
 		});
 	
 		this.omega_c = new ParameterSlider({
 			select: $("#"+((inp.omega_c && typeof inp.omega_c==="string") ? inp.omega_c : "omega_c")),
-			change: function(e){
-				console.log(e)
-			}
+			context: _obj,
+			change: change,
+			start: start,
+			stop: stop
 		});
 	
 		this.omega_l = new ParameterSlider({
 			select: $("#"+((inp.omega_l && typeof inp.omega_l==="string") ? inp.omega_l : "omega_l")),
-			change: function(e){
-				console.log(e)			
-			}
+			context: _obj,
+			change: change,
+			start: start,
+			stop: stop
 		});
 
+		// Replace our "inp" Omegas with the values from the sliders
+		inp.omega_b = this.omega_b.value;
+		inp.omega_c = this.omega_c.value;
+		inp.omega_l = this.omega_l.value;
+
 		this.ps = new PowerSpectrum(inp);
+		
 
 		// Bind keyboard events
 		$(document).bind('keypress',{sim:this},function(e){

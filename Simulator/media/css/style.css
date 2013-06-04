@@ -34,6 +34,7 @@ a:hover { color: #F16F25; text-decoration: underline; }
 a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
+#error { position: absolute; top: 0px; left: 0px; right: 0px; padding: 0.5em; background-color: #E13F29; color: white; display: none; }
 #help { font-size: 1.4em; margin-top: 0.2em; }
 #help a {
 	display: inline-block;
@@ -55,7 +56,6 @@ a:active { color: #4D4E53; }
 	background-color: #AAAAAA;
 }
 #help .abouton a:hover { background-color: #049CDB; transition: background-color 1s; }
-
 #about {
 	display: block; 
 	background-color: #111111; 

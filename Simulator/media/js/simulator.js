@@ -120,7 +120,7 @@
 				'xaxis': {
 					'invert': true,
 					'min': 1,
-					'max': 2000,
+					'max': 3000,
 					'label': {
 						'color': co,
 						'font' : "Times"
@@ -142,7 +142,7 @@
 		// Load the initial data
 		this.loadData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		// Set to current Omegas
-		this.getData(inp.omega_b,inp.omega_c,inp.omega_l);
+		this.getData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		
 		// Hide it initially
 		this.el.toggleClass('hidden');
@@ -220,15 +220,13 @@
 		if(!this.chart.holder) return this;
 
 		// Create a temporary label
-		if(this.chart.label) this.chart.label.attr({x:this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top+(this.chart.offset.height/2)});
-		else this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
+		//if(this.chart.label) this.chart.label.attr({x:this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top+(this.chart.offset.height/2)});
+		//else this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
 
 		// Build the power spectrum curve
 		if(this.data){		
 
-			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
-			
-			var y,x,t,n,bgpp,data,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			var y,x,x1,x2,t,n,bgpp,data,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			data = this.data;
 			Xmin = this.scaleX(this.chart.opts.xaxis.min);
 			Xmax = this.scaleX(this.chart.opts.xaxis.max);
@@ -238,16 +236,26 @@
 			Ymax = Math.max.apply(Math, data[1]);
 			Yrange = (this.chart.opts.yaxis.max-this.chart.opts.yaxis.min);
 			Yscale = (this.chart.offset.height) / Yrange;
-			for (var i = 0; i < data[0].length; i++) {
-				y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i] - this.chart.opts.yaxis.min));
-				x = Math.round(this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) );
+
+			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
+			
+			for (var i = 0, j = 0; i < data[0].length; i++) {
+				y = (this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i] - this.chart.opts.yaxis.min)).toFixed(2);
+				x = (this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
 				if(!i) p = ["M", x, y, "R"];
-				else p = p.concat([x, y]);
-				if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
-				else this.chart.dots[i].animate({cx: x, cy: y},100);
+				else{
+					if(i > 0 && i < data[0].length-1 && data[0][i] > 100 && ((data[1][i-1] > data[1][i] && data[1][i+1] > data[1][i]) || (data[1][i-1] < data[1][i] && data[1][i+1] < data[1][i]))){
+						x1 = this.chart.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
+						p = p.concat(["S",x1.toFixed(2),y,x,y]);
+					}else{
+						p = p.concat([x, y]);
+					}
+				}
+				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
+				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
 			var clip = (this.chart.offset.left+0.5)+','+(this.chart.offset.top-0.5)+','+this.chart.offset.width+','+this.chart.offset.height
-			if(this.chart.line) this.chart.line.animate({path: p},100).attr({'clip-rect':clip});
+			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
 			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
 			
 		}
@@ -269,13 +277,13 @@
 		// If nothing has changed, do nothing
 		//if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
-		if(id=="omega_b") file = this.dir+"varOb_Oc"+c.toFixed(2)+"_Ol"+l.toFixed(2)+"_lin.json"
-		else if(id=="omega_c") file = this.dir+"varOb"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_log.json"		
-		else if(id=="omega_l") file = this.dir+"varOb"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_log.json"		
+		if(id=="omega_b") file = this.dir+"Ob_Oc"+c.toFixed(2)+"_Ol"+l.toFixed(2)+"_lin.json"
+		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_lin.json"		
+		else if(id=="omega_l") file = this.dir+"Ob"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_lin.json"		
 
 		if(!file) return;
 
-		console.log('Getting '+file)
+		console.log('Getting '+file+' for '+id)
 
 		var _obj = this;
 
@@ -295,22 +303,27 @@
 			},
 			error: function(e){
 				this.error("We couldn't load the properties of this Universe for some reason. That sucks. :-(");
+				console.log(file)
 			},
 			timeout: 4000
 		});
 	
 	}
 	
-	PowerSpectrum.prototype.getData = function(b,c,l){
+	PowerSpectrum.prototype.getData = function(id,b,c,l){
+
+console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
 
 		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
 		if(this.json){
 			if(this.json.extrema && this.json.extrema.length > 1){
-				var i, j, data;
+				var i, j, data, val;
 				
+				val = (id=="omega_b" ? b : (id=="omega_c" ? c : l));
+
 				for(i = 0 ; i < this.json.extrema.length ; i++){
-					if(this.json.extrema[i][0]==b) break;
+					if(this.json.extrema[i][0]==val) break;
 				}
 				
 				if(i >= this.json.extrema.length) this.error("Oh dear. There is something wrong with this Universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
@@ -343,7 +356,7 @@
 				this.draw();
 			}
 		}else{
-			this.error("Something went wrong with the Universe. &Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l)
+			this.error("Something went wrong with the Universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")")
 		}
 		this.omega = { b:b, c:c, l:l };
 	}
@@ -365,7 +378,7 @@
 
 		// Define some callback functions
 		var change = function(e){
-			this.ps.getData(this.omega_b.value,this.omega_c.value,this.omega_l.value);
+			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
 		},
 		start = function(e){
 			console.log('grabbed',e,this,this.omega_b.value);

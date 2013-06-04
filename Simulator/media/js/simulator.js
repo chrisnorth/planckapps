@@ -119,16 +119,16 @@
 				},
 				'xaxis': {
 					'invert': true,
-					'min': 3, // 3
-					'max': 5.85, // 6.4
+					'min': 1,
+					'max': 2000,
 					'label': {
 						'color': co,
 						'font' : "Times"
 					}
 				},
 				'yaxis': {
-					'min': -6.4, //-11
-					'max': 6.5, //8
+					'min': 0,
+					'max': 6500,
 					'label': {
 						'color': co,
 						'font' : "Times"
@@ -189,18 +189,28 @@
 		if(this.chart.holder) this.chart.holder.setSize(this.chart.width, this.chart.height)
 		else this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 
-
+		var l = this.chart.offset.left,
+		t = this.chart.offset.top,
+		w = this.chart.offset.width,
+		h = this.chart.offset.height,
+		b = this.chart.offset.bottom;
+		
 		// Draw the axes
-		if(this.chart.axes) this.chart.axes.attr({x:this.chart.offset.left+0.5,y:this.chart.offset.top-0.5,width:this.chart.offset.width,height:this.chart.offset.height});
-		else this.chart.axes = this.chart.holder.rect(this.chart.offset.left,this.chart.offset.top,this.chart.offset.width,this.chart.offset.height).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
+		if(this.chart.axes) this.chart.axes.attr({x:l+0.5,y:t-0.5,width:w,height:h});
+		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: this.chart.offset.left/2, y:this.chart.offset.top+(this.chart.offset.height/2)})
-		else this.chart.yLabel = this.chart.holder.text(this.chart.offset.left/2, this.chart.offset.top+(this.chart.offset.height/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: l/2, y:t+(h/2)})
+		else this.chart.yLabel = this.chart.holder.text(l/2, t+(h/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
 		
-		if(this.chart.xLabel) this.chart.xLabel.attr({x: this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top + this.chart.offset.height + this.chart.offset.bottom/2})
-		else this.chart.xLabel = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top + this.chart.offset.height + this.chart.offset.bottom/2, "Spherical Harmonic l").attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
+		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b/2})
+		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b/2, "Spherical Harmonic l").attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
 	
+	}
+	
+	PowerSpectrum.prototype.scaleX = function(l){
+		if(l > 0) return Math.log(l*(l+1));
+		else return 0;
 	}
 	
 	// Anything that needs regular updating on the power spectrum
@@ -209,7 +219,6 @@
 		// Check we have somewhere to draw
 		if(!this.chart.holder) return this;
 
-		
 		// Create a temporary label
 		if(this.chart.label) this.chart.label.attr({x:this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top+(this.chart.offset.height/2)});
 		else this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
@@ -219,25 +228,27 @@
 
 			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 			
-			var y,x,t,n,bgpp,data,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			var y,x,t,n,bgpp,data,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			data = this.data;
+			Xmin = this.scaleX(this.chart.opts.xaxis.min);
+			Xmax = this.scaleX(this.chart.opts.xaxis.max);
+			Xrange = (Xmax - Xmin);
+			Xscale = (this.chart.offset.width) / Xrange;
 			Ymin = Math.min.apply(Math, data[1]);
 			Ymax = Math.max.apply(Math, data[1]);
-			Xrange = (Math.max.apply(Math, data[0]))*1.1;
-			Xscale = (this.chart.offset.width) / Xrange;
-			Yrange = (Ymax-Ymin)*1.1;
+			Yrange = (this.chart.opts.yaxis.max-this.chart.opts.yaxis.min);
 			Yscale = (this.chart.offset.height) / Yrange;
-
 			for (var i = 0; i < data[0].length; i++) {
-				y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i]));
-				x = Math.round(this.chart.offset.left + Xscale * data[0][i]);
+				y = Math.round(this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i] - this.chart.opts.yaxis.min));
+				x = Math.round(this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) );
 				if(!i) p = ["M", x, y, "R"];
 				else p = p.concat([x, y]);
 				if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
-			if(this.chart.line) this.chart.line.animate({path: p},100);
-			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round"})
+			var clip = (this.chart.offset.left+0.5)+','+(this.chart.offset.top-0.5)+','+this.chart.offset.width+','+this.chart.offset.height
+			if(this.chart.line) this.chart.line.animate({path: p},100).attr({'clip-rect':clip});
+			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
 			
 		}
 
@@ -320,7 +331,7 @@
 				x = new Array(n);
 				y = new Array(n);
 				for(var i = 0; i < n ; i++){
-					x[i] = Math.log(data[i*2]*(data[i*2]+1));
+					x[i] = data[i*2];
 					y[i] = data[i*2 + 1];
 				}
 				data = [x,y];

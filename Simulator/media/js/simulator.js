@@ -222,15 +222,15 @@
 		else return 0;
 	}
 	
+	PowerSpectrum.prototype.scaleY = function(l,cl){
+		return cl;
+	}
+	
 	// Anything that needs regular updating on the power spectrum
 	PowerSpectrum.prototype.draw = function(){
 
 		// Check we have somewhere to draw
 		if(!this.chart.holder) return this;
-
-		// Create a temporary label
-		//if(this.chart.label) this.chart.label.attr({x:this.chart.offset.left + this.chart.offset.width/2, y:this.chart.offset.top+(this.chart.offset.height/2)});
-		//else this.chart.label = this.chart.holder.text(this.chart.offset.left + this.chart.offset.width/2, this.chart.offset.top+(this.chart.offset.height/2), "Test").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px' });
 
 		// Build the power spectrum curve
 		if(this.data){		
@@ -241,15 +241,15 @@
 			Xmax = this.scaleX(this.chart.opts.xaxis.max);
 			Xrange = (Xmax - Xmin);
 			Xscale = (this.chart.offset.width) / Xrange;
-			Ymin = Math.min.apply(Math, data[1]);
-			Ymax = Math.max.apply(Math, data[1]);
-			Yrange = (this.chart.opts.yaxis.max-this.chart.opts.yaxis.min);
+			Ymin = this.scaleY(this.chart.opts.xaxis.min,this.chart.opts.yaxis.min);
+			Ymax = this.scaleY(this.chart.opts.xaxis.max,this.chart.opts.yaxis.max);
+			Yrange = (Ymax-Ymin);
 			Yscale = (this.chart.offset.height) / Yrange;
 
 			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 			
 			for (var i = 0, j = 0; i < data[0].length; i++) {
-				y = (this.chart.offset.top + this.chart.offset.height - Yscale * (data[1][i] - this.chart.opts.yaxis.min)).toFixed(2);
+				y = (this.chart.offset.top + this.chart.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
 				x = (this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
 				if(!i) p = ["M", x, y, "R"];
 				else{
@@ -435,7 +435,10 @@
 			var code = e.keyCode || e.charCode || e.which || 0;
 			var c = String.fromCharCode(code).toLowerCase();
 			if(c=='a') sim.ps.toggle();
-			if(c=='i') window.location.href = switchHash();
+			else if(c=='b') sim.omega_b.slider.find('.ui-slider-handle').focus();
+			else if(c=='c') sim.omega_c.slider.find('.ui-slider-handle').focus();
+			else if(c=='l') sim.omega_l.slider.find('.ui-slider-handle').focus();
+			else if(c=='i') window.location.href = switchHash();
 		});
 		
 		// Bind window resize event for when people change the size of their browser

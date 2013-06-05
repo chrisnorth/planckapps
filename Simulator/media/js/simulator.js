@@ -280,7 +280,6 @@
 
 		var file = "";		
 
-
 		// If nothing has changed, do nothing
 		//if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
@@ -358,8 +357,8 @@
 				}
 				data = [x,y];
 				this.data = data;
-	
-				//console.log('getData',b,c,l,this.omega.b,this.omega.c,this.omega.l)
+
+				//console.log(i,val,data)
 
 				// Re-draw the data
 				this.draw();

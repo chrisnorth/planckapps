@@ -121,6 +121,7 @@ a:active { color: #4D4E53; }
 #omega_l_holder .ui-widget-header { background-color: #46a546; }
 .ui-slider .ui-slider-range.ui-slider-range-min { border: 1px solid #777; margin-top: -1px; }
 
+.padded { margin: 32px 0px;}
 
 /* Classes to hide things */
 .hidden { display: none; }
@@ -151,6 +152,7 @@ a:active { color: #4D4E53; }
 		margin: 0px -32px 32px -32px;
 		padding: 32px 32px;
 	}
+	.padded { margin: 16px 0px; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {
@@ -160,4 +162,5 @@ a:active { color: #4D4E53; }
 		margin: 0px -16px 16px -16px;
 		padding: 16px;
 	}
+	.padded { margin: 8px 0px; }
 }

@@ -466,10 +466,10 @@
 				else $('#firstpeak').html('This universe is broken.');
 			}
 			if($('#age')){
-				var Ho = (67.11 * 3.2404407e-20);	// Convert Planck's best fit Ho from km/s/Mpc to s^-1
+				var Ho = (67.15 * 3.2404407e-20);	// Convert Planck's Ho from km/s/Mpc to s^-1
 				var to = (this.omega_b.value + this.omega_c.value + this.omega_l.value)/Ho;
 				to /= (86400*365.25*1e9);	// seconds in a billion years
-				$('#age').html('This universe is '+to.toFixed(1)+' billion years old');
+				$('#age').html('This universe is about '+to.toFixed(1)+' billion years old');
 			}
 		}
 

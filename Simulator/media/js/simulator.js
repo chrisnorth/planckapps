@@ -77,6 +77,9 @@
 			$('#'+_obj.select.attr('id')+"_slider").on('mouseenter',function(e){
 				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
 			});
+			$('#'+_obj.select.attr('id')+"_slider a.ui-slider-handle").on('focus',function(e){
+				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
+			});
 		}
 
 		this.select.change(function() {

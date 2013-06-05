@@ -375,7 +375,8 @@
 	// An error function
 	PowerSpectrum.prototype.error = function(txt){
 		$('#error').finish();
-		$('#error').html(txt).show().delay(4000).fadeOut();
+		$('#error').html('<div class="close">&times;</div>'+txt).show().delay(4000).fadeOut();
+		$('#error .close').on('click',function(e){ $(this).parent().finish(); });
 		return;
 	}
 	

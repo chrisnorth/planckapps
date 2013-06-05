@@ -34,7 +34,8 @@ a:hover { color: #F16F25; text-decoration: underline; }
 a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
-#error { position: absolute; top: 0px; left: 0px; right: 0px; padding: 0.5em; background-color: #E13F29; color: white; display: none; }
+#error { position: absolute; top: 0px; left: 0px; right: 0px; padding: 0.5em 1em; background-color: #E13F29; color: white; display: none; }
+#error .close { float: right; font-weight: bold; color: white; cursor: pointer; }
 #help { font-size: 1.4em; margin-top: 0.2em; }
 #help a {
 	display: inline-block;

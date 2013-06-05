@@ -158,7 +158,7 @@
 			},
 			'xaxis': {
 				'invert': true,
-				'min': 1,
+				'min': 1.5,
 				'max': 3000,
 				'label': {
 					'color': co,
@@ -511,7 +511,7 @@
 				// Display the first peak along with the roughly equivalent angular size
 				var ang = 180/e.firstpeak;
 				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;).');
-				else $('#firstpeak').html('This universe is broken.');
+				else $('#firstpeak').html('This universe has no fluctuations in its CMB'+(this.omega_b.value == 0 ? ' because there was no matter to interact with the photons.' : '.'));
 			}
 			if($('#age')){
 				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);

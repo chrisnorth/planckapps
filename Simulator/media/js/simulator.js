@@ -561,6 +561,7 @@
 
 
 	// Inspired by Ned Wright's Cosmology Calculator
+	// http://www.astro.ucla.edu/~wright/CosmoCalc.html
 	function Cosmos(b,c,l){
 		this.n = 1000;	// number of points in integrals
 		this.nda = 1;	// number of digits in angular size distance
@@ -582,14 +583,6 @@
 		this.DCMR = 0.0;	// comoving radial distance in units of c/H0
 		this.DCMR_Mpc = 0.0;
 		this.DCMR_Gyr = 0.0;
-		this.DA = 0.0;	// angular size distance
-		this.DA_Mpc = 0.0;
-		this.DA_Gyr = 0.0;
-		this.kpc_DA = 0.0;
-		this.DL = 0.0;	// luminosity distance
-		this.DL_Mpc = 0.0;
-		this.DL_Gyr = 0.0;	// DL in units of billions of light years
-		this.V_Gpc = 0.0;
 		this.a = 1.0;	// 1/(1+z), the scale factor of the Universe
 		this.az = 0.5;	// 1/(1+z(object));
 		

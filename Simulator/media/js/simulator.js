@@ -207,17 +207,21 @@
 		w = this.chart.offset.width,
 		h = this.chart.offset.height,
 		b = this.chart.offset.bottom;
+
+		// Get the ell character
+		var ell = $("<div>").html('&#8467;').text();
 		
 		// Draw the axes
 		if(this.chart.axes) this.chart.axes.attr({x:l+0.5,y:t-0.5,width:w,height:h});
 		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: l/2, y:t+(h/2)})
-		else this.chart.yLabel = this.chart.holder.text(l/2, t+(h/2), "Anisotropy Cl").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
-		
-		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b/2})
-		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b/2, "Spherical Harmonic l").attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: l/2, y:t+(h/2)});
+		else this.chart.yLabel = this.chart.holder.text(l/2, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
+
+
+		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b/2});
+		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b/2, "Spherical Harmonic "+ell).attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}
 	
@@ -417,7 +421,6 @@
 
 		// Define some callback functions
 		var change = function(e){
-			console.log('change',e.id);
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
 		},
 		mouseenter = function(e){
@@ -455,10 +458,10 @@
 
 		// Define a callback for the PowerSpectrum
 		inp.updated = function(e){
-			console.log(e);
 			if($('#firstpeak')){
 				// Display the first peak along with the roughly equivalent angular size
-				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(180/e.firstpeak).toFixed(1)+'&deg;).');
+				var ang = 180/e.firstpeak;
+				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;).');
 				else $('#firstpeak').html('This universe is broken.');
 			}
 		}

@@ -214,6 +214,10 @@
 		else{
 			this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 			$('#'+this.id).on('dblclick', {me:this}, function(e){ e.data.me.toggleFullScreen(); });
+			$('#'+this.id).on('click', {me:this}, function(e){ e.data.me.draw(); });
+			$('#'+this.id).on('fullscreeneventchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
+			$(document).on('mozfullscreenchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
+		
 		}
 
 		var l = this.opts.offset.left,
@@ -230,7 +234,7 @@
 		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.75,t+(h/2));
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
 		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
 
 		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
@@ -250,17 +254,30 @@
 	// Will toggle as a full screen element if the browser supports it.
 	PowerSpectrum.prototype.toggleFullScreen = function(){
 		if(fullScreenApi.supportsFullScreen) {
-			var el = document.getElementById(this.id);//this.el.find('svg');
+			var el = document.getElementById(this.id);
+			if(fullScreenApi.isFullScreen()) fullScreenApi.cancelFullScreen(el);
+			else fullScreenApi.requestFullScreen(el);
+		}
+	}
+
+	PowerSpectrum.prototype.updateFullScreen = function(){
+
 			if(fullScreenApi.isFullScreen()){
-				this.el.removeClass('fullscreen');
-				this.fullscreen = false;
-				fullScreenApi.cancelFullScreen(el);
-			}else{
 				this.fullscreen = true;
 				this.el.addClass('fullscreen');
-				fullScreenApi.requestFullScreen(el);
+			}else{
+				this.fullscreen = false;
+				this.el.removeClass('fullscreen');
 			}
-		}
+			
+			// Re-define the options
+			this.setOptions();
+
+			// Create the new chart
+			this.create();
+
+			// Draw the data
+			this.draw();
 	}
 
 	// Anything that needs regular updating on the power spectrum
@@ -519,7 +536,7 @@
 			else if(c=='i') window.location.href = switchHash();
 			else if(c=='f') sim.ps.toggleFullScreen();
 		});
-		
+	
 		// Bind window resize event for when people change the size of their browser
 		$(window).bind("resize",{me:this},function(ev){
 			ev.data.me.resize();
@@ -565,7 +582,7 @@
 	function Cosmos(b,c,l){
 		this.n = 1000;	// number of points in integrals
 		this.nda = 1;	// number of digits in angular size distance
-		this.H0 = 67.15;	// Hubble constant
+		this.H0 = 67.15;	// Hubble constant from Planck
 		this.WM = b+c;	// Omega(matter)
 		this.WV = l;	// Omega(vacuum) or lambda
 		this.WR = 0;	// Omega(radiation)

@@ -118,7 +118,7 @@
 		// Load the initial data
 		this.loadData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		// Set to current Omegas
-		this.getData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
+		//this.getData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		
 		// Hide it initially
 		this.el.toggleClass('hidden');
@@ -251,35 +251,6 @@
 		return cl;
 	}
 	
-	// Will toggle as a full screen element if the browser supports it.
-	PowerSpectrum.prototype.toggleFullScreen = function(){
-		if(fullScreenApi.supportsFullScreen) {
-			var el = document.getElementById(this.id);
-			if(fullScreenApi.isFullScreen()) fullScreenApi.cancelFullScreen(el);
-			else fullScreenApi.requestFullScreen(el);
-		}
-	}
-
-	PowerSpectrum.prototype.updateFullScreen = function(){
-
-			if(fullScreenApi.isFullScreen()){
-				this.fullscreen = true;
-				this.el.addClass('fullscreen');
-			}else{
-				this.fullscreen = false;
-				this.el.removeClass('fullscreen');
-			}
-			
-			// Re-define the options
-			this.setOptions();
-
-			// Create the new chart
-			this.create();
-
-			// Draw the data
-			this.draw();
-	}
-
 	// Anything that needs regular updating on the power spectrum
 	PowerSpectrum.prototype.draw = function(){
 
@@ -347,12 +318,38 @@
 		this.resize();
 	}
 
+	// Will toggle as a full screen element if the browser supports it.
+	PowerSpectrum.prototype.toggleFullScreen = function(){
+		if(fullScreenApi.supportsFullScreen) {
+			var el = document.getElementById(this.id);
+			if(fullScreenApi.isFullScreen()) fullScreenApi.cancelFullScreen(el);
+			else fullScreenApi.requestFullScreen(el);
+		}
+	}
+
+	PowerSpectrum.prototype.updateFullScreen = function(){
+
+			if(fullScreenApi.isFullScreen()){
+				this.fullscreen = true;
+				this.el.addClass('fullscreen');
+			}else{
+				this.fullscreen = false;
+				this.el.removeClass('fullscreen');
+			}
+			
+			// Re-define the options
+			this.setOptions();
+
+			// Create the new chart
+			this.create();
+
+			// Draw the data
+			this.draw();
+	}
+
 	PowerSpectrum.prototype.loadData = function(id,b,c,l){
 
 		var file = "";		
-
-		// If nothing has changed, do nothing
-		//if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
 		if(id=="omega_b") file = this.dir+"Ob_Oc"+c.toFixed(2)+"_Ol"+l.toFixed(2)+"_lin.json"
 		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_lin.json"		
@@ -376,7 +373,7 @@
 			context: _obj,
 			success: function(data){
 				this.json = data;
-				this.data = "";
+				this.getData(id,b,c,l);
 			},
 			error: function(e){
 				this.error("We couldn't load the properties of this universe for some reason. That sucks. :-(");
@@ -391,14 +388,16 @@
 	
 	PowerSpectrum.prototype.getData = function(id,b,c,l){
 
-		//console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l)
-
+		// If the values haven't changed we don't need to recalculate the data
 		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
+
+		//console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l,this.json)
 
 		// Reset the l value for the first peak
 		this.firstpeak = 0;
 		
 		if(this.json){
+
 			if(this.json.extrema && this.json.extrema.length > 1){
 				var i, j, data, val;
 				

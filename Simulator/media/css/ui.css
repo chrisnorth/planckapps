@@ -243,7 +243,7 @@
 	border: 1px solid #999999;
 	background: #e6e6e6;
 }
-.ui-widget-content .ui-state-hover {
+.ui-widget-content .ui-state-hover, .ui-widget-content .ui-state-focus {
 	border: 1px solid #aaaaaa;
 	background: #f6f6f6;
 }

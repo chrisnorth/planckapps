@@ -87,10 +87,9 @@ a:active { color: #4D4E53; }
 	height: 300px;
 	line-height: 0px;
 }
+#powerspectrum.fullscreen { background-color: white; font-size: 1.5em; }
 
-#parameters, #powerspectrum {
-	padding-right: 32px;
-}
+#parameters, #powerspectrum { padding-right: 32px; }
 
 #map {
 	color: white;

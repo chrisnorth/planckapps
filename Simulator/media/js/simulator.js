@@ -101,55 +101,18 @@
 		this.id = (inp.ps && typeof inp.ps==="string") ? inp.ps : "powerspectrum";
 		this.el = $('#'+this.id);
 		this.dir = (inp.dir && typeof inp.dir==="string") ? inp.dir : "db/";
-		this.omega = { b: "", c:"", l:"" }
-
-		var fs = parseInt(getStyle(this.id, 'font-size'));
-		var ff = getStyle(this.id, 'font-family');
-		var co = getStyle(this.id, 'color');
+		this.omega = { b: "", c:"", l:"" };
+		this.fullscreen = false;
 
 		// Store the callbacks and a context which will be used for the "this"
 		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
 		if(typeof inp.updated==="function") this.callback.updated = inp.updated;
 
-		this.chart = {
-			'offset' : {
-				top: 1,
-				left : fs*1.5,
-				right : 1,
-				bottom : fs*1.5
-			},
-			'font': fs+'px',
-			'opts': {
-				'grid': {
-					'color': "rgb(0,0,0)",
-					'opacity': 0.25,
-					'width': "0.5",
-					'sub': {
-						'color': "rgb(0,0,0)",
-						'opacity': 0.08,
-						'width': "0.5"
-					}
-				},
-				'xaxis': {
-					'invert': true,
-					'min': 1,
-					'max': 3000,
-					'label': {
-						'color': co,
-						'font' : "Times"
-					}
-				},
-				'yaxis': {
-					'min': 0,
-					'max': 6500,
-					'label': {
-						'color': co,
-						'font' : "Times"
-					}
-				}
-			}
-		}
-
+		this.chart = {};
+		
+		// Define the options
+		this.setOptions();
+		
 		// Update the plot
 		this.create();
 		// Load the initial data
@@ -167,6 +130,51 @@
 
 		return this;
 	}
+
+	PowerSpectrum.prototype.setOptions = function(){
+
+		// Get some properties from the CSS
+		var fs = parseInt(getStyle(this.id, 'font-size'));
+		var ff = getStyle(this.id, 'font-family');
+		var co = getStyle(this.id, 'color');
+
+		this.opts = {
+			'font': fs+'px',
+			'offset' : {
+				top: (this.fullscreen ? fs : 1),
+				left : fs*1.5,
+				right : (this.fullscreen ? fs : 1),
+				bottom : fs*1.5
+			},			
+			'grid': {
+				'color': "rgb(0,0,0)",
+				'opacity': 0.25,
+				'width': "0.5",
+				'sub': {
+					'color': "rgb(0,0,0)",
+					'opacity': 0.08,
+					'width': "0.5"
+				}
+			},
+			'xaxis': {
+				'invert': true,
+				'min': 1,
+				'max': 3000,
+				'label': {
+					'color': co,
+					'font' : "Times"
+				}
+			},
+			'yaxis': {
+				'min': 0,
+				'max': 6500,
+				'label': {
+					'color': co,
+					'font' : "Times"
+				}
+			}
+		}
+	}
 	
 	// Resize the power spectrum Raphael paper
 	PowerSpectrum.prototype.resize = function(){
@@ -176,6 +184,9 @@
 
 		// Check if the HTML element has changed size due to responsive CSS
 		if(this.el.innerWidth() != this.chart.width || this.el.innerHeight() != this.chart.height){
+
+			// Re-define the options
+			this.setOptions();
 
 			// Create the new chart
 			this.create();
@@ -195,18 +206,21 @@
 		this.chart.width = this.el.innerWidth();
 		this.chart.height = this.el.innerHeight();
 
-		this.chart.offset.width = this.chart.width-this.chart.offset.right-this.chart.offset.left;
-		this.chart.offset.height = this.chart.height-this.chart.offset.bottom-this.chart.offset.top;
+		this.opts.offset.width = this.chart.width-this.opts.offset.right-this.opts.offset.left;
+		this.opts.offset.height = this.chart.height-this.opts.offset.bottom-this.opts.offset.top;
 
 		// Create the Raphael object to hold the vector graphics
 		if(this.chart.holder) this.chart.holder.setSize(this.chart.width, this.chart.height)
-		else this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
+		else{
+			this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
+			$('#'+this.id).on('dblclick', {me:this}, function(e){ e.data.me.toggleFullScreen(); });
+		}
 
-		var l = this.chart.offset.left,
-		t = this.chart.offset.top,
-		w = this.chart.offset.width,
-		h = this.chart.offset.height,
-		b = this.chart.offset.bottom;
+		var l = this.opts.offset.left,
+		t = this.opts.offset.top,
+		w = this.opts.offset.width,
+		h = this.opts.offset.height,
+		b = this.opts.offset.bottom;
 
 		// Get the ell character
 		var ell = $("<div>").html('&#8467;').text();
@@ -216,12 +230,11 @@
 		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: l/2, y:t+(h/2)});
-		else this.chart.yLabel = this.chart.holder.text(l/2, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.chart.opts.yaxis.label.color ? this.chart.opts.yaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font}).rotate(270,l*0.75,t+(h/2));
+		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
 
-
-		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b/2});
-		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b/2, "Spherical Harmonic "+ell).attr({fill: (this.chart.opts.xaxis.label.color ? this.chart.opts.xaxis.label.color : "black"),'font-size': this.chart.font+'px','font-family': this.chart.opts.xaxis.font, 'font-style': 'italic' });
+		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.75,'font-size':this.opts.font});
+		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}
 	
@@ -234,6 +247,22 @@
 		return cl;
 	}
 	
+	// Will toggle as a full screen element if the browser supports it.
+	PowerSpectrum.prototype.toggleFullScreen = function(){
+		if(fullScreenApi.supportsFullScreen) {
+			var el = document.getElementById(this.id);//this.el.find('svg');
+			if(fullScreenApi.isFullScreen()){
+				this.el.removeClass('fullscreen');
+				this.fullscreen = false;
+				fullScreenApi.cancelFullScreen(el);
+			}else{
+				this.fullscreen = true;
+				this.el.addClass('fullscreen');
+				fullScreenApi.requestFullScreen(el);
+			}
+		}
+	}
+
 	// Anything that needs regular updating on the power spectrum
 	PowerSpectrum.prototype.draw = function(){
 
@@ -245,20 +274,20 @@
 
 			var y,x,x1,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			data = this.data;
-			Xmin = this.scaleX(this.chart.opts.xaxis.min);
-			Xmax = this.scaleX(this.chart.opts.xaxis.max);
+			Xmin = this.scaleX(this.opts.xaxis.min);
+			Xmax = this.scaleX(this.opts.xaxis.max);
 			Xrange = (Xmax - Xmin);
-			Xscale = (this.chart.offset.width) / Xrange;
-			Ymin = this.scaleY(this.chart.opts.xaxis.min,this.chart.opts.yaxis.min);
-			Ymax = this.scaleY(this.chart.opts.xaxis.max,this.chart.opts.yaxis.max);
+			Xscale = (this.opts.offset.width) / Xrange;
+			Ymin = this.scaleY(this.opts.xaxis.min,this.opts.yaxis.min);
+			Ymax = this.scaleY(this.opts.xaxis.max,this.opts.yaxis.max);
 			Yrange = (Ymax-Ymin);
-			Yscale = (this.chart.offset.height) / Yrange;
+			Yscale = (this.opts.offset.height) / Yrange;
 
-			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
+			//if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 			
 			for (var i = 0, j = 0; i < data[0].length; i++) {
-				y = (this.chart.offset.top + this.chart.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
-				x = (this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
+				y = (this.opts.offset.top + this.opts.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
+				x = (this.opts.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
 				if(i==0) p = ["M", x, y, "R"];
 				else{
 					// If we are not at the first or last points we 
@@ -275,7 +304,7 @@
 							// Keep a record of where the first peak is just in case we want it
 							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
 							// Work out the control point. See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-							x1 = this.chart.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
+							x1 = this.opts.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
 							p = p.concat(["S",x1.toFixed(2),y]);
 						}
 					}
@@ -285,7 +314,7 @@
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
-			var clip = (this.chart.offset.left+0.5)+','+(this.chart.offset.top-0.5)+','+this.chart.offset.width+','+this.chart.offset.height
+			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height
 			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
 			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
 			
@@ -475,7 +504,6 @@
 
 		this.ps = new PowerSpectrum(inp);
 		
-
 		// Bind keyboard events
 		$(document).bind('keypress',{sim:this},function(e){
 			if(!e) e=window.event;
@@ -487,6 +515,7 @@
 			else if(c=='c') sim.omega_c.slider.find('.ui-slider-handle').focus();
 			else if(c=='l') sim.omega_l.slider.find('.ui-slider-handle').focus();
 			else if(c=='i') window.location.href = switchHash();
+			else if(c=='f') sim.ps.toggleFullScreen();
 		});
 		
 		// Bind window resize event for when people change the size of their browser
@@ -543,6 +572,64 @@
 		if (style && style.length === 0) style = null;
 		return style;
 	}
+
+
+	// Full Screen API - http://johndyer.name/native-fullscreen-javascript-api-plus-jquery-plugin/
+	var fullScreenApi = {
+		supportsFullScreen: false,
+		isFullScreen: function() { return false; },
+		requestFullScreen: function() {},
+		cancelFullScreen: function() {},
+		fullScreenEventName: '',
+		prefix: ''
+	},
+	browserPrefixes = 'webkit moz o ms khtml'.split(' ');
+	// check for native support
+	if (typeof document.cancelFullScreen != 'undefined') {
+		fullScreenApi.supportsFullScreen = true;
+	} else {
+		// check for fullscreen support by vendor prefix
+		for (var i = 0, il = browserPrefixes.length; i < il; i++ ) {
+			fullScreenApi.prefix = browserPrefixes[i];
+			if (typeof document[fullScreenApi.prefix + 'CancelFullScreen' ] != 'undefined' ) {
+				fullScreenApi.supportsFullScreen = true;
+				break;
+			}
+		}
+	}
+	// update methods to do something useful
+	if (fullScreenApi.supportsFullScreen) {
+		fullScreenApi.fullScreenEventName = fullScreenApi.prefix + 'fullscreenchange';
+		fullScreenApi.isFullScreen = function() {
+			switch (this.prefix) {
+				case '':
+					return document.fullScreen;
+				case 'webkit':
+					return document.webkitIsFullScreen;
+				default:
+					return document[this.prefix + 'FullScreen'];
+			}
+		}
+		fullScreenApi.requestFullScreen = function(el) {
+			return (this.prefix === '') ? el.requestFullScreen() : el[this.prefix + 'RequestFullScreen']();
+		}
+		fullScreenApi.cancelFullScreen = function(el) {
+			return (this.prefix === '') ? document.cancelFullScreen() : document[this.prefix + 'CancelFullScreen']();
+		}
+	}
+	// jQuery plugin
+	if (typeof jQuery != 'undefined') {
+		jQuery.fn.requestFullScreen = function() {
+			return this.each(function() {
+				if (fullScreenApi.supportsFullScreen) {
+					fullScreenApi.requestFullScreen(this);
+				}
+			});
+		};
+	}
+	// export api
+	window.fullScreenApi = fullScreenApi;
+	// End of Full Screen API
 	
 	// END HELPER FUNCTIONS
 

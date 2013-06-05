@@ -106,7 +106,11 @@
 		var fs = parseInt(getStyle(this.id, 'font-size'));
 		var ff = getStyle(this.id, 'font-family');
 		var co = getStyle(this.id, 'color');
-		
+
+		// Store the callbacks and a context which will be used for the "this"
+		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
+		if(typeof inp.updated==="function") this.callback.updated = inp.updated;
+
 		this.chart = {
 			'offset' : {
 				top: 1,
@@ -235,7 +239,7 @@
 		// Build the power spectrum curve
 		if(this.data){		
 
-			var y,x,x1,x2,t,n,bgpp,data,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			var y,x,x1,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			data = this.data;
 			Xmin = this.scaleX(this.chart.opts.xaxis.min);
 			Xmax = this.scaleX(this.chart.opts.xaxis.max);
@@ -251,14 +255,28 @@
 			for (var i = 0, j = 0; i < data[0].length; i++) {
 				y = (this.chart.offset.top + this.chart.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
 				x = (this.chart.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
-				if(!i) p = ["M", x, y, "R"];
+				if(i==0) p = ["M", x, y, "R"];
 				else{
-					if(i > 0 && i < data[0].length-1 && data[0][i] > 100 && ((data[1][i-1] > data[1][i] && data[1][i+1] > data[1][i]) || (data[1][i-1] < data[1][i] && data[1][i+1] < data[1][i]))){
-						x1 = this.chart.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
-						p = p.concat(["S",x1.toFixed(2),y,x,y]);
-					}else{
-						p = p.concat([x, y]);
+					// If we are not at the first or last points we 
+					// can check if this is a trough or peak
+					if(i > 0 && i < data[0].length-1){
+
+						trough = (data[1][i-1] > data[1][i] && data[1][i+1] > data[1][i]);
+						peak = (data[1][i-1] < data[1][i] && data[1][i+1] < data[1][i]);
+
+						// If we are sufficiently far along we draw cubic Bézier
+						// curves through the peak/troughs.
+						if(data[0][i] > 100 && (trough || peak)){
+
+							// Keep a record of where the first peak is just in case we want it
+							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
+							// Work out the control point. See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
+							x1 = this.chart.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
+							p = p.concat(["S",x1.toFixed(2),y]);
+						}
 					}
+					// Add the current point
+					p = p.concat([x, y]);					
 				}
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				//else this.chart.dots[i].animate({cx: x, cy: y},100);
@@ -268,7 +286,7 @@
 			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
 			
 		}
-
+		
 		return this;
 	}
 
@@ -311,7 +329,7 @@
 				this.data = "";
 			},
 			error: function(e){
-				this.error("We couldn't load the properties of this Universe for some reason. That sucks. :-(");
+				this.error("We couldn't load the properties of this universe for some reason. That sucks. :-(");
 				console.log(file)
 			},
 			timeout: 4000
@@ -327,6 +345,9 @@
 
 		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
 
+		// Reset the l value for the first peak
+		this.firstpeak = 0;
+		
 		if(this.json){
 			if(this.json.extrema && this.json.extrema.length > 1){
 				var i, j, data, val;
@@ -337,7 +358,7 @@
 					if(this.json.extrema[i][0]==val) break;
 				}
 				
-				if(i >= this.json.extrema.length) this.error("Oh dear. There is something wrong with this Universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
+				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the properties for this universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
 				else {
 					data = new Array(this.json.extrema[i].length);
 					for(j = 0 ; j < this.json.extrema[i].length ; j++){
@@ -345,30 +366,36 @@
 					}
 				}
 
-				if(!data) return;
+				if(data){
 				
-				// Remove the first value from the array as it is the Omega value
-				data.shift();
-				
-				// Restructure data
-				n = data.length/2;
-				x = new Array(n);
-				y = new Array(n);
-				for(var i = 0; i < n ; i++){
-					x[i] = data[i*2];
-					y[i] = data[i*2 + 1];
-				}
-				data = [x,y];
-				this.data = data;
+					// Remove the first value from the array as it is the Omega value
+					data.shift();
+					
+					// Restructure data
+					n = data.length/2;
+					x = new Array(n);
+					y = new Array(n);
+					for(var i = 0; i < n ; i++){
+						x[i] = data[i*2];
+						y[i] = data[i*2 + 1];
+					}
+					data = [x,y];
+					this.data = data;
 
-				//console.log(i,val,data)
+				}else{
+					this.data = [[1,2500],[1,1]];
+				}
 
 				// Re-draw the data
 				this.draw();
 			}
 		}else{
-			this.error("Something went wrong with the Universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")")
+			this.error("Something went wrong with the universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
 		}
+
+		// Fire the callback
+		if(typeof this.callback.updated==="function") this.callback.updated.call(this.callback.context,{firstpeak: this.firstpeak});
+
 		this.omega = { b:b, c:c, l:l };
 	}
 
@@ -390,6 +417,7 @@
 
 		// Define some callback functions
 		var change = function(e){
+			console.log('change',e.id);
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
 		},
 		mouseenter = function(e){
@@ -424,6 +452,16 @@
 		inp.omega_b = this.omega_b.value;
 		inp.omega_c = this.omega_c.value;
 		inp.omega_l = this.omega_l.value;
+
+		// Define a callback for the PowerSpectrum
+		inp.updated = function(e){
+			console.log(e);
+			if($('#firstpeak')){
+				// Display the first peak along with the roughly equivalent angular size
+				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(180/e.firstpeak).toFixed(1)+'&deg;).');
+				else $('#firstpeak').html('This universe is broken.');
+			}
+		}
 
 		this.ps = new PowerSpectrum(inp);
 		

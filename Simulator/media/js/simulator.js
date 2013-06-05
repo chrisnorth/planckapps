@@ -142,9 +142,9 @@
 			'font': fs+'px',
 			'offset' : {
 				top: (this.fullscreen ? fs : 1),
-				left : fs*1.5,
+				left : (this.fullscreen ? fs*2 : fs*1.5),
 				right : (this.fullscreen ? fs : 1),
-				bottom : fs*1.5
+				bottom : (this.fullscreen ? fs*2 : fs*1.5)
 			},			
 			'grid': {
 				'color': "rgb(0,0,0)",
@@ -230,10 +230,10 @@
 		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font}).rotate(270,l*0.75,t+(h/2));
+		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.75,t+(h/2));
 		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
 
-		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.75,'font-size':this.opts.font});
+		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
 		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}

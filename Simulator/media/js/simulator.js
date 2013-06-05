@@ -485,6 +485,9 @@
 		inp.omega_c = this.omega_c.value;
 		inp.omega_l = this.omega_l.value;
 
+		// Make an instance of a cosmology
+		this.cosmos = new Cosmos(inp.omega_b,inp.omega_c,inp.omega_l);
+
 		// Define a callback for the PowerSpectrum
 		inp.context = this;
 		inp.updated = function(e){
@@ -495,13 +498,12 @@
 				else $('#firstpeak').html('This universe is broken.');
 			}
 			if($('#age')){
-				var Ho = (67.15 * 3.2404407e-20);	// Convert Planck's Ho from km/s/Mpc to s^-1
-				var to = (this.omega_b.value + this.omega_c.value + this.omega_l.value)/Ho;
-				to /= (86400*365.25*1e9);	// seconds in a billion years
-				$('#age').html('This universe is about '+to.toFixed(1)+' billion years old');
+				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
+				$('#age').html('This universe is '+this.cosmos.age_Gyr.toFixed(1)+' billion years old');
 			}
 		}
 
+		// Make an instance of a power spectrum
 		this.ps = new PowerSpectrum(inp);
 		
 		// Bind keyboard events
@@ -523,7 +525,6 @@
 			ev.data.me.resize();
 		});
 		
-
 		// Hide the About section
 		$('#about').hide();
 		// Function to return the correct page anchor
@@ -558,6 +559,102 @@
 		this.ps.resize();
 	}
 
+
+	// Inspired by Ned Wright's Cosmology Calculator
+	function Cosmos(b,c,l){
+		this.n = 1000;	// number of points in integrals
+		this.nda = 1;	// number of digits in angular size distance
+		this.H0 = 67.15;	// Hubble constant
+		this.WM = b+c;	// Omega(matter)
+		this.WV = l;	// Omega(vacuum) or lambda
+		this.WR = 0;	// Omega(radiation)
+		this.WK = 0;	// Omega curvaturve = 1-Omega(total)
+		this.z = 3.0;	// redshift of the object
+		this.h = this.H0/100;	// H0/100
+		this.c = 299792.458; // velocity of light in km/sec
+		this.Tyr = 977.8; // coefficent for converting 1/H into Gyr
+		this.DTT = 0.5;	// time from z to now in units of 1/H0
+		this.DTT_Gyr = 0.0;	// value of DTT in Gyr
+		this.age = 0.5;	// age of Universe in units of 1/H0
+		this.age_Gyr = 0.0;	// value of age in Gyr
+		this.zage = 0.1;	// age of Universe at redshift z in units of 1/H0
+		this.zage_Gyr = 0.0;	// value of zage in Gyr
+		this.DCMR = 0.0;	// comoving radial distance in units of c/H0
+		this.DCMR_Mpc = 0.0;
+		this.DCMR_Gyr = 0.0;
+		this.DA = 0.0;	// angular size distance
+		this.DA_Mpc = 0.0;
+		this.DA_Gyr = 0.0;
+		this.kpc_DA = 0.0;
+		this.DL = 0.0;	// luminosity distance
+		this.DL_Mpc = 0.0;
+		this.DL_Gyr = 0.0;	// DL in units of billions of light years
+		this.V_Gpc = 0.0;
+		this.a = 1.0;	// 1/(1+z), the scale factor of the Universe
+		this.az = 0.5;	// 1/(1+z(object));
+		
+		this.compute(b,c,l);
+
+		return this;
+	}
+
+	// Compute the universe given the Omega_baryons, Omega_cdm and Omega_lambda
+	Cosmos.prototype.compute = function(b,c,l){
+
+		this.WM = b+c;
+		this.WV = l;
+		this.WK = 1-this.WM-this.WR-this.WV;
+
+		this.h = this.H0/100;
+		this.WR = 4.165E-5/(this.h*this.h);	// includes 3 massless neutrino species, T0 = 2.72528
+		this.WK = 1-this.WM-this.WR-this.WV;
+		this.az = 1.0/(1+1.0*this.z);
+		this.age = 0;
+		for (i = 0; i != this.n; i++) {
+			this.a = this.az*(i+0.5)/this.n;
+			this.adot = Math.sqrt(this.WK+(this.WM/this.a)+(this.WR/(this.a*this.a))+(this.WV*this.a*this.a));
+			this.age = this.age + 1/this.adot;
+		};
+		this.zage = this.az*this.age/this.n;
+	
+		// correction for annihilations of particles not present now like e+/e-
+		// added 13-Aug-03 based on T_vs_t.f
+		var lpz = Math.log((1+1.0*this.z))/Math.log(10.0);
+		var dzage = 0;
+		if (lpz >  7.500) dzage = 0.002 * (lpz -  7.500);
+		if (lpz >  8.000) dzage = 0.014 * (lpz -  8.000) +  0.001;
+		if (lpz >  8.500) dzage = 0.040 * (lpz -  8.500) +  0.008;
+		if (lpz >  9.000) dzage = 0.020 * (lpz -  9.000) +  0.028;
+		if (lpz >  9.500) dzage = 0.019 * (lpz -  9.500) +  0.039;
+		if (lpz > 10.000) dzage = 0.048;
+		if (lpz > 10.775) dzage = 0.035 * (lpz - 10.775) +  0.048;
+		if (lpz > 11.851) dzage = 0.069 * (lpz - 11.851) +  0.086;
+		if (lpz > 12.258) dzage = 0.461 * (lpz - 12.258) +  0.114;
+		if (lpz > 12.382) dzage = 0.024 * (lpz - 12.382) +  0.171;
+		if (lpz > 13.055) dzage = 0.013 * (lpz - 13.055) +  0.188;
+		if (lpz > 14.081) dzage = 0.013 * (lpz - 14.081) +  0.201;
+		if (lpz > 15.107) dzage = 0.214;
+		this.zage = this.zage*Math.pow(10.0,dzage);
+		this.zage_Gyr = (this.Tyr/this.H0)*this.zage;
+		this.DTT = 0.0;
+		this.DCMR = 0.0;
+		// do integral over a=1/(1+z) from az to 1 in n steps, midpoint rule
+		for (i = 0; i != this.n; i++) {
+			this.a = this.az+(1-this.az)*(i+0.5)/this.n;
+			this.adot = Math.sqrt(this.WK+(this.WM/this.a)+(this.WR/(this.a*this.a))+(this.WV*this.a*this.a));
+			this.DTT = this.DTT + 1/this.adot;
+			this.DCMR = this.DCMR + 1/(this.a*this.adot);
+		};
+		this.DTT = (1-this.az)*this.DTT/this.n;
+		this.DCMR = (1-this.az)*this.DCMR/this.n;
+		this.age = this.DTT+this.zage;
+		this.age_Gyr = this.age*(this.Tyr/this.H0);
+		this.DTT_Gyr = (this.Tyr/this.H0)*this.DTT;
+		this.DCMR_Gyr = (this.Tyr/this.H0)*this.DCMR;
+		this.DCMR_Mpc = (this.c/this.H0)*this.DCMR;
+	}
+	
+	
 
 
 	// HELPER FUNCTIONS

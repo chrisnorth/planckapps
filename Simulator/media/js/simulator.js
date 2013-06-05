@@ -457,12 +457,19 @@
 		inp.omega_l = this.omega_l.value;
 
 		// Define a callback for the PowerSpectrum
+		inp.context = this;
 		inp.updated = function(e){
 			if($('#firstpeak')){
 				// Display the first peak along with the roughly equivalent angular size
 				var ang = 180/e.firstpeak;
 				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;).');
 				else $('#firstpeak').html('This universe is broken.');
+			}
+			if($('#age')){
+				var Ho = (67.11 * 3.2404407e-20);	// Convert Planck's best fit Ho from km/s/Mpc to s^-1
+				var to = (this.omega_b.value + this.omega_c.value + this.omega_l.value)/Ho;
+				to /= (86400*365.25*1e9);	// seconds in a billion years
+				$('#age').html('This universe is '+to.toFixed(1)+' billion years old');
 			}
 		}
 

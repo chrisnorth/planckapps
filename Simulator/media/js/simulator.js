@@ -49,11 +49,11 @@
 	// Set up the jQuery UI slider and add some properties/callbacks to our variable.
 	ParameterSlider.prototype.init = function(){
 	
-		var select = this.select;
-		
+		// We need a copy of 'this' for use in the following functions
 		var _obj = this;
 
-		this.slider = $( "<div id='"+_obj.select.attr('id')+"_slider'><\/div>" ).insertAfter( select ).slider({
+		// Set up the jQuery UI Slider
+		this.slider = $( "<div id='"+_obj.select.attr('id')+"_slider'><\/div>" ).insertAfter( this.select ).slider({
 			animate: "fast",
 			min: 1,
 			max: this.opts.length,
@@ -73,6 +73,7 @@
 				if(typeof _obj.callback.stop==="function") _obj.callback.stop.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			}
 		});
+		// Attach the mouse event
 		if(typeof _obj.callback.mouseenter==="function"){
 			$('#'+_obj.select.attr('id')+"_slider").on('mouseenter',function(e){
 				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
@@ -81,10 +82,9 @@
 				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
 			});
 		}
-
+		// If the select drop down is updated we need to update the slider
+		// This shouldn't happen as it shouldn't be visible... but just in case.
 		this.select.change(function() {
-			// If the select drop down is updated we need to update the slider
-			// This shouldn't happen as it shouldn't be visible... but just in case.
 			_obj.slider.slider( "value", this.selectedIndex + 1 );
 		});
 
@@ -96,6 +96,13 @@
 	ParameterSlider.prototype.change = function(){}
 
 
+	// A class to create and display a power spectrum
+	// inp = {
+	//	ps: 'powerspectrum' // ID of the HTML element for the plot
+	//	dir: 'db/'	// Where all the data files are
+	//	context: blah	// The context that will be used for the "this"
+	//	updated: function(){}	// A function that will be called when the power spectrum is updated
+	//}
 	function PowerSpectrum(inp){
 
 		this.id = (inp.ps && typeof inp.ps==="string") ? inp.ps : "powerspectrum";
@@ -115,10 +122,9 @@
 		
 		// Update the plot
 		this.create();
+
 		// Load the initial data
 		this.loadData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
-		// Set to current Omegas
-		//this.getData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		
 		// Hide it initially
 		this.el.toggleClass('hidden');
@@ -131,6 +137,7 @@
 		return this;
 	}
 
+	// A function to set various properties of the plot
 	PowerSpectrum.prototype.setOptions = function(){
 
 		// Get some properties from the CSS
@@ -138,6 +145,7 @@
 		var ff = getStyle(this.id, 'font-family');
 		var co = getStyle(this.id, 'color');
 
+		// Define our options
 		this.opts = {
 			'font': fs+'px',
 			'offset' : {
@@ -203,9 +211,11 @@
 	// Set up the power spectrum. Draws the axes.
 	PowerSpectrum.prototype.create = function(){
 
+		// Set the overall width and height
 		this.chart.width = this.el.innerWidth();
 		this.chart.height = this.el.innerHeight();
 
+		// Work out the chart area width and height
 		this.opts.offset.width = this.chart.width-this.opts.offset.right-this.opts.offset.left;
 		this.opts.offset.height = this.chart.height-this.opts.offset.bottom-this.opts.offset.top;
 
@@ -220,6 +230,7 @@
 		
 		}
 
+		// Short handles for the chart properties
 		var l = this.opts.offset.left,
 		t = this.opts.offset.top,
 		w = this.opts.offset.width,
@@ -236,17 +247,18 @@
 		// Draw the axes labels
 		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
 		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
-
 		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
 		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}
 	
+	// A scaling for the x-axis value
 	PowerSpectrum.prototype.scaleX = function(l){
 		if(l > 0) return Math.log(l*(l+1));
 		else return 0;
 	}
 	
+	// A scaling for the y-axis value
 	PowerSpectrum.prototype.scaleY = function(l,cl){
 		return cl;
 	}
@@ -276,6 +288,8 @@
 			for (var i = 0, j = 0; i < data[0].length; i++) {
 				y = (this.opts.offset.top + this.opts.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
 				x = (this.opts.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
+				// First point of the curve. Move to the point then use Catmull-Rom 
+				// curveto (Raphael) to join the initial points
 				if(i==0) p = ["M", x, y, "R"];
 				else{
 					// If we are not at the first or last points we 
@@ -293,6 +307,7 @@
 							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
 							// Work out the control point. See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
 							x1 = this.opts.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
+							// Draw a cubic Bézier curve
 							p = p.concat(["S",x1.toFixed(2),y]);
 						}
 					}
@@ -302,6 +317,7 @@
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
+			// Now we make sure we don't display any parts of the curve that are outside the plot area
 			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height
 			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
 			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
@@ -347,6 +363,7 @@
 			this.draw();
 	}
 
+	// Request the data file for the current Omega values (b,c,l) using the current Omega that has focus
 	PowerSpectrum.prototype.loadData = function(id,b,c,l){
 
 		var file = "";		
@@ -367,12 +384,15 @@
 		// Bug fix for reading local JSON file in FF3
 		$.ajaxSetup({async:false,'beforeSend': function(xhr){ if (xhr.overrideMimeType) xhr.overrideMimeType("text/plain"); } });
 
+		// Do the AJAX request for the data file
 		$.ajax({
 			dataType: "json", 
 			url: file,
 			context: _obj,
 			success: function(data){
+				// Keep a copy of the result
 				this.json = data;
+				// Process the result
 				this.getData(id,b,c,l);
 			},
 			error: function(e){
@@ -382,10 +402,13 @@
 			timeout: 4000
 		});
 
+		// We'll keep a note of the file we loaded so that we don't
+		// pointlessly make multiple requests for the same one
 		this.lastload = file;
 	
 	}
 	
+	// Get the data for the current Omega values (b,c,l) using the current Omega that has focus
 	PowerSpectrum.prototype.getData = function(id,b,c,l){
 
 		// If the values haven't changed we don't need to recalculate the data
@@ -396,13 +419,16 @@
 		// Reset the l value for the first peak
 		this.firstpeak = 0;
 		
+		// Have we got a result from the AJAX call?
 		if(this.json){
 
+			// Check we have a well formated response
 			if(this.json.extrema && this.json.extrema.length > 1){
 				var i, j, data, val;
 				
 				val = (id=="omega_b" ? b : (id=="omega_c" ? c : l));
 
+				// Find the row of data that is indexed by the correct Omega value
 				for(i = 0 ; i < this.json.extrema.length ; i++){
 					if(this.json.extrema[i][0]==val) break;
 				}
@@ -415,6 +441,7 @@
 					}
 				}
 
+				// If we found a result we need to repackage the data
 				if(data){
 				
 					// Remove the first value from the array as it is the Omega value
@@ -432,12 +459,14 @@
 					this.data = data;
 
 				}else{
+					// No data so draw a horizontal line
 					this.data = [[1,2500],[1,1]];
 				}
 
 				// Re-draw the data
 				this.draw();
 			}
+
 		}else{
 			this.error("Something went wrong with the universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
 		}
@@ -445,6 +474,7 @@
 		// Fire the callback
 		if(typeof this.callback.updated==="function") this.callback.updated.call(this.callback.context,{firstpeak: this.firstpeak});
 
+		// Store the current Omega values
 		this.omega = { b:b, c:c, l:l };
 	}
 
@@ -456,7 +486,7 @@
 		return;
 	}
 	
-
+	// The main function
 	function Simulator(inp){
 
 		// We obviously have Javascript enabled to be here so we will remove the hiding class

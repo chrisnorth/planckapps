@@ -80,7 +80,7 @@ a:active { color: #4D4E53; }
 	vertical-align: middle;
 }
 
-#parameters, #powerspectrum, #map {	display: table-cell; }
+#parameters, #powerspectrum, #map, #fft { display: table-cell; }
 
 #powerspectrum{
 	width: 400px;
@@ -91,7 +91,7 @@ a:active { color: #4D4E53; }
 
 #parameters, #powerspectrum { padding-right: 32px; }
 
-#map {
+#map, #fft {
 	color: white;
 	background: #45484d; /* Old browsers */
 	background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
@@ -105,7 +105,7 @@ a:active { color: #4D4E53; }
 	height: 300px;
 	line-height: 0px;
 }
-#map canvas, #map img {
+#map canvas, #map img, #fft canvas {
 	width: 300px;
 	height: 300px;
 }

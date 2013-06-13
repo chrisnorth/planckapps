@@ -674,7 +674,8 @@
 		this.minang = this.maxang/this.w;
 		this.dl = 180/this.maxang;
 		
-		this.fft = { re: [], im: [] };
+		this.re = [];
+		this.im = [];
 		this.src = "";
 
 		// Load the initial sky image
@@ -702,14 +703,14 @@
 		FrequencyFilter.init(this.w, this.dl);
 		SpectrumViewer.init(this.spectrum.ctx);
 
-		this.draw();
-
 		// Bind events to the canvas
+		/*
 		this.canvas.bind("resize",{me:this},function(ev){
-			ev.data.me.draw();
+			//ev.data.me.apply();
 		}).canvas.bind("mousedown",{me:this},function(ev){
-			ev.data.me.draw();
+			//ev.data.me.apply();
 		});
+		*/
 
 	}
 	
@@ -718,31 +719,13 @@
 		this.loaded = true;
 		if(this.logging) console.log('Loaded '+this.img.src);
 		this.setupFFT();
-		this.draw();
 		this.apply();
 		return this;
 	}
 
-	// Update the view of the sky
-	Sky.prototype.draw = function(){
-
-		// Has our image been loaded?
-		if(!this.loaded) return this;
-		
-		// Attach an event to deal with resizing the <canvas>
-		if(this.logging) var d = new Date();
-
-		// Draw image
-		//this.canvas.ctx.drawImage(this.img,0,0);
-
-		if(this.logging) console.log("Total for Sky.prototype.draw(): " + (new Date() - d) + "ms");
-
-		return this;
-	}
 
 	Sky.prototype.setupFFT = function(){
 
-		// Attach an event to deal with resizing the <canvas>
 		if(this.logging) var d = new Date();
 
 		// Draw the original image to the spectrum viewer
@@ -752,18 +735,20 @@
 		this.src = this.spectrum.ctx.getImageData(0, 0, this.w, this.h);
 		this.data = this.src.data;
 
-		var i = 0;
+		var i = 0, y, x;
 
-		for(var y=0; y<this.h; y++) {
+		for(y=0; y<this.h; y++) {
 			i = y*this.w;
-			for(var x=0; x<this.w; x++) {
-				this.fft.re[i + x] = this.data[(i << 2) + (x << 2)];
-				this.fft.im[i + x] = 0.0;
+			for(x=0; x<this.w; x++) {
+				this.re[i + x] = this.data[(i << 2) + (x << 2)];
+				this.im[i + x] = 0.0;
 			}
 		}
 
 		// Take the Fourier Transform of the sky
-		FFT.fft2d(this.fft.re, this.fft.im);
+		FFT.fft2d(this.re, this.im);
+
+		this.colours = colourtable("planck");
 
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
@@ -773,17 +758,14 @@
 	Sky.prototype.apply = function(){
 
 		var d = new Date();
-		this.pid = d;	// Use the start time as the ID for this process
 
 		try {
 			
-			var val = 0;
-			var p = 0;
-			var x, y;
+			var val = 0, p = 0, x, y;
 
 			// Get the pre-processed FFT data
-			var re = this.fft.re.slice(0);	// We need a copy of the array, not a reference
-			var im = this.fft.im.slice(0);	// We need a copy of the array, not a reference
+			var re = this.re.slice(0);	// We need a copy of the array, not a reference
+			var im = this.im.slice(0);	// We need a copy of the array, not a reference
 
 			if(this.context.ps.data[0].length == 2){
 				console.log('fail');
@@ -792,31 +774,28 @@
 			}
 			// Filter the FFT
 			FrequencyFilter.swap(re, im);
-			if(this.logging) var d2 = new Date();
 			FrequencyFilter.filter(re, im, this.context.ps.data);
-			if(this.logging) console.log("Total for FrequencyFilter:" + (new Date() - d2) + "ms");
 
 			// Calculate the 2D FFT but don't bother showing it
-			if(this.logging) var d3 = new Date();
 			SpectrumViewer.render(re, im, false);
-			if(this.logging) console.log("Total for SpectrumViewer.render():" + (new Date() - d3) + "ms");
 
 			// FFT back into real space
-			if(this.logging) var d4 = new Date();
 			FrequencyFilter.swap(re, im);
 			FFT.ifft2d(re, im);
-			if(this.logging) console.log("Total for FFT():" + (new Date() - d4) + "ms");
 
 			// Loop over the data setting the value
 			// First work out a scaling function
 			var scale = 255/Math.max.apply(null,re);
-			for(y = 0; y < this.h; y++) {
-				i = y*this.w;
+			for(y = 0,i = 0; y < this.h; y++, i+=this.w) {
 				for(x = 0; x < this.w; x++) {
 					val = re[i + x]*scale;
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
-					this.data[p] = this.data[p + 1] = this.data[p + 2] = val;
+					// Set colour using pre-calculated colour table
+					val = parseInt(val);
+					this.data[p] = this.colours[val][0];
+					this.data[p+1] = this.colours[val][1];
+					this.data[p+2] = this.colours[val][2];
 				}
 			}
 			
@@ -864,31 +843,31 @@
 				},
 				// 2D-FFT
 				_fft2d = function(re, im) {
+					var x,x1,x2,y,y1,y2;
 					var tre = [],
 							tim = [],
 							i = 0;
 					// x-axis
-					for(var y=0; y<_n; y++) {
-						i = y*_n;
-						for(var x1=0; x1<_n; x1++) {
+					for(y=0,i=0; y<_n; y++,i+=_n) {
+						for(x1=0; x1<_n; x1++) {
 							tre[x1] = re[x1 + i];
 							tim[x1] = im[x1 + i];
 						}
 						_fft1d(tre, tim);
-						for(var x2=0; x2<_n; x2++) {
+						for(x2=0; x2<_n; x2++) {
 							re[x2 + i] = tre[x2];
 							im[x2 + i] = tim[x2];
 						}
 					}
 					// y-axis
-					for(var x=0; x<_n; x++) {
-						for(var y1=0; y1<_n; y1++) {
+					for(x=0,i=0; x<_n; x++) {
+						for(y1=0; y1<_n; y1++) {
 							i = x + y1*_n;
 							tre[y1] = re[i];
 							tim[y1] = im[i];
 						}
 						_fft1d(tre, tim);
-						for(var y2=0; y2<_n; y2++) {
+						for(y2=0; y2<_n; y2++) {
 							i = x + y2*_n;
 							re[i] = tre[y2];
 							im[i] = tim[y2];
@@ -933,6 +912,7 @@
 				_fft = function(re, im, inv) {
 					var d, h, ik, m, tmp, wr, wi, xr, xi,
 							n4 = _n >> 2;
+					var k, j, i;
 					// bit reversal
 					for(var l=0; l<_n; l++) {
 						m = _bitrev[l];
@@ -946,13 +926,13 @@
 						}
 					}
 					// butterfly operation
-					for(var k=1; k<_n; k<<=1) {
+					for(k=1; k<_n; k<<=1) {
 						h = 0;
 						d = _n/(k << 1);
-						for(var j=0; j<k; j++) {
+						for(j=0; j<k; j++) {
 							wr = _cstb[h + n4];
 							wi = inv*_cstb[h];
-							for(var i=j; i<_n; i+=(k<<1)) {
+							for(i=j; i<_n; i+=(k<<1)) {
 								ik = i + k;
 								xr = wr*re[ik] + wi*im[ik];
 								xi = wr*im[ik] - wi*re[ik];
@@ -1295,10 +1275,11 @@
 			$('#about').slideToggle();
 			return true;
 		}
-		var newdiv = $('<div id="menu"><div id="help"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle"><a href="#"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div></div>');
+		var newdiv = $('<div id="menu"><div id="help"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle"><a href="#powerspectrum"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div></div>');
 		$('h1').before(newdiv);
 		$('#help .abouton a, #help .aboutoff a').on('click',toggleAbout);
 		$('#advancedtoggle a').on('click',{me:this},function(e){
+			e.preventDefault();
 			e.data.me.ps.toggle();
 			return true;
 		});
@@ -1412,6 +1393,68 @@
 
 
 	// HELPER FUNCTIONS
+
+
+	// Create a colour table with 256 values
+	function colourtable(type){
+		var table = new Array(256);
+		for(var i = 0; i < table.length ; i++){
+			table[i] = colour(i,type);
+		}
+		return table;
+	}
+
+	// Given an input in the range 0-255 return the RGB
+	function colour(v,type){
+
+		// Colour scales defined by SAOImage
+		if(type=="blackbody" || type=="heat") return [((v<=127.5) ? v*2 : 255), ((v>63.75) ? ((v<191.25) ? (v-63.75)*2 : 255) : 0), ((v>127.5) ? (v-127.5)*2 : 0)];
+		else if(type=="A") return [((v<=63.75) ? 0 : ((v<=127.5) ? (v-63.75)*4 : 255)), ((v<=63.75) ? v*4 : ((v<=127.5) ? (127.5-v)*4 : ((v<191.25) ? 0: (v-191.25)*4))), ((v<31.875) ? 0 : ((v<127.5) ? (v-31.875)*8/3 : ((v < 191.25) ? (191.25-v)*4 : 0)))];
+		else if(type=="B") return [((v<=63.75) ? 0 : ((v<=127.5) ? (v-63.75)*4 : 255)), ((v<=127.5) ? 0 : ((v<=191.25) ? (v-127.5)*4 : 255)), ((v<63.75) ? v*4 : ((v<127.5) ? (127.5-v)*4 : ((v<191.25) ? 0 : (v-191.25)*4 ))) ];
+		else{
+			// The Planck colour scheme
+			var dv,dr,dg,db,rgb;
+			
+			if(v < 42){
+				dv = v/42;
+				rgb = [0,0,255];
+				dr = 0;
+				dg = 112;
+				db = 0;
+			}else if(v >= 42 && v < 85){
+				dv = (v - 42)/43;
+				rgb = [0,112,255];
+				dr = 0;
+				dg = 109;
+				db = 0;
+			}else if(v >= 85 && v < 127){
+				dv = (v - 85)/42;
+				rgb = [0,221,255];
+				dr = 255;
+				dg = 16;
+				db = -38;
+			}else if(v >= 127 && v < 170){
+				dv = (v - 127)/43;
+				rgb = [255,237,217];
+				dr = 0;
+				dg = -57;
+				db = -217;
+			}else if(v >= 170 && v < 212){
+				dv = (v-170)/42;
+				rgb = [255,180,0];
+				dr = 0;
+				dg = -105;
+				db = 0;
+			}else if(v >= 212){
+				dv = (v-212)/43;
+				rgb = [255,75,0];
+				dr = -155;
+				dg = -75;
+				db = 0;
+			}
+			return [rgb[0] + dv*dr, rgb[1] + dv*dg, rgb[2] + dv*db];
+		}
+	}
 	
 	// Define a shortcut for checking variable types
 	function is(a,b){ return (typeof a == b) ? true : false; }

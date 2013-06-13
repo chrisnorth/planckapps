@@ -49,11 +49,11 @@
 	// Set up the jQuery UI slider and add some properties/callbacks to our variable.
 	ParameterSlider.prototype.init = function(){
 	
-		var select = this.select;
-		
+		// We need a copy of 'this' for use in the following functions
 		var _obj = this;
 
-		this.slider = $( "<div id='"+_obj.select.attr('id')+"_slider'><\/div>" ).insertAfter( select ).slider({
+		// Set up the jQuery UI Slider
+		this.slider = $( "<div id='"+_obj.select.attr('id')+"_slider'><\/div>" ).insertAfter( this.select ).slider({
 			animate: "fast",
 			min: 1,
 			max: this.opts.length,
@@ -73,6 +73,7 @@
 				if(typeof _obj.callback.stop==="function") _obj.callback.stop.call(_obj.callback.context,{event:event, value: _obj.value, id: _obj.select.attr('id')});
 			}
 		});
+		// Attach the mouse event
 		if(typeof _obj.callback.mouseenter==="function"){
 			$('#'+_obj.select.attr('id')+"_slider").on('mouseenter',function(e){
 				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
@@ -81,10 +82,9 @@
 				_obj.callback.mouseenter.call(_obj.callback.context,{event: e, value: _obj.value, id: _obj.select.attr('id')});		
 			});
 		}
-
+		// If the select drop down is updated we need to update the slider
+		// This shouldn't happen as it shouldn't be visible... but just in case.
 		this.select.change(function() {
-			// If the select drop down is updated we need to update the slider
-			// This shouldn't happen as it shouldn't be visible... but just in case.
 			_obj.slider.slider( "value", this.selectedIndex + 1 );
 		});
 
@@ -96,11 +96,18 @@
 	ParameterSlider.prototype.change = function(){}
 
 
+	// A class to create and display a power spectrum
+	// inp = {
+	//	ps: 'powerspectrum' // ID of the HTML element for the plot
+	//	dir: 'db/'	// Where all the data files are
+	//	context: blah	// The context that will be used for the "this"
+	//	updated: function(){}	// A function that will be called when the power spectrum is updated
+	//}
 	function PowerSpectrum(inp){
 
-		this.id = (inp.ps && typeof inp.ps==="string") ? inp.ps : "powerspectrum";
+		this.id = (is(inp.ps,"string")) ? inp.ps : "powerspectrum";
 		this.el = $('#'+this.id);
-		this.dir = (inp.dir && typeof inp.dir==="string") ? inp.dir : "db/";
+		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
 		this.omega = { b: "", c:"", l:"" };
 		this.fullscreen = false;
 
@@ -115,10 +122,9 @@
 		
 		// Update the plot
 		this.create();
+
 		// Load the initial data
 		this.loadData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
-		// Set to current Omegas
-		//this.getData("omega_b",inp.omega_b,inp.omega_c,inp.omega_l);
 		
 		// Hide it initially
 		this.el.toggleClass('hidden');
@@ -131,6 +137,7 @@
 		return this;
 	}
 
+	// A function to set various properties of the plot
 	PowerSpectrum.prototype.setOptions = function(){
 
 		// Get some properties from the CSS
@@ -138,6 +145,7 @@
 		var ff = getStyle(this.id, 'font-family');
 		var co = getStyle(this.id, 'color');
 
+		// Define our options
 		this.opts = {
 			'font': fs+'px',
 			'offset' : {
@@ -203,9 +211,11 @@
 	// Set up the power spectrum. Draws the axes.
 	PowerSpectrum.prototype.create = function(){
 
+		// Set the overall width and height
 		this.chart.width = this.el.innerWidth();
 		this.chart.height = this.el.innerHeight();
 
+		// Work out the chart area width and height
 		this.opts.offset.width = this.chart.width-this.opts.offset.right-this.opts.offset.left;
 		this.opts.offset.height = this.chart.height-this.opts.offset.bottom-this.opts.offset.top;
 
@@ -220,6 +230,7 @@
 		
 		}
 
+		// Short handles for the chart properties
 		var l = this.opts.offset.left,
 		t = this.opts.offset.top,
 		w = this.opts.offset.width,
@@ -236,17 +247,18 @@
 		// Draw the axes labels
 		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
 		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.font, 'font-style': 'italic' }).rotate(270);
-
 		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
 		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.font, 'font-style': 'italic' });
 	
 	}
 	
+	// A scaling for the x-axis value
 	PowerSpectrum.prototype.scaleX = function(l){
 		if(l > 0) return Math.log(l*(l+1));
 		else return 0;
 	}
 	
+	// A scaling for the y-axis value
 	PowerSpectrum.prototype.scaleY = function(l,cl){
 		return cl;
 	}
@@ -260,7 +272,8 @@
 		// Build the power spectrum curve
 		if(this.data){		
 
-			var y,x,x1,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			var p,line1,line2,max,y,x,x1,tempx,tempy,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			max = 0;
 			data = this.data;
 			Xmin = this.scaleX(this.opts.xaxis.min);
 			Xmax = this.scaleX(this.opts.xaxis.max);
@@ -272,12 +285,21 @@
 			Yscale = (this.opts.offset.height) / Yrange;
 
 			//if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
-			
+
 			for (var i = 0, j = 0; i < data[0].length; i++) {
-				y = (this.opts.offset.top + this.opts.offset.height - Yscale * (this.scaleY(data[0][i],data[1][i]) - Ymin)).toFixed(2);
-				x = (this.opts.offset.left + Xscale * (this.scaleX(data[0][i]) - Xmin) ).toFixed(2);
-				if(i==0) p = ["M", x, y, "R"];
-				else{
+				tempy = this.scaleY(data[0][i],data[1][i]);
+				tempx = this.scaleX(data[0][i]);
+				y = (this.opts.offset.top + this.opts.offset.height - Yscale * (tempy - Ymin)).toFixed(2);
+				x = (this.opts.offset.left + Xscale * (tempx - Xmin) ).toFixed(2);
+				// First point of the curve. Move to the point then use Catmull-Rom 
+				// curveto (Raphael) to join the initial points
+				if(i==0){
+					// Keep two copies of the curve:
+					// 1) for plotting
+					p = ["M", x, y, "R"];
+					// 2) for intersection (uses nicer l values)
+					line1 = ["M", tempx, y, "R"];
+				}else{
 					// If we are not at the first or last points we 
 					// can check if this is a trough or peak
 					if(i > 0 && i < data[0].length-1){
@@ -292,20 +314,26 @@
 							// Keep a record of where the first peak is just in case we want it
 							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
 							// Work out the control point. See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-							x1 = this.opts.offset.left + Xscale * (this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25) - Xmin);
+							tempx = this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25);
+							x1 = this.opts.offset.left + Xscale * (tempx - Xmin);
+							// Draw a cubic Bézier curve
 							p = p.concat(["S",x1.toFixed(2),y]);
+							line1 = line1.concat(["S",tempx.toFixed(2),y]);
 						}
 					}
 					// Add the current point
-					p = p.concat([x, y]);					
+					p = p.concat([x, y]);
+					line1 = line1.concat([tempx, y]);
 				}
+				if(tempy > max) max = tempy;
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
+			// Now we make sure we don't display any parts of the curve that are outside the plot area
 			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height
 			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
 			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
-			
+
 		}
 		
 		return this;
@@ -347,6 +375,7 @@
 			this.draw();
 	}
 
+	// Request the data file for the current Omega values (b,c,l) using the current Omega that has focus
 	PowerSpectrum.prototype.loadData = function(id,b,c,l){
 
 		var file = "";		
@@ -367,12 +396,15 @@
 		// Bug fix for reading local JSON file in FF3
 		$.ajaxSetup({async:false,'beforeSend': function(xhr){ if (xhr.overrideMimeType) xhr.overrideMimeType("text/plain"); } });
 
+		// Do the AJAX request for the data file
 		$.ajax({
 			dataType: "json", 
 			url: file,
 			context: _obj,
 			success: function(data){
+				// Keep a copy of the result
 				this.json = data;
+				// Process the result
 				this.getData(id,b,c,l);
 			},
 			error: function(e){
@@ -382,10 +414,13 @@
 			timeout: 4000
 		});
 
+		// We'll keep a note of the file we loaded so that we don't
+		// pointlessly make multiple requests for the same one
 		this.lastload = file;
 	
 	}
 	
+	// Get the data for the current Omega values (b,c,l) using the current Omega that has focus
 	PowerSpectrum.prototype.getData = function(id,b,c,l){
 
 		// If the values haven't changed we don't need to recalculate the data
@@ -396,13 +431,16 @@
 		// Reset the l value for the first peak
 		this.firstpeak = 0;
 		
+		// Have we got a result from the AJAX call?
 		if(this.json){
 
+			// Check we have a well formated response
 			if(this.json.extrema && this.json.extrema.length > 1){
 				var i, j, data, val;
 				
 				val = (id=="omega_b" ? b : (id=="omega_c" ? c : l));
 
+				// Find the row of data that is indexed by the correct Omega value
 				for(i = 0 ; i < this.json.extrema.length ; i++){
 					if(this.json.extrema[i][0]==val) break;
 				}
@@ -415,6 +453,7 @@
 					}
 				}
 
+				// If we found a result we need to repackage the data
 				if(data){
 				
 					// Remove the first value from the array as it is the Omega value
@@ -432,12 +471,14 @@
 					this.data = data;
 
 				}else{
+					// No data so draw a horizontal line
 					this.data = [[1,2500],[1,1]];
 				}
 
 				// Re-draw the data
 				this.draw();
 			}
+
 		}else{
 			this.error("Something went wrong with the universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
 		}
@@ -445,6 +486,7 @@
 		// Fire the callback
 		if(typeof this.callback.updated==="function") this.callback.updated.call(this.callback.context,{firstpeak: this.firstpeak});
 
+		// Store the current Omega values
 		this.omega = { b:b, c:c, l:l };
 	}
 
@@ -455,8 +497,682 @@
 		$('#error .close').on('click',function(e){ $(this).parent().finish(); });
 		return;
 	}
-	
 
+	// Define the class to deal with <canvas>.
+	function Canvas(i){
+		if(!(typeof i=="string" || (typeof i=="object" && typeof i.id=="string"))) return;
+
+		// Define default values
+		this.id = '';
+		this.canvas = '';
+		this.c = '';
+		this.wide = 0;
+		this.tall = 0;
+		this.fullscreen = false;
+		this.fullwindow = false;
+		this.transparent = false;
+		this.color = "";
+		this.background = "rgb(255,255,255)";
+		this.events = {resize:""};	// Let's add some default events
+
+		// Add options to detect for older IE
+		this.ie = false;
+		this.excanvas = (typeof G_vmlCanvasManager != 'undefined') ? true : false;
+		/*@cc_on
+		this.ie = true
+		@*/
+
+		// Overwrite defaults with variables passed to the function
+		var n = "number";
+		var s = "string";
+		var b = "boolean";
+		var o = "object";
+		var f = "function";
+		if(is(i.id,s)) this.id = i.id;
+		if(is(i.background,s)) this.background = i.background;
+		if(is(i.color,s)) this.color = i.color;
+		if(is(i.width,n)) this.wide = i.width;
+		if(is(i.height,n)) this.tall = i.height;
+		if(is(i.fullwindow,b)) this.fullwindow = i.fullwindow;
+		if(is(i.transparent,b)) this.transparent = i.transparent;
+
+		if(!this.id) return;
+		// Construct the <canvas> container
+		this.container = $('#'+this.id);
+		if(this.container.length == 0){
+			// No appropriate container exists. So we'll make one.
+			$('body').append('<div id="'+this.id+'"></div>');
+			this.container = $('#'+this.id);
+		}
+		this.container.css('position','relative');
+		$(window).bind("resize",{me:this},function(ev){ ev.data.me.resize(); });
+
+		if (typeof Object.extend === 'undefined') {
+			this.extend = function(destination, source) {
+				for (var property in source) {
+					if (source.hasOwnProperty(property)) destination[property] = source[property];
+				}
+				return destination;
+			};
+		} else this.extend = Object.extend;
+		
+		// Add a <canvas> to it with the original ID
+		this.container.html('<canvas id="'+this.id+'inner"></canvas>');
+
+		this.containerbg = this.container.css('background');
+		this.canvas = $('#'+this.id+'inner');
+		this.c = document.getElementById(this.id+'inner');
+
+		if(this.wide > 0) this.c.width = this.wide;
+		if(this.tall > 0) this.c.height = this.tall;
+
+		// For excanvas we need to initialise the newly created <canvas>
+		if(this.excanvas) this.c = G_vmlCanvasManager.initElement(this.c);
+	
+		if(this.c && this.c.getContext){	
+			this.ctx = this.c.getContext('2d');
+			this.ctx.clearRect(0,0,this.wide,this.tall);
+			this.ctx.beginPath();
+			var fs = 16;
+			this.ctx.font = fs+"px sans-serif";
+			this.ctx.fillStyle = 'rgb(255,255,255)';
+			this.ctx.lineWidth = 1.5;
+			var loading = 'Loading sky...';
+			this.ctx.fillText(loading,(this.wide-this.ctx.measureText(loading).width)/2,(this.tall)/2)
+			this.ctx.fill();
+		}
+
+		// Bind events
+		if(fullScreenApi.supportsFullScreen){
+			// Bind the fullscreen function to the double-click event if the browser supports fullscreen
+			this.canvas.bind('dblclick', {me:this}, function(e){ e.data.me.toggleFullScreen(); });
+		}
+		this.canvas.bind("mousedown",{me:this}, function(e){ e.data.me.trigger("mousedown",{event:e}); });
+		this.canvas.bind("mousemove",{me:this}, function(e){ e.data.me.trigger("mousemove",{event:e}); });
+		this.canvas.bind("mouseup",{me:this}, function(e){ e.data.me.trigger("mouseup",{event:e}); });
+	}
+	// Attach a handler to an event for the Canvas object in a style similar to that used by jQuery
+	//	 .bind(eventType[,eventData],handler(eventObject));
+	//	 .bind("resize",function(e){ console.log(e); });
+	//	 .bind("resize",{me:this},function(e){ console.log(e.data.me); });
+	Canvas.prototype.bind = function(ev,e,fn){
+		if(typeof ev!="string") return this;
+		if(is(fn,"undefined")){
+			fn = e;
+			e = {};
+		}else{
+			e = {data:e}
+		}
+		if(typeof e!="object" || typeof fn!="function") return this;
+		if(this.events[ev]) this.events[ev].push({e:e,fn:fn});
+		else this.events[ev] = [{e:e,fn:fn}];
+		return this;
+	}
+	// Trigger a defined event with arguments. This is for internal-use to be 
+	// sure to include the correct arguments for a particular event
+	Canvas.prototype.trigger = function(ev,args){
+		if(typeof ev != "string") return;
+		if(typeof args != "object") args = {};
+		var o = [];
+		if(typeof this.events[ev]=="object"){
+			for(var i = 0 ; i < this.events[ev].length ; i++){
+				var e = this.extend(this.events[ev][i].e,args);
+				if(typeof this.events[ev][i].fn == "function") o.push(this.events[ev][i].fn.call(this,e))
+			}
+		}
+		if(o.length > 0) return o;
+	}
+	Canvas.prototype.copyToClipboard = function(){
+		try{
+			this.clipboard = this.ctx.getImageData(0, 0, this.wide, this.tall);
+			this.clipboardData = this.clipboard.data;
+		}catch(e){ this.clipboard = null; }
+	}
+	Canvas.prototype.pasteFromClipboard = function(){
+		if(this.clipboardData && this.clipboard){
+			this.clipboard.data = this.clipboardData;
+			this.ctx.putImageData(this.clipboard, 0, 0);
+		}
+	}
+	// Will toggle the <canvas> as a full screen element if the browser supports it.
+	Canvas.prototype.toggleFullScreen = function(){
+		if(fullScreenApi.supportsFullScreen) {
+			this.elem = document.getElementById(this.id);
+			if(fullScreenApi.isFullScreen()){
+				fullScreenApi.cancelFullScreen(this.elem);
+				this.fullscreen = false;
+			}else{
+				fullScreenApi.requestFullScreen(this.elem);
+				this.fullscreen = true;
+			}
+		}
+	}
+
+	function Sky(inp){
+
+		// Use inp to set some basic properties
+		this.id = (is(inp.map,"string")) ? inp.map : "map";
+		this.el = $('#'+this.id);
+		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
+		this.context = (is(inp.context,"object")) ? inp.context : this;
+		this.loaded = false;
+		this.logging = true;
+
+		this.w = 256,
+		this.h = 256,
+		this.maxang = 10;	// angular diameter of image in degrees
+		this.minang = this.maxang/this.w;
+		this.dl = 180/this.maxang;
+		
+		this.fft = { re: [], im: [] };
+		this.src = "";
+
+		// Load the initial sky image
+		this.img = new Image();
+		this.img.src = this.el.find('img').attr('src');
+		var _obj = this;
+		// Add a callback for when it is loaded
+		this.img.addEventListener('load', function(){ _obj.load(); }, false);
+
+		// Set up the class to deal with the <canvas>
+		this.canvas = new Canvas({id:this.id,width:this.w, height: this.h});
+
+		// A place to show the FFT
+		this.spectrum = {};
+		this.spectrum.el = document.getElementById('spectrum');
+		// Set the <canvas> width and height to a power of 2.
+		// No need to worry as the CSS will stretch the canvas to the correct display size.
+		this.spectrum.el.width = this.w;
+		this.spectrum.el.height = this.h;
+		this.spectrum.ctx = this.spectrum.el.getContext('2d');
+		this.spectrum.ctx.fillStyle = '#ffffff';
+		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
+
+		FFT.init(this.w);
+		FrequencyFilter.init(this.w, this.dl);
+		SpectrumViewer.init(this.spectrum.ctx);
+
+		this.draw();
+
+		// Bind events to the canvas
+		this.canvas.bind("resize",{me:this},function(ev){
+			ev.data.me.config().draw();
+		}).canvas.bind("mousedown",{me:this},function(ev){
+			ev.data.me.config().draw();
+		});
+
+	}
+	
+	// Called when the image has been loaded
+	Sky.prototype.load = function(){
+		this.loaded = true;
+		if(this.logging) console.log('Loaded '+this.img.src);
+		this.setupFFT();
+		this.draw();
+		this.apply();
+		return this;
+	}
+
+	// Update the view of the sky
+	Sky.prototype.draw = function(){
+
+		// Has our image been loaded?
+		if(!this.loaded) return this;
+		
+		// Attach an event to deal with resizing the <canvas>
+		if(this.logging) var d = new Date();
+
+		// Draw image
+		this.canvas.ctx.drawImage(this.img,0,0);
+
+		if(this.logging) console.log("Total for Sky.prototype.draw(): " + (new Date() - d) + "ms");
+
+		return this;
+	}
+
+	Sky.prototype.setupFFT = function(){
+
+		// Attach an event to deal with resizing the <canvas>
+		if(this.logging) var d = new Date();
+
+		// Draw the original image to the spectrum viewer
+		this.spectrum.ctx.drawImage(this.img, 0, 0, this.w, this.h);
+
+		// Read the image data into a blob
+		this.src = this.spectrum.ctx.getImageData(0, 0, this.w, this.h);
+		this.data = this.src.data;
+
+		var i = 0;
+
+		for(var y=0; y<this.h; y++) {
+			i = y*this.w;
+			for(var x=0; x<this.w; x++) {
+				this.fft.re[i + x] = this.data[(i << 2) + (x << 2)];
+				this.fft.im[i + x] = 0.0;
+			}
+		}
+
+		// Take the Fourier Transform of the sky
+		FFT.fft2d(this.fft.re, this.fft.im);
+
+		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
+
+		return this;
+	}
+
+	Sky.prototype.apply = function(){
+
+		// Attach an event to deal with resizing the <canvas>
+		if(this.logging) var d = new Date();
+
+		try {
+
+			var val = 0;
+			var p = 0;
+			var x, y;
+
+			// Get the pre-processed FFT data
+			var re = this.fft.re.slice(0);	// We need a copy of the array, not a reference
+			var im = this.fft.im.slice(0);	// We need a copy of the array, not a reference
+
+			// Filter the FFT
+			FrequencyFilter.swap(re, im);
+			if(this.logging) var d2 = new Date();
+			FrequencyFilter.filter(re, im, this.context.ps.data);
+			if(this.logging) console.log("Total for FrequencyFilter:" + (new Date() - d2) + "ms");
+
+			// Calculate the 2D FFT but don't bother showing it
+			if(this.logging) var d3 = new Date();
+			SpectrumViewer.render(re, im, false);
+			if(this.logging) console.log("Total for SpectrumViewer.render():" + (new Date() - d3) + "ms");
+
+			// FFT back into real space
+			if(this.logging) var d4 = new Date();
+			FrequencyFilter.swap(re, im);
+			FFT.ifft2d(re, im);
+			if(this.logging) console.log("Total for FFT():" + (new Date() - d4) + "ms");
+
+			// Loop over the data setting the value
+			for(y = 0; y < this.h; y++) {
+				i = y*this.w;
+				for(x = 0; x < this.w; x++) {
+					val = re[i + x];
+					val = val > 255 ? 255 : val < 0 ? 0 : val;
+					p = (i << 2) + (x << 2);
+					this.data[p] = this.data[p + 1] = this.data[p + 2] = val;
+				}
+			}
+			
+			// Draw the final output
+			this.canvas.ctx.putImageData(this.src, 0, 0);
+
+		} catch(e) {
+			if(this.logging) console.log(e);
+		}
+
+		if(this.logging) console.log("Total for Sky.prototype.apply():" + (new Date() - d) + "ms");
+	}
+
+	/**
+	 * Fast Fourier Transform
+	 * 1D-FFT/IFFT, 2D-FFT/IFFT (radix-2)
+	 */
+	var FFT = (function() {
+		var _n = 0,
+				_bitrev = null,
+				_cstb = null,
+				// public methods
+				_init = function(n) {
+					if(n !== 0 && (n & (n - 1)) === 0) {
+						_n = n;
+						_setVariables();
+						_makeBitReversal();
+						_makeCosSinTable();
+					} else {
+						throw new Error("init: radix-2 required");
+					}
+				},
+				// 1D-FFT
+				_fft1d = function(re, im) {
+					_fft(re, im, 1);
+				},
+				// 1D-IFFT
+				_ifft1d = function(re, im) {
+					var n = 1/_n;
+					_fft(re, im, -1);
+					for(var i=0; i<_n; i++) {
+						re[i] *= n;
+						im[i] *= n;
+					}
+				},
+				// 2D-FFT
+				_fft2d = function(re, im) {
+					var tre = [],
+							tim = [],
+							i = 0;
+					// x-axis
+					for(var y=0; y<_n; y++) {
+						i = y*_n;
+						for(var x1=0; x1<_n; x1++) {
+							tre[x1] = re[x1 + i];
+							tim[x1] = im[x1 + i];
+						}
+						_fft1d(tre, tim);
+						for(var x2=0; x2<_n; x2++) {
+							re[x2 + i] = tre[x2];
+							im[x2 + i] = tim[x2];
+						}
+					}
+					// y-axis
+					for(var x=0; x<_n; x++) {
+						for(var y1=0; y1<_n; y1++) {
+							i = x + y1*_n;
+							tre[y1] = re[i];
+							tim[y1] = im[i];
+						}
+						_fft1d(tre, tim);
+						for(var y2=0; y2<_n; y2++) {
+							i = x + y2*_n;
+							re[i] = tre[y2];
+							im[i] = tim[y2];
+						}
+					}
+				},
+				// 2D-IFFT
+				_ifft2d = function(re, im) {
+					var tre = [],
+							tim = [],
+							i = 0;
+					var x,x1,x2,y,y1,y2;
+					// x-axis
+					for(y = 0 ; y < _n ; y++, i+=_n) {
+						for(x1 = 0 ; x1 <_n ; x1++) {
+							tre[x1] = re[x1 + i];
+							tim[x1] = im[x1 + i];
+						}
+						_ifft1d(tre, tim);
+						for(x2 = 0 ; x2 < _n ; x2++) {
+							re[x2 + i] = tre[x2];
+							im[x2 + i] = tim[x2];
+						}
+					}
+					// y-axis
+					for(x = 0 ; x < _n ; x++) {
+						i = x;
+						for(y1=0; y1<_n; y1++, i+=_n) {
+							tre[y1] = re[i];
+							tim[y1] = im[i];
+						}
+						_ifft1d(tre, tim);
+						i = x;
+						for(y2=0; y2<_n; y2++,i+=_n) {
+							re[i] = tre[y2];
+							im[i] = tim[y2];
+						}
+					}
+				},
+				// private methods
+				// core operation of FFT
+				_fft = function(re, im, inv) {
+					var d, h, ik, m, tmp, wr, wi, xr, xi,
+							n4 = _n >> 2;
+					// bit reversal
+					for(var l=0; l<_n; l++) {
+						m = _bitrev[l];
+						if(l < m) {
+							tmp = re[l];
+							re[l] = re[m];
+							re[m] = tmp;
+							tmp = im[l];
+							im[l] = im[m];
+							im[m] = tmp;
+						}
+					}
+					// butterfly operation
+					for(var k=1; k<_n; k<<=1) {
+						h = 0;
+						d = _n/(k << 1);
+						for(var j=0; j<k; j++) {
+							wr = _cstb[h + n4];
+							wi = inv*_cstb[h];
+							for(var i=j; i<_n; i+=(k<<1)) {
+								ik = i + k;
+								xr = wr*re[ik] + wi*im[ik];
+								xi = wr*im[ik] - wi*re[ik];
+								re[ik] = re[i] - xr;
+								re[i] += xr;
+								im[ik] = im[i] - xi;
+								im[i] += xi;
+							}
+							h += d;
+						}
+					}
+				},
+				// set variables
+				_setVariables = function() {
+					_bitrev = [];
+					_cstb = [];
+				},
+				// make bit reversal table
+				_makeBitReversal = function() {
+					var i = 0,
+							j = 0,
+							k = 0;
+					_bitrev[0] = 0;
+					while(++i < _n) {
+						k = _n >> 1;
+						while(k <= j) {
+							j -= k;
+							k >>= 1;
+						}
+						j += k;
+						_bitrev[i] = j;
+					}
+				},
+				// make trigonometiric function table
+				_makeCosSinTable = function() {
+					var n2 = _n >> 1,
+							n4 = _n >> 2,
+							n8 = _n >> 3,
+							n2p4 = n2 + n4,
+							t = Math.sin(Math.PI/_n),
+							dc = 2*t*t,
+							ds = Math.sqrt(dc*(2 - dc)),
+							c = _cstb[n4] = 1,
+							s = _cstb[0] = 0;
+					t = 2*dc;
+					for(var i=1; i<n8; i++) {
+						c -= dc;
+						dc += t*c;
+						s += ds;
+						ds -= t*s;
+						_cstb[i] = s;
+						_cstb[n4 - i] = c;
+					}
+					if(n8 !== 0) {
+						_cstb[n8] = Math.sqrt(0.5);
+					}
+					for(var j=0; j<n4; j++) {
+						_cstb[n2 - j]	= _cstb[j];
+					}
+					for(var k=0; k<n2p4; k++) {
+						_cstb[k + n2] = -_cstb[k];
+					}
+				};
+		// public APIs
+		return {
+			init: _init,
+			fft: _fft1d,
+			ifft: _ifft1d,
+			fft1d: _fft1d,
+			ifft1d: _ifft1d,
+			fft2d: _fft2d,
+			ifft2d: _ifft2d
+		};
+	})();
+
+	/**
+	 * Spatial Frequency Filtering
+	 * High-pass/Low-pass/Band-pass Filter
+	 * Windowing using hamming window
+	 */
+	var FrequencyFilter = (function() {
+		var _n = 0,
+		_rs = [],	// The r values for each pixel
+		_rs2 = [],	// The r^2 values for each pixel
+		_ls = [],	// The l values for each pixel
+		_init = function(n, dl) {
+			if(n !== 0 && (n & (n - 1)) === 0) {
+				_n = n;
+			} else {
+				throw new Error("init: radix-2 required");
+			}
+
+			var i = 0, p;
+			var n2 = _n >> 1;
+			if(!dl || typeof dl!=="number") dl = 0;
+	
+			for(var y=-n2; y<n2; y++) {
+				i = n2 + (y + n2)*_n;
+				for(var x=-n2; x<n2; x++) {
+					p = x + i;
+					_rs2[p] = ((x*x) + (y*y));
+					_rs[p] = Math.sqrt(_rs2[p]);
+					_ls[p] = _rs[p]*dl;
+				}
+			}
+		},
+		// swap quadrant
+		_swap = function(re, im) {
+			var xn, yn, i, j, k, l, tmp,
+					len = _n >> 1;
+			for(var y=0; y<len; y++) {
+				yn = y + len;
+				for(var x=0; x<len; x++) {
+					xn = x + len;
+					i = x + y*_n;
+					j = xn + yn*_n;
+					k = x + yn*_n;
+					l = xn + y*_n;
+					tmp = re[i];
+					re[i] = re[j];
+					re[j] = tmp;
+					tmp = re[k];
+					re[k] = re[l];
+					re[l] = tmp;
+					tmp = im[i];
+					im[i] = im[j];
+					im[j] = tmp;
+					tmp = im[k];
+					im[k] = im[l];
+					im[l] = tmp;
+				}
+			}
+		},
+		// apply custom filter
+		_filter = function(re, im, data){
+
+			var i = 0,
+				v = 0;
+				p = 0,
+				x = 0,
+				y = 0,
+				z = 0,
+				max = Math.max.apply(null,data[1]),
+				n2 = _n >> 1;	// Bit operator to halve _n
+				nsq = _n << 1;
+
+
+			for(y=-n2; y<n2; y++) {
+				i = n2 + (y + n2)*_n;
+				for(x=-n2; x<n2; x++) {
+					p = x + i;
+					v = 0;
+					for(z = 0 ; z < data[0].length ; z++){
+						if(_ls[p] > data[0][data[0].length-1]) break;
+						else if(data[0][z] > _ls[p]){
+							v = (z == 0) ? data[1][z]/max : (data[1][z-1] + (data[1][z] - data[1][z-1])*(_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]))/max;
+							break;
+						}
+					}
+					re[p] *= v;
+					im[p] *= v;
+				}
+			}
+
+		},
+		_setFilter = function(f){
+			if(typeof f==="function") _filter = f;
+		};
+		// public APIs
+		return {
+			init: _init,
+			swap: _swap,
+			filter: _filter,
+			setFilter: _setFilter
+		};
+	})();
+	
+	/**
+	 * FFT Power Spectrum Viewer
+	 */
+	var SpectrumViewer = (function() {
+		var _context = null,
+				_n = 0,
+				_img = null,
+				_data = null,
+				// public methods
+				_init = function(context) {
+					_context = context;
+					_n = context.canvas.width,
+					_img = context.getImageData(0, 0, _n, _n);
+					_data = _img.data;
+				},
+				// render FFT power spectrum on the Canvas
+				_render = function(re, im, islog) {
+					var val = 0,
+							i = 0,
+							p = 0,
+							spectrum = [],
+							max = 1.0,
+							imax = 0.0,
+							n2 = _n*_n;
+					for(var i=0; i<n2; i++) {
+						if(islog){
+							spectrum[i] = Math.log(Math.sqrt(re[i]*re[i] + im[i]*im[i]));
+						} else {
+							spectrum[i] = Math.sqrt(re[i]*re[i] + im[i]*im[i]);
+						}
+						if(spectrum[i] > max) {
+							max = spectrum[i];
+						}
+					}
+					imax = 1/max;
+					for(var j=0; j<n2; j++) {
+						spectrum[j] = spectrum[j]*255*imax;
+					}
+					for(var y=0; y<_n; y++) {
+						i = y*_n;
+						for(var x=0; x<_n; x++) {
+							val = spectrum[i + x];
+							p = (i << 2) + (x << 2);
+							_data[p] = 0;
+							_data[p + 1] = val;
+							_data[p + 2] = val >> 1;
+						}
+					}
+					_context.putImageData(_img, 0, 0);
+				};
+		// public APIs
+		return {
+			init: _init,
+			render: _render
+		};
+	})();
+
+
+
+	// The main function
 	function Simulator(inp){
 
 		// We obviously have Javascript enabled to be here so we will remove the hiding class
@@ -467,6 +1183,7 @@
 		// Define some callback functions
 		var change = function(e){
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
+			this.sky.apply();
 		},
 		mouseenter = function(e){
 			this.ps.loadData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
@@ -522,6 +1239,10 @@
 		// Make an instance of a power spectrum
 		this.ps = new PowerSpectrum(inp);
 		
+		// Make an instance of a view of part of the sky
+		this.sky = new Sky(inp);
+
+
 		// Bind keyboard events
 		$(document).bind('keypress',{sim:this},function(e){
 			if(!e) e=window.event;
@@ -612,11 +1333,11 @@
 
 		this.WM = b+c;
 		this.WV = l;
-		this.WK = 1-this.WM-this.WR-this.WV;
 
 		this.h = this.H0/100;
 		this.WR = 4.165E-5/(this.h*this.h);	// includes 3 massless neutrino species, T0 = 2.72528
-		this.WK = 1-this.WM-this.WR-this.WV;
+		//this.WK = 1-this.WM-this.WR-this.WV;	// Ned Wright's version
+		this.WK = 0;	// Chris North's version has no Omega_curvature
 		this.az = 1.0/(1+1.0*this.z);
 		this.age = 0;
 		for (i = 0; i != this.n; i++) {
@@ -630,18 +1351,18 @@
 		// added 13-Aug-03 based on T_vs_t.f
 		var lpz = Math.log((1+1.0*this.z))/Math.log(10.0);
 		var dzage = 0;
-		if (lpz >  7.500) dzage = 0.002 * (lpz -  7.500);
-		if (lpz >  8.000) dzage = 0.014 * (lpz -  8.000) +  0.001;
-		if (lpz >  8.500) dzage = 0.040 * (lpz -  8.500) +  0.008;
-		if (lpz >  9.000) dzage = 0.020 * (lpz -  9.000) +  0.028;
-		if (lpz >  9.500) dzage = 0.019 * (lpz -  9.500) +  0.039;
+		if (lpz >	7.500) dzage = 0.002 * (lpz -	7.500);
+		if (lpz >	8.000) dzage = 0.014 * (lpz -	8.000) +	0.001;
+		if (lpz >	8.500) dzage = 0.040 * (lpz -	8.500) +	0.008;
+		if (lpz >	9.000) dzage = 0.020 * (lpz -	9.000) +	0.028;
+		if (lpz >	9.500) dzage = 0.019 * (lpz -	9.500) +	0.039;
 		if (lpz > 10.000) dzage = 0.048;
-		if (lpz > 10.775) dzage = 0.035 * (lpz - 10.775) +  0.048;
-		if (lpz > 11.851) dzage = 0.069 * (lpz - 11.851) +  0.086;
-		if (lpz > 12.258) dzage = 0.461 * (lpz - 12.258) +  0.114;
-		if (lpz > 12.382) dzage = 0.024 * (lpz - 12.382) +  0.171;
-		if (lpz > 13.055) dzage = 0.013 * (lpz - 13.055) +  0.188;
-		if (lpz > 14.081) dzage = 0.013 * (lpz - 14.081) +  0.201;
+		if (lpz > 10.775) dzage = 0.035 * (lpz - 10.775) +	0.048;
+		if (lpz > 11.851) dzage = 0.069 * (lpz - 11.851) +	0.086;
+		if (lpz > 12.258) dzage = 0.461 * (lpz - 12.258) +	0.114;
+		if (lpz > 12.382) dzage = 0.024 * (lpz - 12.382) +	0.171;
+		if (lpz > 13.055) dzage = 0.013 * (lpz - 13.055) +	0.188;
+		if (lpz > 14.081) dzage = 0.013 * (lpz - 14.081) +	0.201;
 		if (lpz > 15.107) dzage = 0.214;
 		this.zage = this.zage*Math.pow(10.0,dzage);
 		this.zage_Gyr = (this.Tyr/this.H0)*this.zage;
@@ -668,6 +1389,10 @@
 
 	// HELPER FUNCTIONS
 	
+	// Define a shortcut for checking variable types
+	function is(a,b){ return (typeof a == b) ? true : false; }
+
+
 	// A non-jQuery dependent function to get a style
 	function getStyle(el, styleProp) {
 		if (typeof window === 'undefined') return;

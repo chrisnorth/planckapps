@@ -733,7 +733,7 @@
 		if(this.logging) var d = new Date();
 
 		// Draw image
-		this.canvas.ctx.drawImage(this.img,0,0);
+		//this.canvas.ctx.drawImage(this.img,0,0);
 
 		if(this.logging) console.log("Total for Sky.prototype.draw(): " + (new Date() - d) + "ms");
 
@@ -785,6 +785,10 @@
 			var re = this.fft.re.slice(0);	// We need a copy of the array, not a reference
 			var im = this.fft.im.slice(0);	// We need a copy of the array, not a reference
 
+			if(this.context.ps.data[0].length == 2){
+console.log('fail')
+				return;
+			}
 			// Filter the FFT
 			FrequencyFilter.swap(re, im);
 			if(this.logging) var d2 = new Date();
@@ -1349,8 +1353,7 @@
 
 		this.h = this.H0/100;
 		this.WR = 4.165E-5/(this.h*this.h);	// includes 3 massless neutrino species, T0 = 2.72528
-		//this.WK = 1-this.WM-this.WR-this.WV;	// Ned Wright's version
-		this.WK = 0;	// Chris North's version has no Omega_curvature
+		this.WK = 1-this.WM-this.WR-this.WV;	// Ned Wright's version
 		this.az = 1.0/(1+1.0*this.z);
 		this.age = 0;
 		for (i = 0; i != this.n; i++) {

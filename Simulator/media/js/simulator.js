@@ -284,7 +284,7 @@
 			Yrange = (Ymax-Ymin);
 			Yscale = (this.opts.offset.height) / Yrange;
 
-			if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
+			//if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 
 			for (var i = 0, j = 0; i < data[0].length; i++) {
 				tempy = this.scaleY(data[0][i],data[1][i]);
@@ -326,8 +326,8 @@
 					line1 = line1.concat([tempx, y]);
 				}
 				if(tempy > max) max = tempy;
-				if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
-				else this.chart.dots[i].animate({cx: x, cy: y},100);
+				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
+				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
 			// Now we make sure we don't display any parts of the curve that are outside the plot area
 			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height

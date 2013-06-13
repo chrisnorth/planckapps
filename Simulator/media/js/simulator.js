@@ -272,7 +272,7 @@
 		// Build the power spectrum curve
 		if(this.data){		
 
-			var p,line1,line2,max,y,x,x1,tempx,tempy,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
+			var p,max,y,x,x1,prevy,tempx,tempy,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			max = 0;
 			data = this.data;
 			Xmin = this.scaleX(this.opts.xaxis.min);
@@ -283,6 +283,8 @@
 			Ymax = this.scaleY(this.opts.xaxis.max,this.opts.yaxis.max);
 			Yrange = (Ymax-Ymin);
 			Yscale = (this.opts.offset.height) / Yrange;
+			this.firsttrough = 0;
+			this.firstpeak = 0;
 
 			//if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 
@@ -294,11 +296,7 @@
 				// First point of the curve. Move to the point then use Catmull-Rom 
 				// curveto (Raphael) to join the initial points
 				if(i==0){
-					// Keep two copies of the curve:
-					// 1) for plotting
 					p = ["M", x, y, "R"];
-					// 2) for intersection (uses nicer l values)
-					line1 = ["M", tempx, y, "R"];
 				}else{
 					// If we are not at the first or last points we 
 					// can check if this is a trough or peak
@@ -313,17 +311,29 @@
 
 							// Keep a record of where the first peak is just in case we want it
 							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
-							// Work out the control point. See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
-							tempx = this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25);
-							x1 = this.opts.offset.left + Xscale * (tempx - Xmin);
-							// Draw a cubic Bézier curve
-							p = p.concat(["S",x1.toFixed(2),y]);
-							line1 = line1.concat(["S",tempx.toFixed(2),y]);
+
+							// Keep a record of where the first trough is for curve fitting
+							if(trough && this.firstpeak && !this.firsttrough) this.firsttrough = data[0][i];
+
+							// Work out the control point(s). See http://www.w3.org/TR/SVG/paths.html#PathDataCubicBezierCommands
+							if(this.firsttrough == data[0][i]){
+								tempx = this.scaleX(data[0][i-1] + (data[0][i]-data[0][i-1])*0.25);
+								x1 = this.opts.offset.left + Xscale * (tempx - Xmin);
+								tempx = this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25);
+								x2 = this.opts.offset.left + Xscale * (tempx - Xmin);
+								// Draw a smooth curve with two control points
+								p = p.concat(["C",x1.toFixed(2),prevy,x2.toFixed(2),y]);
+							}else{
+								tempx = this.scaleX(data[0][i] - (data[0][i]-data[0][i-1])*0.25);
+								x1 = this.opts.offset.left + Xscale * (tempx - Xmin);
+								// Draw a smooth curve to //cubic Bézier curve
+								p = p.concat(["S",x1.toFixed(2),y]);
+							}
 						}
 					}
 					// Add the current point
 					p = p.concat([x, y]);
-					line1 = line1.concat([tempx, y]);
+					prevy = y;
 				}
 				if(tempy > max) max = tempy;
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
@@ -545,7 +555,7 @@
 			this.container = $('#'+this.id);
 		}
 		this.container.css('position','relative');
-		$(window).bind("resize",{me:this},function(ev){ ev.data.me.resize(); });
+		//$(window).bind("resize",{me:this},function(ev){ ev.data.me.resize(); });
 
 		if (typeof Object.extend === 'undefined') {
 			this.extend = function(destination, source) {
@@ -696,9 +706,9 @@
 
 		// Bind events to the canvas
 		this.canvas.bind("resize",{me:this},function(ev){
-			ev.data.me.config().draw();
+			ev.data.me.draw();
 		}).canvas.bind("mousedown",{me:this},function(ev){
-			ev.data.me.config().draw();
+			ev.data.me.draw();
 		});
 
 	}
@@ -762,11 +772,11 @@
 
 	Sky.prototype.apply = function(){
 
-		// Attach an event to deal with resizing the <canvas>
-		if(this.logging) var d = new Date();
+		var d = new Date();
+		this.pid = d;	// Use the start time as the ID for this process
 
 		try {
-
+			
 			var val = 0;
 			var p = 0;
 			var x, y;

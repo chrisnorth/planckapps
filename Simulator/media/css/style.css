@@ -37,9 +37,21 @@ a:active { color: #4D4E53; }
 
 #error { position: absolute; top: 0px; left: 0px; right: 0px; padding: 0.5em 1em; background-color: #E13F29; color: white; display: none; }
 #error .close { float: right; font-weight: bold; color: white; cursor: pointer; }
-#help { font-size: 1.4em; margin-top: 0.2em; }
+#advancedtoggle, #help {
+	line-height: 48px;
+	width: 48px;
+	height: 48px;
+	text-align: center;
+	font-size: 1.6em;
+	margin-top: 0em;
+	margin-left: 8px;
+	float: right;
+}
+#help .abouton, #help .aboutoff {
+	line-height: 48px;
+}
 #help a {
-	display: inline-block;
+	display: block;
 	font-family: serif;
 	text-decoration: none;
 	text-align: center;
@@ -51,22 +63,35 @@ a:active { color: #4D4E53; }
 	display: none;
 }
 #help .abouton a {
-	width: 1.4em;
+	width: 48px;
 	color: white;
 	font-style: italic;
-	border-radius: 1em;
+	border-radius: 24px;
 	background-color: #AAAAAA;
 }
-#help .abouton a:hover { background-color: #049CDB; transition: background-color 1s; }
+#help .abouton a:hover { background-color: #049CDB; transition: background-color 0.5s; }
 #about {
-	display: block; 
+	color: #EEEEEE;
 	background-color: #111111; 
-	color: white;
+	display: block; 
 	margin-left: -64px;
 	margin-right: -64px;
 	margin-bottom: 64px;
 	padding: 32px 64px;
 }
+#advancedtoggle a {
+	background-color: #AAAAAA;
+	width: 48px;
+	height: 48px;
+	display: block;
+	border-radius: 24px;
+	background-image: url("../img/icons.png");
+	background-position: 0 0;
+	background-repeat: no-repeat;
+}
+#advancedtoggle img { width: 100%; height: 100%; }
+#advancedtoggle.on a { background-color: black; }
+#advancedtoggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
 
 #app {
 	display: table;
@@ -121,6 +146,7 @@ body #firstpeak.advanced { display: none; }
 body.adv #firstpeak.advanced { display: table-cell; }
 #firstpeak, #age { display: table-cell; }
 #age { text-align: right; }
+
 
 /* Set the colours for the slider bars */
 #omega_b_holder .ui-widget-header { background-color: #F89406; }

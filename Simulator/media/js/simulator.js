@@ -769,27 +769,33 @@
 
 			var val = 0;
 			var p = 0;
+			var x, y;
 
 			// Get the pre-processed FFT data
 			var re = this.fft.re.slice(0);	// We need a copy of the array, not a reference
 			var im = this.fft.im.slice(0);	// We need a copy of the array, not a reference
 
-
 			// Filter the FFT
 			FrequencyFilter.swap(re, im);
+			if(this.logging) var d2 = new Date();
 			FrequencyFilter.filter(re, im, this.context.ps.data);
+			if(this.logging) console.log("Total for FrequencyFilter:" + (new Date() - d2) + "ms");
 
-			// Display the 2D FFT
-			SpectrumViewer.render(re, im, true);
+			// Calculate the 2D FFT but don't bother showing it
+			if(this.logging) var d3 = new Date();
+			SpectrumViewer.render(re, im, false);
+			if(this.logging) console.log("Total for SpectrumViewer.render():" + (new Date() - d3) + "ms");
 
 			// FFT back into real space
+			if(this.logging) var d4 = new Date();
 			FrequencyFilter.swap(re, im);
 			FFT.ifft2d(re, im);
+			if(this.logging) console.log("Total for FFT():" + (new Date() - d4) + "ms");
 
 			// Loop over the data setting the value
-			for(var y=0; y<this.h; y++) {
+			for(y = 0; y < this.h; y++) {
 				i = y*this.w;
-				for(var x=0; x<this.w; x++) {
+				for(x = 0; x < this.w; x++) {
 					val = re[i + x];
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
@@ -877,29 +883,29 @@
 					var tre = [],
 							tim = [],
 							i = 0;
+					var x,x1,x2,y,y1,y2;
 					// x-axis
-					for(var y=0; y<_n; y++) {
-						i = y*_n;
-						for(var x1=0; x1<_n; x1++) {
+					for(y = 0 ; y < _n ; y++, i+=_n) {
+						for(x1 = 0 ; x1 <_n ; x1++) {
 							tre[x1] = re[x1 + i];
 							tim[x1] = im[x1 + i];
 						}
 						_ifft1d(tre, tim);
-						for(var x2=0; x2<_n; x2++) {
+						for(x2 = 0 ; x2 < _n ; x2++) {
 							re[x2 + i] = tre[x2];
 							im[x2 + i] = tim[x2];
 						}
 					}
 					// y-axis
-					for(var x=0; x<_n; x++) {
-						for(var y1=0; y1<_n; y1++) {
-							i = x + y1*_n;
+					for(x = 0 ; x < _n ; x++) {
+						i = x;
+						for(y1=0; y1<_n; y1++, i+=_n) {
 							tre[y1] = re[i];
 							tim[y1] = im[i];
 						}
 						_ifft1d(tre, tim);
-						for(var y2=0; y2<_n; y2++) {
-							i = x + y2*_n;
+						i = x;
+						for(y2=0; y2<_n; y2++,i+=_n) {
 							re[i] = tre[y2];
 							im[i] = tim[y2];
 						}
@@ -1030,7 +1036,7 @@
 				i = n2 + (y + n2)*_n;
 				for(var x=-n2; x<n2; x++) {
 					p = x + i;
-					_rs2[p] = (x*x + y*y);
+					_rs2[p] = ((x*x) + (y*y));
 					_rs[p] = Math.sqrt(_rs2[p]);
 					_ls[p] = _rs[p]*dl;
 				}
@@ -1069,32 +1075,23 @@
 			var i = 0,
 				v = 0;
 				p = 0,
-				r = 0.0,
 				x = 0,
 				y = 0,
 				z = 0,
-				fx = 0,
-				fy = 0,
 				max = Math.max.apply(null,data[1]),
-				denom = (2*Math.pow(120,2)),
-				n2 = _n >> 1;
+				n2 = _n >> 1;	// Bit operator to halve _n
+				nsq = _n << 1;
+
 
 			for(y=-n2; y<n2; y++) {
 				i = n2 + (y + n2)*_n;
 				for(x=-n2; x<n2; x++) {
 					p = x + i;
-
 					v = 0;
 					for(z = 0 ; z < data[0].length ; z++){
-						//console.log('loop',data[0][z],data[0][data[0].length-1],_ls[p])
 						if(_ls[p] > data[0][data[0].length-1]) break;
 						else if(data[0][z] > _ls[p]){
-							if(z == 0) v = data[1][z]/max;
-							else{
-								fx = (_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]);
-								fy = (data[1][z] - data[1][z-1])*fx;
-								v = (data[1][z-1]+fy)/max;
-							}
+							v = (z == 0) ? data[1][z]/max : (data[1][z-1] + (data[1][z] - data[1][z-1])*(_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]))/max;
 							break;
 						}
 					}
@@ -1102,6 +1099,7 @@
 					im[p] *= v;
 				}
 			}
+
 		},
 		_setFilter = function(f){
 			if(typeof f==="function") _filter = f;

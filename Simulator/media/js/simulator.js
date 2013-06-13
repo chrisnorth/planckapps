@@ -786,7 +786,8 @@
 			var im = this.fft.im.slice(0);	// We need a copy of the array, not a reference
 
 			if(this.context.ps.data[0].length == 2){
-console.log('fail')
+				console.log('fail');
+				this.canvas.ctx.fillRect(0, 0, this.w, this.h);
 				return;
 			}
 			// Filter the FFT
@@ -807,10 +808,12 @@ console.log('fail')
 			if(this.logging) console.log("Total for FFT():" + (new Date() - d4) + "ms");
 
 			// Loop over the data setting the value
+			// First work out a scaling function
+			var scale = 255/Math.max.apply(null,re);
 			for(y = 0; y < this.h; y++) {
 				i = y*this.w;
 				for(x = 0; x < this.w; x++) {
-					val = re[i + x];
+					val = re[i + x]*scale;
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
 					this.data[p] = this.data[p + 1] = this.data[p + 2] = val;

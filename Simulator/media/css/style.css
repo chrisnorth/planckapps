@@ -91,6 +91,7 @@ a:active { color: #4D4E53; }
 
 #parameters, #powerspectrum { padding-right: 32px; }
 
+#fft { display: none; }
 #map, #fft {
 	color: white;
 	background: #45484d; /* Old browsers */
@@ -106,8 +107,8 @@ a:active { color: #4D4E53; }
 	line-height: 0px;
 }
 #map canvas, #map img, #fft canvas {
-	width: 300px;
-	height: 300px;
+	width: 100%;
+	height: 100%;
 }
 
 .parameter { margin-bottom: 32px; }

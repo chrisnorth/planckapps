@@ -70,7 +70,7 @@
 			<div id="parameters">
 				<form id="omegas">
 					<div id="omega_b_holder" class="parameter">
-						<label for="omega_b">Normal Matter <span class="advanced">(&Omega;<sub>b</sub>)</span></label>
+						<label for="omega_b">Normal Matter <span class="advanced">(&Omega;<sub>b</sub><span class="omega_b"></span>)</span></label>
 						<select name="omega_b" id="omega_b">
 							<option>0.00</option>
 							<option selected="selected">0.05</option>
@@ -96,7 +96,7 @@
 						</select>
 					</div>
 					<div id="omega_c_holder" class="parameter">
-						<label for="omega_c">Dark Matter <span class="advanced">(&Omega;<sub>c</sub>)</span></label>
+						<label for="omega_c">Dark Matter <span class="advanced">(&Omega;<sub>c</sub><span class="omega_c"></span>)</span></label>
 						<select name="omega_c" id="omega_c">
 							<option>0.00</option>
 							<option>0.05</option>
@@ -122,7 +122,7 @@
 						</select>
 					</div>
 					<div id="omega_l_holder" class="parameter">
-						<label for="omega_l">Dark Energy <span class="advanced">(&Omega;<sub>&Lambda;</sub>)</span></label>
+						<label for="omega_l">Dark Energy <span class="advanced">(&Omega;<sub>&Lambda;</sub><span class="omega_l"></span>)</span></label>
 						<select name="omega_l" id="omega_l">
 							<option>0.00</option>
 							<option>0.05</option>
@@ -164,9 +164,9 @@
 
 	</div>
 	
-	<div class="padded">
-		<span class="advanced" id="firstpeak"></span>
-		<span class="advanced" id="age"></span>
+	<div id="output" class="padded">
+		<div id="firstpeak" class="advanced"></div>
+		<div id="age"></div>
 	</div>
 	
 </body>

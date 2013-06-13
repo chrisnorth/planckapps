@@ -1242,8 +1242,11 @@
 			}
 			if($('#age')){
 				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
-				$('#age').html('This universe is '+this.cosmos.age_Gyr.toFixed(1)+' billion years old');
+				$('#age').html('This simulated universe is '+this.cosmos.age_Gyr.toFixed(1)+' billion years old');
 			}
+			$('span.omega_b').html('='+this.omega_b.value);
+			$('span.omega_c').html('='+this.omega_c.value);
+			$('span.omega_l').html('='+this.omega_l.value);
 		}
 
 		// Make an instance of a power spectrum

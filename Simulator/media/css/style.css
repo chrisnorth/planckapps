@@ -9,6 +9,7 @@ body {
 body .advanced { display: none; }
 body.adv .advanced { display: inline-block; }
 
+
 *::-moz-selection {
 	background: none repeat scroll 0 0 #FF5E99;
 	color: white;
@@ -115,13 +116,19 @@ a:active { color: #4D4E53; }
 #parameters .parameter:last-child { margin-bottom: 0px; }
 .parameter .ui-slider { margin-top: 0.6em; }
 
+#output { display: table; width: 100%; }
+body #firstpeak.advanced { display: none; }
+body.adv #firstpeak.advanced { display: table-cell; }
+#firstpeak, #age { display: table-cell; }
+#age { text-align: right; }
+
 /* Set the colours for the slider bars */
 #omega_b_holder .ui-widget-header { background-color: #F89406; }
 #omega_c_holder .ui-widget-header { background-color: #049CDB; }
 #omega_l_holder .ui-widget-header { background-color: #46a546; }
 .ui-slider .ui-slider-range.ui-slider-range-min { border: 1px solid #777; margin-top: -1px; }
 
-.padded { margin: 32px 0px;}
+.padded { margin: 32px 0px 0px 0px;}
 
 /* Classes to hide things */
 .hidden { display: none; }
@@ -152,7 +159,7 @@ a:active { color: #4D4E53; }
 		margin: 0px -32px 32px -32px;
 		padding: 32px 32px;
 	}
-	.padded { margin: 16px 0px; }
+	.padded { margin: 16px 0px 0px 0px; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {
@@ -162,5 +169,5 @@ a:active { color: #4D4E53; }
 		margin: 0px -16px 16px -16px;
 		padding: 16px;
 	}
-	.padded { margin: 8px 0px; }
+	.padded { margin: 8px 0px 0px 0px; }
 }

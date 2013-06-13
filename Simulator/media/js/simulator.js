@@ -1333,11 +1333,11 @@
 
 		this.WM = b+c;
 		this.WV = l;
-		this.WK = 1-this.WM-this.WR-this.WV;
 
 		this.h = this.H0/100;
 		this.WR = 4.165E-5/(this.h*this.h);	// includes 3 massless neutrino species, T0 = 2.72528
-		this.WK = 1-this.WM-this.WR-this.WV;
+		//this.WK = 1-this.WM-this.WR-this.WV;	// Ned Wright's version
+		this.WK = 0;	// Chris North's version has no Omega_curvature
 		this.az = 1.0/(1+1.0*this.z);
 		this.age = 0;
 		for (i = 0; i != this.n; i++) {

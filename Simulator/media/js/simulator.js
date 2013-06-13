@@ -761,17 +761,18 @@
 
 		try {
 			
-			var val = 0, p = 0, x, y;
+			var val = 0, p = 0, x, y, scale, re, im;
 
 			// Get the pre-processed FFT data
-			var re = this.re.slice(0);	// We need a copy of the array, not a reference
-			var im = this.im.slice(0);	// We need a copy of the array, not a reference
+			re = this.re.slice(0);	// We need a copy of the array, not a reference
+			im = this.im.slice(0);	// We need a copy of the array, not a reference
 
 			if(this.context.ps.data[0].length == 2){
 				console.log('fail');
 				this.canvas.ctx.fillRect(0, 0, this.w, this.h);
 				return;
 			}
+
 			// Filter the FFT
 			FrequencyFilter.swap(re, im);
 			FrequencyFilter.filter(re, im, this.context.ps.data);
@@ -785,7 +786,7 @@
 
 			// Loop over the data setting the value
 			// First work out a scaling function
-			var scale = 255/Math.max.apply(null,re);
+			scale = 255/Math.max.apply(null,re);
 			for(y = 0,i = 0; y < this.h; y++, i+=this.w) {
 				for(x = 0; x < this.w; x++) {
 					val = re[i + x]*scale;

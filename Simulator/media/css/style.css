@@ -90,7 +90,7 @@ a:active { color: #4D4E53; }
 	background-repeat: no-repeat;
 }
 #advancedtoggle img { width: 100%; height: 100%; }
-#advancedtoggle.on a { background-color: black; }
+body.adv #advancedtoggle a { background-color: black; }
 #advancedtoggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
 
 #app {
@@ -186,6 +186,12 @@ body.adv #firstpeak.advanced { display: table-cell; }
 		padding: 32px 32px;
 	}
 	.padded { margin: 16px 0px 0px 0px; }
+	#output { display: block; }
+	#age, body.adv #firstpeak.advanced {
+		display: block;
+		text-align: center;
+	}
+	
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {

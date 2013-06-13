@@ -1290,13 +1290,14 @@ console.log('fail')
 		function toggleAbout(key){
 			$('#help').toggleClass('on');
 			$('#about').slideToggle();
+			return true;
 		}
 		var newdiv = $('<div id="menu"><div id="help"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle"><a href="#"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div></div>');
 		$('h1').before(newdiv);
 		$('#help .abouton a, #help .aboutoff a').on('click',toggleAbout);
 		$('#advancedtoggle a').on('click',{me:this},function(e){
-			$('#advancedtoggle').toggleClass('on');
-			e.data.me.ps.toggle()
+			e.data.me.ps.toggle();
+			return true;
 		});
 		// As we are using the hash anchor, we need to monitor it to check for changes
 		

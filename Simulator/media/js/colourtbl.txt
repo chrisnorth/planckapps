@@ -1,0 +1,32 @@
+Planck colour scheme:
+
+ - 7 anchor points, equally spaced in 0:255
+ - Linear interpolation between anchors
+
+ Rim(0)=0
+ Gim(0)=0
+ Bim(0)=255
+ 
+ Rim(42)=0
+ Gim(42)=112
+ Bim(42)=255
+
+ Rim(85)=0
+ Gim(85)=221
+ Bim(85)=255
+
+ Rim(127)=255
+ Gim(127)=237
+ Bim(127)=217
+
+ Rim(170)=255
+ Gim(170)=180
+ Bim(170)=0
+
+ Rim(212)=255
+ Gim(212)=75
+ Bim(212)=0
+
+ Rim(255)=100
+ Gim(255)=0
+ Bim(255)=0

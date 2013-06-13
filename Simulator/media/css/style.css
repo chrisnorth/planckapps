@@ -131,9 +131,11 @@ body.adv #advancedtoggle a { background-color: black; }
 	width: 300px;
 	height: 300px;
 	line-height: 0px;
+	text-align: center;
 }
 #map canvas, #map img, #fft canvas {
-	width: 100%;
+	width: auto;
+	margin: auto;
 	height: 100%;
 }
 

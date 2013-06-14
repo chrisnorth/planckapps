@@ -110,6 +110,7 @@
 		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
 		this.omega = { b: "", c:"", l:"" };
 		this.fullscreen = false;
+		this.logging = true;
 
 		// Store the callbacks and a context which will be used for the "this"
 		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
@@ -269,8 +270,10 @@
 		// Check we have somewhere to draw
 		if(!this.chart.holder) return this;
 
+		if(this.logging) var d = new Date();
+
 		// Build the power spectrum curve
-		if(this.data){		
+		if(this.data){
 
 			var p,max,y,x,x1,prevy,tempx,tempy,data,peak,trough,Xmin,Xmax,Ymin,Ymax,Yrange,Yscale,Xrange,Xscale;
 			max = 0;
@@ -346,6 +349,8 @@
 
 		}
 		
+		if(this.logging) console.log("Total for PowerSpectrum.prototype.draw(): " + (new Date() - d) + "ms");
+
 		return this;
 	}
 
@@ -706,9 +711,9 @@
 		// Bind events to the canvas
 		/*
 		this.canvas.bind("resize",{me:this},function(ev){
-			//ev.data.me.apply();
+			//ev.data.me.update();
 		}).canvas.bind("mousedown",{me:this},function(ev){
-			//ev.data.me.apply();
+			//ev.data.me.update();
 		});
 		*/
 
@@ -719,7 +724,7 @@
 		this.loaded = true;
 		if(this.logging) console.log('Loaded '+this.img.src);
 		this.setupFFT();
-		this.apply();
+		this.update();
 		return this;
 	}
 
@@ -755,7 +760,7 @@
 		return this;
 	}
 
-	Sky.prototype.apply = function(){
+	Sky.prototype.update = function(){
 
 		var d = new Date();
 
@@ -807,7 +812,7 @@
 			if(this.logging) console.log(e);
 		}
 
-		if(this.logging) console.log("Total for Sky.prototype.apply():" + (new Date() - d) + "ms");
+		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
 	}
 
 	/**
@@ -1181,7 +1186,7 @@
 		// Define some callback functions
 		var change = function(e){
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
-			this.sky.apply();
+			this.sky.update();
 		},
 		mouseenter = function(e){
 			this.ps.loadData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
@@ -1529,7 +1534,20 @@
 	// export api
 	window.fullScreenApi = fullScreenApi;
 	// End of Full Screen API
-	
+
+	/*
+	 * jQuery UI Touch Punch 0.2.2
+	 *
+	 * Copyright 2011, Dave Furfero
+	 * Dual licensed under the MIT or GPL Version 2 licenses.
+	 * From https://github.com/furf/jquery-ui-touch-punch
+	 *
+	 * Depends:
+	 *  jquery.ui.widget.js
+	 *  jquery.ui.mouse.js
+	 */
+	(function(b){b.support.touch="ontouchend" in document;if(!b.support.touch){return;}var c=b.ui.mouse.prototype,e=c._mouseInit,a;function d(g,h){if(g.originalEvent.touches.length>1){return;}g.preventDefault();var i=g.originalEvent.changedTouches[0],f=document.createEvent("MouseEvents");f.initMouseEvent(h,true,true,window,1,i.screenX,i.screenY,i.clientX,i.clientY,false,false,false,false,0,null);g.target.dispatchEvent(f);}c._touchStart=function(g){var f=this;if(a||!f._mouseCapture(g.originalEvent.changedTouches[0])){return;}a=true;f._touchMoved=false;d(g,"mouseover");d(g,"mousemove");d(g,"mousedown");};c._touchMove=function(f){if(!a){return;}this._touchMoved=true;d(f,"mousemove");};c._touchEnd=function(f){if(!a){return;}d(f,"mouseup");d(f,"mouseout");if(!this._touchMoved){d(f,"click");}a=false;};c._mouseInit=function(){var f=this;f.element.bind("touchstart",b.proxy(f,"_touchStart")).bind("touchmove",b.proxy(f,"_touchMove")).bind("touchend",b.proxy(f,"_touchEnd"));e.call(f);};})(jQuery);
+
 	// END HELPER FUNCTIONS
 
 	$.simulator = function(placeholder,input) {

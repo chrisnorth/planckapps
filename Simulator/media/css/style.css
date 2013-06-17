@@ -149,6 +149,19 @@ body.adv #firstpeak.advanced { display: table-cell; }
 #firstpeak, #age { display: table-cell; }
 #age { text-align: right; }
 
+a.button {
+	border-radius: 24px;
+	background-color: #AAAAAA;
+	color: white;
+	line-height: 48px;
+	display: inline-block;
+	height: 48px;
+	padding: 0px 32px;
+	text-decoration: none;
+}
+a.button:hover { background-color: #46a546; transition: background-color 0.5s; }
+#options a.button { margin-left: 1em; }
+#options a.button:first-child { margin-left: 0px; }
 
 /* Set the colours for the slider bars */
 #omega_b_holder .ui-widget-header { background-color: #F89406; }

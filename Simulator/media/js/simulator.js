@@ -95,6 +95,19 @@
 	// Placeholder function to prevent errors if we call it without it being set
 	ParameterSlider.prototype.change = function(){}
 
+	ParameterSlider.prototype.setValue = function(v){
+
+		// Get the options
+		this.opts = this.select.children().map(function() {return parseFloat($(this).val());}).get();
+		for(var i = 0; i < this.opts.length; i++){
+			if(this.opts[i]==v){
+				this.slider.slider("value", i+1);
+				this.updateOptsByIndex(i);
+				break;
+			}
+		}
+		return;
+	}
 
 	// A class to create and display a power spectrum
 	// inp = {
@@ -391,7 +404,7 @@
 	}
 
 	// Request the data file for the current Omega values (b,c,l) using the current Omega that has focus
-	PowerSpectrum.prototype.loadData = function(id,b,c,l){
+	PowerSpectrum.prototype.loadData = function(id,b,c,l,fn){
 
 		var file = "";		
 
@@ -707,15 +720,6 @@
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);
 		SpectrumViewer.init(this.spectrum.ctx);
-
-		// Bind events to the canvas
-		/*
-		this.canvas.bind("resize",{me:this},function(ev){
-			//ev.data.me.update();
-		}).canvas.bind("mousedown",{me:this},function(ev){
-			//ev.data.me.update();
-		});
-		*/
 
 	}
 	
@@ -1185,8 +1189,8 @@
 
 		// Define some callback functions
 		var change = function(e){
+			console.log('change')
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
-			this.sky.update();
 		},
 		mouseenter = function(e){
 			this.ps.loadData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
@@ -1240,6 +1244,8 @@
 			$('span.omega_b').html('='+this.omega_b.value);
 			$('span.omega_c').html('='+this.omega_c.value);
 			$('span.omega_l').html('='+this.omega_l.value);
+
+			if(this.sky) this.sky.update();
 		}
 
 		// Make an instance of a power spectrum
@@ -1247,6 +1253,32 @@
 		
 		// Make an instance of a view of part of the sky
 		this.sky = new Sky(inp);
+
+		// Make option buttons
+		$('#options').append(
+			$('<a class="button" href="#">Our universe</a>').on('click',{me:this},function(e){
+				e.preventDefault();
+				var sim = e.data.me;
+				sim.omega_b.setValue(0.05);
+				sim.omega_c.setValue(0.25);
+				sim.omega_l.setValue(0.70);
+				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
+			}),
+			$('<a class="button" href="#">Flatten</a>').on('click',{me:this},function(e){
+				e.preventDefault();
+				var sim = e.data.me;
+				var ob = sim.omega_b.value;
+				var oc = sim.omega_c.value;
+				var ol = sim.omega_l.value;
+				if((ob + oc) <= 1.0){
+					sim.omega_l.setValue((1-ob-oc).toFixed(2));
+				}else{
+					sim.omega_c.setValue((1-ob).toFixed(2));
+					sim.omega_l.setValue(0);
+				}
+				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
+			})
+		);
 
 
 		// Bind keyboard events

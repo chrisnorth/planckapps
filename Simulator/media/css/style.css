@@ -159,7 +159,7 @@ a.button {
 	padding: 0px 32px;
 	text-decoration: none;
 }
-a.button:hover { background-color: #46a546; transition: background-color 0.5s; }
+a.button:hover { background-color: #ffc40d; color: black; transition: background-color 0.5s; }
 #options a.button { margin-left: 1em; }
 #options a.button:first-child { margin-left: 0px; }
 

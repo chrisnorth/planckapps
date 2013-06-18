@@ -1270,11 +1270,22 @@
 				var ob = sim.omega_b.value;
 				var oc = sim.omega_c.value;
 				var ol = sim.omega_l.value;
-				if((ob + oc) <= 1.0){
-					sim.omega_l.setValue((1-ob-oc).toFixed(2));
-				}else{
-					sim.omega_c.setValue((1-ob).toFixed(2));
-					sim.omega_l.setValue(0);
+				var tot = (ob + oc + ol).toFixed(2);
+				if(tot > 1){
+					// Currently open
+					if(ob + oc <= 1.0){
+						// Reduce dark energy
+						sim.omega_l.setValue((1-oc-ob).toFixed(2));
+					}else{
+						// Change Omega_c and remove dark energy
+						sim.omega_c.setValue((1-ob).toFixed(2));
+						sim.omega_l.setValue(0.00);
+					}
+				}else if(tot < 1){
+					// Currently closed
+					if(ob + oc <= 1.0){
+						sim.omega_b.setValue((1-oc-ol).toFixed(2));
+					}else sim.omega_c.setValue((1-ob).toFixed(2));					
 				}
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
 			})

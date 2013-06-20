@@ -144,7 +144,6 @@ body.adv #advancedtoggle a { background-color: black; }
 	position: relative;
 	width: auto;
 	height: 100%;
-	margin-top: -100%;
 }
 #map .label {
 	position: absolute;
@@ -204,7 +203,6 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	#parameters, #powerspectrum, #map {	display: block; padding: 0px; width: 100%; }
 	#map, #powerspectrum { margin-top: 64px; }
 	#map, #map img, #map canvas, #map .labels { width: 100%; height: auto; }
-	#map .labels { margin-top: 0px; height: auto; }
 	h1 { margin-bottom: 32px; }
 	h1 small { display: block; }
 	.wide { display: none; }
@@ -221,11 +219,10 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	}
 	.padded { margin: 16px 0px 0px 0px; }
 	#output { display: block; }
-	#age, body.adv #firstpeak.advanced {
+	#age, body.adv #firstpeak.advanced, #options {
 		display: block;
 		text-align: center;
 	}
-	
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {
@@ -236,4 +233,10 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		padding: 16px;
 	}
 	.padded { margin: 8px 0px 0px 0px; }
+	#options a.button {
+		margin-left: 0;
+		margin-top: 1em;
+		display: block;
+	}
+	#options a.button:first-child { margin-top: 0px; }
 }

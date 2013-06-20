@@ -165,7 +165,7 @@ body #firstpeak.advanced { display: none; }
 body.adv #firstpeak.advanced { display: table-cell; }
 #firstpeak, #age { display: table-cell; }
 #age { text-align: right; }
-.property { font-weight: bold; }
+.property { font-weight: bold; font-size: 1.5em; }
 
 a.button {
 	border-radius: 24px;

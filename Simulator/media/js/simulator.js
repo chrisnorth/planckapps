@@ -1273,7 +1273,7 @@
 			if($('#firstpeak')){
 				// Display the first peak along with the roughly equivalent angular size
 				var ang = 180/e.firstpeak;
-				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;).');
+				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
 				else $('#firstpeak').html('This universe has no fluctuations in its CMB'+(this.omega_b.value == 0 ? ' because there was no matter to interact with the photons.' : '.'));
 			}
 			if($('#age')){
@@ -1376,7 +1376,6 @@
 			return true;
 		});
 		// As we are using the hash anchor, we need to monitor it to check for changes
-		
 		var hashstate = "";
 		setInterval(function(){
 			if(location.hash.substring(1)=="about"){

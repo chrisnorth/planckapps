@@ -388,10 +388,10 @@
 
 			if(fullScreenApi.isFullScreen()){
 				this.fullscreen = true;
-				this.el.addClass('fullscreen');
+				$("body").addClass('fullscreen');
 			}else{
 				this.fullscreen = false;
-				this.el.removeClass('fullscreen');
+				$("body").removeClass('fullscreen');
 			}
 			
 			// Re-define the options
@@ -1274,7 +1274,7 @@
 			if($('#firstpeak')){
 				// Display the first peak along with the roughly equivalent angular size
 				var ang = 180/e.firstpeak;
-				if(e.firstpeak > 0) $('#firstpeak').html('The first peak is at &#8467; = '+e.firstpeak+' (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
+				if(e.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+e.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
 				else $('#firstpeak').html('This universe has no fluctuations in its CMB'+(this.omega_b.value == 0 ? ' because there was no matter to interact with the photons.' : '.'));
 			}
 			if($('#age')){
@@ -1282,7 +1282,7 @@
 				$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
 
 				var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
-				$('#age').append('<div class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</div>');
+				$('#curvature').html('<div class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</div>');
 			}
 			$('span.omega_b').html(' = '+this.omega_b.value);
 			$('span.omega_c').html(' = '+this.omega_c.value);

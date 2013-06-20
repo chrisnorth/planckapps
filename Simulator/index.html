@@ -68,7 +68,7 @@
 
 		<div id="container">
 		
-			<div id="parameters">
+			<div id="parameters" class="column">
 				<form id="omegas">
 					<div id="omega_b_holder" class="parameter">
 						<label for="omega_b">Normal Matter <span class="advanced">(&Omega;<sub>b</sub><span class="omega_b"></span>)</span></label>
@@ -151,13 +151,13 @@
 				</form>
 			</div>
 
-			<div id="powerspectrum"></div>
+			<div id="powerspectrum" class="column"></div>
 
-			<div id="fft">
+			<div id="fft" class="column columnspecific">
 				<canvas id="spectrum"></canvas>
 			</div>
 
-			<div class="column">
+			<div class="column columnspecific">
 				<div id="map">
 					<canvas id="result"><img src="media/img/random.png" class="sky" /><img src="media/img/ouruniverse.png" class="our" /></canvas>
 				</div>
@@ -167,12 +167,15 @@
 
 	</div>
 	
-	<div id="output" class="padded">
-		<div id="firstpeak" class="advanced"></div>
-		<div id="age"></div>
-		<div id="curvature"></div>
+	<div id="footer" class="padded">
+		<div id="options" class="column"></div>
+		<div id="output" class="column">
+			<div id="age"></div>
+			<div id="curvature"></div>
+			<div id="firstpeak" class="advanced"></div>
+		</div>
 	</div>
 	
-	<div id="options" class="padded"></div>
+	
 </body>
 </html>

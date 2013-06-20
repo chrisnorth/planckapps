@@ -113,12 +113,15 @@ body.adv #advancedtoggle a { background-color: black; }
 	height: 300px;
 	line-height: 0px;
 }
-#powerspectrum.fullscreen { background-color: white; font-size: 1.5em; }
+body.fullscreen { font-size: 1.5em; }
+body.fullscreen #powerspectrum { background-color: white; }
 
 #parameters, #powerspectrum { padding-right: 32px; }
 
+#powerspectrum svg, #map canvas { cursor: pointer; }
+
 #fft { display: none; }
-.column, #map, #fft {
+.columnspecific, #map, #fft {
 	width: 300px;
 	height: 300px;
 }
@@ -156,12 +159,12 @@ body.adv #advancedtoggle a { background-color: black; }
 #parameters .parameter:last-child { margin-bottom: 0px; }
 .parameter .ui-slider { margin-top: 0.6em; }
 
-#output { display: table; width: 100%; }
-body #firstpeak.advanced { display: none; }
-body.adv #firstpeak.advanced { display: table-cell; }
-#firstpeak, #age { display: table-cell; }
-#age { text-align: right; }
-.property { font-weight: bold; font-size: 1.5em; }
+#footer { display: table; width: 100%; }
+body .column.advanced { display: none; }
+body.adv .column.advanced { display: table-cell; }
+#options, #output { display: table-cell; }
+#output { text-align: right; }
+.property { font-weight: bold; font-size: 1.5em; line-height: 1.2em; }
 
 a.button {
 	border-radius: 24px;
@@ -215,8 +218,8 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		padding: 32px 32px;
 	}
 	.padded { margin: 16px 0px 0px 0px; }
-	#output { display: block; }
-	#age, body.adv #firstpeak.advanced, #options {
+	#footer { display: block; }
+	#output, body.adv #firstpeak.advanced, #options {
 		display: block;
 		text-align: center;
 	}

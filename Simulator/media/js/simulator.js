@@ -789,7 +789,12 @@
 				console.log('fail');
 				this.canvas.ctx.fillStyle = '#ffffff';
 				this.canvas.ctx.fillRect(0, 0, this.w, this.h);
+				// Hide the Our/Current labels
+				$('.labels').hide();
 				return;
+			}else{
+				// Show the Our/Current labels if necessary
+				if(!$('.labels').is(':visible')) $('.labels').show();
 			}
 
 			// Filter the FFT

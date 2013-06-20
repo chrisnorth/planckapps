@@ -223,7 +223,7 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		display: block;
 		text-align: center;
 	}
-
+	#output { margin-top: 16px; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {

@@ -1282,7 +1282,7 @@
 				$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
 
 				var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
-				$('#curvature').html('<div class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</div>');
+				$('#curvature').html('<span class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</span> universe');
 			}
 			$('span.omega_b').html(' = '+this.omega_b.value);
 			$('span.omega_c').html(' = '+this.omega_c.value);

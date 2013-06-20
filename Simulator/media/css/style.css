@@ -132,12 +132,19 @@ body.adv #advancedtoggle a { background-color: black; }
 	height: 300px;
 	line-height: 0px;
 	text-align: center;
+	position: relative;
 }
 #map canvas, #map img, #fft canvas {
 	width: auto;
 	margin: auto;
 	height: 100%;
 }
+#map .label {
+	position: absolute;
+	line-height: 1em;
+}
+#map .label.sim { text-align: left; bottom: 5px; left: 5px; }
+#map .label.our { text-align: right; top: 5px; right: 5px; }
 
 .parameter { margin-bottom: 32px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }

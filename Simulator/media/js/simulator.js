@@ -473,7 +473,7 @@
 					if(this.json.extrema[i][0]==val) break;
 				}
 				
-				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the properties for this universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
+				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the properties for this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
 				else {
 					data = new Array(this.json.extrema[i].length);
 					for(j = 0 ; j < this.json.extrema[i].length ; j++){
@@ -508,7 +508,7 @@
 			}
 
 		}else{
-			this.error("Something went wrong with the universe (&Omega;<sub>b</sub>="+b+", &Omega;<sub>c</sub>="+c+", &Omega;<sub>&Lambda;</sub>="+l+")");
+			this.error("Something went wrong with the universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
 		}
 
 		// Fire the callback
@@ -601,9 +601,11 @@
 			this.ctx = this.c.getContext('2d');
 			this.ctx.clearRect(0,0,this.wide,this.tall);
 			this.ctx.beginPath();
-			var fs = 16;
-			this.ctx.font = fs+"px sans-serif";
-			this.ctx.fillStyle = 'rgb(255,255,255)';
+
+			// Get some properties from the CSS
+			var fs = parseInt(getStyle(this.id, 'font-size'));
+			this.ctx.font = fs+"px "+getStyle(this.id, 'font-family');
+			this.ctx.fillStyle = getStyle(this.id, 'color');
 			this.ctx.lineWidth = 1.5;
 			var loading = 'Loading sky...';
 			this.ctx.fillText(loading,(this.wide-this.ctx.measureText(loading).width)/2,(this.tall)/2)
@@ -698,10 +700,15 @@
 
 		// Load the initial sky image
 		this.img = new Image();
-		this.img.src = this.el.find('img').attr('src');
+		this.img.src = this.el.find('img.sky').attr('src');
 		var _obj = this;
 		// Add a callback for when it is loaded
 		this.img.addEventListener('load', function(){ _obj.load(); }, false);
+
+		// Load the 'our universe' image
+		this.our = new Image();
+		this.our.src = this.el.find('img.our').attr('src');
+		var _obj = this;
 
 		// Set up the class to deal with the <canvas>
 		this.canvas = new Canvas({id:this.id,width:this.w, height: this.h});
@@ -716,7 +723,7 @@
 		this.spectrum.ctx = this.spectrum.el.getContext('2d');
 		this.spectrum.ctx.fillStyle = '#ffffff';
 		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
-
+		
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);
 		SpectrumViewer.init(this.spectrum.ctx);
@@ -731,7 +738,6 @@
 		this.update();
 		return this;
 	}
-
 
 	Sky.prototype.setupFFT = function(){
 
@@ -811,6 +817,29 @@
 			
 			// Draw the final output
 			this.canvas.ctx.putImageData(this.src, 0, 0);
+
+
+			// Save the canvas context before defining a clipping region
+			// so we can return to the default state later
+			this.canvas.ctx.save();
+			// Draw a triangular region
+			this.canvas.ctx.beginPath();
+			this.canvas.ctx.moveTo(0,0);
+			this.canvas.ctx.lineTo(this.w,this.h);
+			this.canvas.ctx.lineTo(this.w,0);
+			this.canvas.ctx.lineTo(0,0);
+			this.canvas.ctx.clip();
+			// Draw the image for our universe
+			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
+			// Restore the canvas context to its original state
+			this.canvas.ctx.restore();
+
+			this.canvas.ctx.textAlign = 'right';
+			this.canvas.ctx.textBaseline = 'top';
+			this.canvas.ctx.fillText('Our universe',this.w-5,5);
+			this.canvas.ctx.textAlign = 'left';
+			this.canvas.ctx.textBaseline = 'bottom';
+			this.canvas.ctx.fillText('Current universe',5,this.h-5);
 
 		} catch(e) {
 			if(this.logging) console.log(e);
@@ -1241,9 +1270,9 @@
 				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
 				$('#age').html('This simulated universe is '+this.cosmos.age_Gyr.toFixed(1)+' billion years old');
 			}
-			$('span.omega_b').html('='+this.omega_b.value);
-			$('span.omega_c').html('='+this.omega_c.value);
-			$('span.omega_l').html('='+this.omega_l.value);
+			$('span.omega_b').html(' = '+this.omega_b.value);
+			$('span.omega_c').html(' = '+this.omega_c.value);
+			$('span.omega_l').html(' = '+this.omega_l.value);
 
 			if(this.sky) this.sky.update();
 		}

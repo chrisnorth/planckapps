@@ -687,6 +687,7 @@
 		this.context = (is(inp.context,"object")) ? inp.context : this;
 		this.loaded = false;
 		this.logging = true;
+		this.colour = getStyle(this.id, 'color');
 
 		this.w = 256,
 		this.h = 256,
@@ -784,6 +785,7 @@
 
 			if(this.context.ps.data[0].length == 2){
 				console.log('fail');
+				this.canvas.ctx.fillStyle = '#ffffff';
 				this.canvas.ctx.fillRect(0, 0, this.w, this.h);
 				return;
 			}
@@ -824,16 +826,18 @@
 			this.canvas.ctx.save();
 			// Draw a triangular region
 			this.canvas.ctx.beginPath();
-			this.canvas.ctx.moveTo(0,0);
-			this.canvas.ctx.lineTo(this.w,this.h);
+			this.canvas.ctx.moveTo(this.w,0);
+			this.canvas.ctx.lineTo(this.w*0.4,0);
+			this.canvas.ctx.lineTo(this.w,this.h*0.6);
 			this.canvas.ctx.lineTo(this.w,0);
-			this.canvas.ctx.lineTo(0,0);
 			this.canvas.ctx.clip();
 			// Draw the image for our universe
 			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
 			// Restore the canvas context to its original state
 			this.canvas.ctx.restore();
 
+			// Draw labels
+			this.canvas.ctx.fillColor = this.colour;
 			this.canvas.ctx.textAlign = 'right';
 			this.canvas.ctx.textBaseline = 'top';
 			this.canvas.ctx.fillText('Our universe',this.w-5,5);

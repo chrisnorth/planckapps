@@ -119,7 +119,8 @@ body.adv #advancedtoggle a { background-color: black; }
 
 #fft { display: none; }
 #map, #fft {
-	color: white;
+	color: black;
+	background-color: white;
 	background: #45484d; /* Old browsers */
 	background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */

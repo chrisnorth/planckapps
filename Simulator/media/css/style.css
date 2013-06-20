@@ -223,12 +223,11 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		display: block;
 		text-align: center;
 	}
-	#output { margin-top: 16px; }
+	#output, #options { margin-top: 16px; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {
 	body { padding: 16px; }
-	#map, #powerspectrum { margin-top: 16px; }
 	#about {
 		margin: 0px -16px 16px -16px;
 		padding: 16px;

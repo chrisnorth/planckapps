@@ -1257,6 +1257,7 @@
 		// Define a callback for the PowerSpectrum
 		inp.context = this;
 		inp.updated = function(e){
+			// Update text labels
 			if($('#firstpeak')){
 				// Display the first peak along with the roughly equivalent angular size
 				var ang = 180/e.firstpeak;
@@ -1265,11 +1266,15 @@
 			}
 			if($('#age')){
 				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
-				$('#age').html('This simulated universe is '+this.cosmos.age_Gyr.toFixed(1)+' billion years old');
+				$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
+
+				var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
+				$('#age').append('<div class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</div>');
 			}
 			$('span.omega_b').html(' = '+this.omega_b.value);
 			$('span.omega_c').html(' = '+this.omega_c.value);
 			$('span.omega_l').html(' = '+this.omega_l.value);
+
 
 			if(this.sky) this.sky.update();
 		}

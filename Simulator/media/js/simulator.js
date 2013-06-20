@@ -687,7 +687,6 @@
 		this.context = (is(inp.context,"object")) ? inp.context : this;
 		this.loaded = false;
 		this.logging = true;
-		this.colour = getStyle(this.id, 'color');
 
 		this.w = 256,
 		this.h = 256,
@@ -724,7 +723,10 @@
 		this.spectrum.ctx = this.spectrum.el.getContext('2d');
 		this.spectrum.ctx.fillStyle = '#ffffff';
 		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
-		
+
+		// Add the labels
+		this.el.append('<div class="labels"><div class="label sim">Current universe</div><div class="label our">Our universe</div></div>');
+
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);
 		SpectrumViewer.init(this.spectrum.ctx);
@@ -835,15 +837,6 @@
 			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
 			// Restore the canvas context to its original state
 			this.canvas.ctx.restore();
-
-			// Draw labels
-			this.canvas.ctx.fillColor = this.colour;
-			this.canvas.ctx.textAlign = 'right';
-			this.canvas.ctx.textBaseline = 'top';
-			this.canvas.ctx.fillText('Our universe',this.w-5,5);
-			this.canvas.ctx.textAlign = 'left';
-			this.canvas.ctx.textBaseline = 'bottom';
-			this.canvas.ctx.fillText('Current universe',5,this.h-5);
 
 		} catch(e) {
 			if(this.logging) console.log(e);

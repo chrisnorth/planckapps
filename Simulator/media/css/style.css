@@ -140,12 +140,21 @@ body.adv #advancedtoggle a { background-color: black; }
 	margin: auto;
 	height: 100%;
 }
+#map .labels {
+	position: relative;
+	width: auto;
+	height: 100%;
+	margin-top: -100%;
+}
 #map .label {
 	position: absolute;
 	line-height: 1em;
+	background-color: rgba(77,78,83,0.8);
+	color: white;
+	padding: 4px;
 }
-#map .label.sim { text-align: left; bottom: 5px; left: 5px; }
-#map .label.our { text-align: right; top: 5px; right: 5px; }
+#map .label.sim { text-align: left; bottom: 0px; left: 0px; }
+#map .label.our { text-align: right; top: 0px; right: 0px; }
 
 .parameter { margin-bottom: 32px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }

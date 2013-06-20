@@ -215,6 +215,7 @@
 
 			// Draw the data
 			this.draw();
+			
 		}
 
 		// Show the contents again
@@ -739,6 +740,7 @@
 		if(this.logging) console.log('Loaded '+this.img.src);
 		this.setupFFT();
 		this.update();
+		this.resize();
 		return this;
 	}
 
@@ -773,6 +775,11 @@
 		return this;
 	}
 
+	// Function to resize/reposition the label div
+	Sky.prototype.resize = function(){
+		this.el.find('.labels').css({height: this.el.outerHeight(),'margin-top':'-'+this.el.outerHeight()+'px'});
+	}
+	
 	Sky.prototype.update = function(){
 
 		var d = new Date();
@@ -1385,6 +1392,7 @@
 
 	Simulator.prototype.resize = function(){
 		this.ps.resize();
+		this.sky.resize();
 	}
 
 

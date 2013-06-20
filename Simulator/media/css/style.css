@@ -203,7 +203,8 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	.parameter { margin-bottom: 16px; }
 	#parameters, #powerspectrum, #map {	display: block; padding: 0px; width: 100%; }
 	#map, #powerspectrum { margin-top: 64px; }
-	#map, #map img, #map canvas { width: 100%; height: auto; }
+	#map, #map img, #map canvas, #map .labels { width: 100%; height: auto; }
+	#map .labels { margin-top: 0px; height: auto; }
 	h1 { margin-bottom: 32px; }
 	h1 small { display: block; }
 	.wide { display: none; }

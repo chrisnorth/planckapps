@@ -726,7 +726,7 @@
 		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
 
 		// Add the labels
-		this.el.append('<div class="labels"><div class="label sim">Current universe</div><div class="label our">Our universe</div></div>');
+		this.el.append('<div class="label sim">Current universe</div><div class="label our">Our universe</div>');
 
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);
@@ -777,9 +777,10 @@
 
 	// Function to resize/reposition the label div
 	Sky.prototype.resize = function(){
-		this.el.find('.labels').css({height: this.el.outerHeight(),'margin-top':'-'+this.el.outerHeight()+'px'});
+
 	}
 	
+	// The main function to update the sky image
 	Sky.prototype.update = function(){
 
 		var d = new Date();

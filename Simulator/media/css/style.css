@@ -18,7 +18,7 @@ body.adv .advanced { display: inline-block; }
 
 h1 {
 	margin: 0px;
-	margin-bottom: 16px;
+	margin-bottom: 32px;
 	font-weight: 500;
 }
 h1 small {
@@ -106,7 +106,7 @@ body.adv #advancedtoggle a { background-color: black; }
 	vertical-align: middle;
 }
 
-#parameters, #powerspectrum, #map, #fft { display: table-cell; }
+#parameters, #powerspectrum, .column, #fft { display: table-cell; }
 
 #powerspectrum{
 	width: 400px;
@@ -118,6 +118,10 @@ body.adv #advancedtoggle a { background-color: black; }
 #parameters, #powerspectrum { padding-right: 32px; }
 
 #fft { display: none; }
+.column, #map, #fft {
+	width: 300px;
+	height: 300px;
+}
 #map, #fft {
 	color: black;
 	background-color: white;
@@ -129,8 +133,6 @@ body.adv #advancedtoggle a { background-color: black; }
 	background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
-	width: 300px;
-	height: 300px;
 	line-height: 0px;
 	text-align: center;
 	position: relative;
@@ -139,12 +141,6 @@ body.adv #advancedtoggle a { background-color: black; }
 	width: auto;
 	margin: auto;
 	height: 100%;
-}
-#map .labels {
-	position: relative;
-	width: auto;
-	height: 100%;
-	margin-top: -100%;
 }
 #map .label {
 	position: absolute;
@@ -201,9 +197,9 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	#app { display: block; }
 	#container { display: block; }
 	.parameter { margin-bottom: 16px; }
-	#parameters, #powerspectrum, #map {	display: block; padding: 0px; width: 100%; }
+	#parameters, #powerspectrum, .column {	display: block; padding: 0px; width: 100%; }
 	#map, #powerspectrum { margin-top: 64px; }
-	#map, #map img, #map canvas, #map .labels { width: 100%; height: auto; }
+	.column, #map, #map img, #map canvas, #map .labels { width: 100%; height: auto; }
 	h1 { margin-bottom: 32px; }
 	h1 small { display: block; }
 	.wide { display: none; }
@@ -224,9 +220,8 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		display: block;
 		text-align: center;
 	}
-	#map .labels {
-		margin-top: 0px;
-	}
+
+}
 
 @media (max-width: 350px), (max-device-width: 350px) {
 	body { padding: 16px; }

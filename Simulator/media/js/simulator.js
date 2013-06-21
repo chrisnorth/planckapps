@@ -415,7 +415,7 @@
 
 		if(!file || file == this.lastload) return;
 
-		console.log('Getting '+file+' for '+id)
+		if(this.logging) console.log('Getting '+file+' for '+id)
 
 		var _obj = this;
 
@@ -438,7 +438,7 @@
 			},
 			error: function(e){
 				this.error("We couldn't load the properties of this universe for some reason. That sucks. :-(");
-				console.log(file)
+				if(this.logging) console.log(file)
 			},
 			timeout: 4000
 		});
@@ -460,6 +460,9 @@
 		// Reset the l value for the first peak
 		this.firstpeak = 0;
 		
+		// Store the current Omega values
+		this.omega = { b:b, c:c, l:l };
+
 		// Have we got a result from the AJAX call?
 		if(this.json){
 
@@ -515,15 +518,13 @@
 		// Fire the callback
 		if(typeof this.callback.updated==="function") this.callback.updated.call(this.callback.context,{firstpeak: this.firstpeak});
 
-		// Store the current Omega values
-		this.omega = { b:b, c:c, l:l };
 	}
 
 	// An error function
 	PowerSpectrum.prototype.error = function(txt){
-		$('#error').finish();
-		$('#error').html('<div class="close">&times;</div>'+txt).show().delay(4000).fadeOut();
-		$('#error .close').on('click',function(e){ $(this).parent().finish(); });
+		// Display the error message and attach the Omega values as data
+		$('#error').finish().html('<div class="close">&times;</div>'+txt).show().data('omega_b',this.omega.b).data('omega_c',this.omega.c).data('omega_l',this.omega.l)
+		$('#error .close').on('click',function(e){ $(this).parent().hide(); });
 		return;
 	}
 
@@ -794,7 +795,6 @@
 			im = this.im.slice(0);	// We need a copy of the array, not a reference
 
 			if(this.context.ps.data[0].length == 2){
-				console.log('fail');
 				this.canvas.ctx.fillStyle = '#ffffff';
 				this.canvas.ctx.fillRect(0, 0, this.w, this.h);
 				// Hide the Our/Current labels
@@ -1232,7 +1232,6 @@
 
 		// Define some callback functions
 		var change = function(e){
-			console.log('change')
 			this.ps.getData(e.id,this.omega_b.value,this.omega_c.value,this.omega_l.value);
 		},
 		mouseenter = function(e){
@@ -1401,6 +1400,11 @@
 		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_b.value) return this;
 		else this.previous = { omega_b: this.omega_b.value, omega_c: this.omega_c.value, omega_l: this.omega_l.value };
 
+		// Hide the error message if the omegas are different to the ones attached to the error message
+		if($('#error')){
+			if($('#error').data('omega_b')!=this.omega_b.value || $('#error').data('omega_c')!=this.omega_c.value || $('#error').data('omega_l')!=this.omega_l.value) $('#error').hide();
+		}
+		
 		// Update text labels
 		if($('#firstpeak') && e){
 			// Display the first peak along with the roughly equivalent angular size

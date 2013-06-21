@@ -783,7 +783,7 @@
 		if(new Date() - d > 1000) this.sluggish = true;
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
-		if(this.sluggish) this.context.warning('This site may be slow to update as we have to do quite a few calculations to rebuild the universe. Apologies.');
+		if(this.sluggish) this.context.warning('Please be patient. It takes time to rebuild the universe.');
 		else $('#warning').hide();
 		
 		return this;

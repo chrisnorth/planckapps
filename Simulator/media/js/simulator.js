@@ -437,7 +437,7 @@
 				this.getData(id,b,c,l);
 			},
 			error: function(e){
-				this.error("We couldn't load the CMB fluctuations of this universe for some reason. That sucks. :-(");
+				this.callback.context.error("We couldn't load the CMB fluctuations of this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+"). That sucks. :-(");
 				if(this.logging) console.log(file)
 			},
 			timeout: 4000
@@ -477,7 +477,7 @@
 					if(this.json.extrema[i][0]==val) break;
 				}
 				
-				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the CMB fluctuations for this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
+				if(i >= this.json.extrema.length) this.callback.context.error("Oh dear. We couldn't find the CMB fluctuations for this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
 				else {
 					data = new Array(this.json.extrema[i].length);
 					for(j = 0 ; j < this.json.extrema[i].length ; j++){
@@ -521,10 +521,18 @@
 	}
 
 	// An error function
-	PowerSpectrum.prototype.error = function(txt){
+	Simulator.prototype.error = function(txt){
 		// Display the error message and attach the Omega values as data
-		$('#error').finish().html('<div class="close">&times;</div>'+txt).show().data('omega_b',this.omega.b).data('omega_c',this.omega.c).data('omega_l',this.omega.l)
+		$('#error').html('<div class="close">&times;</div>'+txt).show().data('omega_b',this.omega_b.value).data('omega_c',this.omega_c.value).data('omega_l',this.omega_l.value);
 		$('#error .close').on('click',function(e){ $(this).parent().hide(); });
+		return;
+	}
+
+	// A warning function
+	Simulator.prototype.warning = function(txt){
+		// Display the error message and attach the Omega values as data
+		$('#warning').html('<div class="close">&times;</div>'+txt).show();
+		$('#warning .close').on('click',function(e){ $(this).parent().hide(); });
 		return;
 	}
 
@@ -689,6 +697,7 @@
 		this.context = (is(inp.context,"object")) ? inp.context : this;
 		this.loaded = false;
 		this.logging = true;
+		this.sluggish = false;
 
 		this.w = 256,
 		this.h = 256,
@@ -771,8 +780,12 @@
 
 		this.colours = colourtable("planck");
 
+		if(new Date() - d > 1000) this.sluggish = true;
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
+		if(this.sluggish) this.context.warning('This site may be slow to update as we have to do quite a few calculations to rebuild the universe. Apologies.');
+		else $('#warning').hide();
+		
 		return this;
 	}
 

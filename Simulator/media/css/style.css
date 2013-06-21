@@ -35,8 +35,11 @@ a:hover { color: #F16F25; text-decoration: underline; }
 a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
-#error { position: absolute; top: 0px; left: 0px; right: 0px; padding: 0.5em 1em; background-color: #E13F29; color: white; display: none; }
-#error .close { float: right; font-weight: bold; color: white; cursor: pointer; }
+#msg { position: absolute; top: 0px; left: 0px; right: 0px; }
+#msg .close { float: right; font-weight: bold; color: white; cursor: pointer; }
+#error, #warning { padding: 0.5em 1em; display: none; }
+#error { background-color: #E13F29; color: white; }
+#warning { background-color: #ffc40d; color: black; }
 #advancedtoggle, #help {
 	line-height: 48px;
 	width: 48px;

@@ -71,8 +71,8 @@ a:active { color: #4D4E53; }
 }
 #help .abouton a:hover { background-color: #049CDB; transition: background-color 0.5s; }
 #about {
-	color: #EEEEEE;
-	background-color: #111111; 
+	color: #111111;
+	background-color: #EEEEEE; 
 	display: block; 
 	margin-left: -64px;
 	margin-right: -64px;

@@ -858,6 +858,7 @@
 		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
 	}
 
+	
 	/**
 	 * Fast Fourier Transform
 	 * 1D-FFT/IFFT, 2D-FFT/IFFT (radix-2)
@@ -1221,6 +1222,9 @@
 	// The main function
 	function Simulator(inp){
 
+		// A place to cache the previous Omega values
+		this.previous = { omega_b: -1, omega_c: -1, omega_l: -1 };
+
 		// We obviously have Javascript enabled to be here so we will remove the hiding class
 		$('.scriptonly').removeClass('scriptonly');
 
@@ -1264,31 +1268,16 @@
 		inp.omega_c = this.omega_c.value;
 		inp.omega_l = this.omega_l.value;
 
+		// Keep a copy of the starting values
+		this.our = { omega_b: 0.05, omega_c: 0.25, omega_l: 0.70 };
+
 		// Make an instance of a cosmology
 		this.cosmos = new Cosmos(inp.omega_b,inp.omega_c,inp.omega_l);
 
 		// Define a callback for the PowerSpectrum
 		inp.context = this;
 		inp.updated = function(e){
-			// Update text labels
-			if($('#firstpeak')){
-				// Display the first peak along with the roughly equivalent angular size
-				var ang = 180/e.firstpeak;
-				if(e.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+e.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
-				else $('#firstpeak').html('This universe has no fluctuations in its CMB'+(this.omega_b.value == 0 ? ' because there was no matter to interact with the photons.' : '.'));
-			}
-			if($('#age')){
-				this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
-				$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
-
-				var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
-				$('#curvature').html('<span class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</span> universe');
-			}
-			$('span.omega_b').html(' = '+this.omega_b.value);
-			$('span.omega_c').html(' = '+this.omega_c.value);
-			$('span.omega_l').html(' = '+this.omega_l.value);
-
-
+			_obj.update(e);
 			if(this.sky) this.sky.update();
 		}
 
@@ -1300,15 +1289,23 @@
 
 		// Make option buttons
 		$('#options').append(
-			$('<a class="button" href="#">Our universe</a>').on('click',{me:this},function(e){
+			$('<a class="button ouruniverse" href="#">Our universe</a>').on('click',{me:this},function(e){
 				e.preventDefault();
 				var sim = e.data.me;
-				sim.omega_b.setValue(0.05);
-				sim.omega_c.setValue(0.25);
-				sim.omega_l.setValue(0.70);
+				sim.omega_b.setValue(sim.our.omega_b);
+				sim.omega_c.setValue(sim.our.omega_c);
+				sim.omega_l.setValue(sim.our.omega_l);
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
 			}),
-			$('<a class="button" href="#">Flatten</a>').on('click',{me:this},function(e){
+			$('<a class="button matteronly" href="#">Normal matter only</a>').on('click',{me:this},function(e){
+				e.preventDefault();
+				var sim = e.data.me;
+				sim.omega_b.setValue(1.00);
+				sim.omega_c.setValue(0.00);
+				sim.omega_l.setValue(0.00);
+				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
+			}),
+			$('<a class="button flatten" href="#">Flatten</a>').on('click',{me:this},function(e){
 				e.preventDefault();
 				var sim = e.data.me;
 				var ob = sim.omega_b.value;
@@ -1386,6 +1383,9 @@
 			}
 		},500);
 
+		// Update labels, buttons etc
+		this.update();
+
 		return this;
 	}
 
@@ -1393,6 +1393,47 @@
 	Simulator.prototype.resize = function(){
 		this.ps.resize();
 		this.sky.resize();
+		return this;
+	}
+	
+	Simulator.prototype.update = function(e){
+	
+		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_b.value) return this;
+		else this.previous = { omega_b: this.omega_b.value, omega_c: this.omega_c.value, omega_l: this.omega_l.value };
+
+		// Update text labels
+		if($('#firstpeak') && e){
+			// Display the first peak along with the roughly equivalent angular size
+			var ang = 180/e.firstpeak;
+			if(e.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+e.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
+			else $('#firstpeak').html('No fluctuations in the CMB'+(this.omega_b.value == 0 ? ' because there<br />was no matter to interact with the photons.' : ''));
+		}else{
+			$('#firstpeak').html('?');
+		}
+		if($('#age')){
+			this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
+			$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
+		}
+		if($('#curvature')){
+			var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
+			$('#curvature').html('<span class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</span> universe');
+			if(tot == 1) $('.button.flatten').hide();
+			else $('.button.flatten').show();
+			/*if(this.omega_b.value == 1 && tot == 1) $('.button.matteronly').hide();
+			else $('.button.matteronly').show();
+			if(this.omega_b.value == our.omega_b && this.omega_c.value == our.omega_c && this.omega_l.value == our.omega_l) $('.button.ouruniverse').hide();
+			else $('.button.ouruniverse').show();*/
+		}
+		if(this.omega_b.value == this.our.omega_b && this.omega_c.value == this.our.omega_c && this.omega_l.value == this.our.omega_l){
+			$('.label.sim').hide();
+		}else{
+			$('.label.sim').show();		
+		}
+		$('span.omega_b').html(' = '+this.omega_b.value);
+		$('span.omega_c').html(' = '+this.omega_c.value);
+		$('span.omega_l').html(' = '+this.omega_l.value);
+
+		return this;
 	}
 
 

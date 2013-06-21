@@ -140,6 +140,7 @@ body.fullscreen #powerspectrum { background-color: white; }
 	text-align: center;
 	position: relative;
 }
+#map { color: white; }
 #map canvas, #map img, #fft canvas {
 	width: auto;
 	margin: auto;

@@ -437,7 +437,7 @@
 				this.getData(id,b,c,l);
 			},
 			error: function(e){
-				this.error("We couldn't load the properties of this universe for some reason. That sucks. :-(");
+				this.error("We couldn't load the CMB fluctuations of this universe for some reason. That sucks. :-(");
 				if(this.logging) console.log(file)
 			},
 			timeout: 4000
@@ -477,7 +477,7 @@
 					if(this.json.extrema[i][0]==val) break;
 				}
 				
-				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the properties for this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
+				if(i >= this.json.extrema.length) this.error("Oh dear. We couldn't find the CMB fluctuations for this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
 				else {
 					data = new Array(this.json.extrema[i].length);
 					for(j = 0 ; j < this.json.extrema[i].length ; j++){

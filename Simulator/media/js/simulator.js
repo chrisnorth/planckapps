@@ -1300,7 +1300,7 @@
 			$('<a class="button matteronly" href="#">Normal matter only</a>').on('click',{me:this},function(e){
 				e.preventDefault();
 				var sim = e.data.me;
-				sim.omega_b.setValue(1.00);
+				sim.omega_b.setValue(0.20);
 				sim.omega_c.setValue(0.00);
 				sim.omega_l.setValue(0.00);
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);

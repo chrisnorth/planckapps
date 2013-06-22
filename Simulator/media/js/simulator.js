@@ -413,7 +413,10 @@
 		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_lin.json"		
 		else if(id=="omega_l") file = this.dir+"Ob"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_lin.json"		
 
-		if(!file || file == this.lastload) return;
+		if(!file || file == this.lastload){
+			this.getData(id,b,c,l);
+			return;
+		}
 
 		if(this.logging) console.log('Getting '+file+' for '+id)
 

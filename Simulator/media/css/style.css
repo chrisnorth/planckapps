@@ -161,7 +161,7 @@ body.fullscreen #powerspectrum { background-color: white; }
 }
 #map .label.sim { text-align: left; bottom: 0px; left: 0px; }
 #map .label.our { text-align: right; top: 0px; right: 0px; }
-#map .label.scale { text-align: center; background-color: transparent; right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid black; color: black; }
+#map .label.scale { text-align: center; font-weight: bold; background-color: rgba(255,255,255,0.4); right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid black; color: black; }
 
 .parameter { margin-bottom: 32px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }

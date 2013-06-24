@@ -1368,7 +1368,7 @@
 			})
 		);
 
-		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /> Show scale</a></div><div class="configoption"><input type="checkbox" name="showours" /> Show our universe</a></div><div class="configoption"><input type="checkbox" name="normscale" /> Normalised colour scale</div>');
+		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /> Show angular scale</a></div><div class="configoption"><input type="checkbox" name="showours" /> Show our universe</a></div><div class="configoption"><input type="checkbox" name="normscale" /> Normalised colour scale</div>');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');

@@ -36,7 +36,7 @@ a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
 #msg { position: absolute; top: 0px; left: 0px; right: 0px; }
-#msg .close { float: right; font-weight: bold; color: inherit; cursor: pointer; }
+#msg .close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; }
 #error, #warning { padding: 0.5em 1em; display: none; }
 #error { background-color: #E13F29; color: white; }
 #warning { background-color: #ffc40d; color: black; }

@@ -775,10 +775,10 @@
 
 		this.setColourTable('planck');
 		
-		if(new Date() - d > 1000) this.sluggish = true;
+		if(new Date() - d > 250) this.sluggish = true;
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
-		if(this.sluggish) this.context.warning('Please be patient. It can take time to rebuild the universe.');
+		if(this.sluggish) this.context.warning('It may take time to update the universe. Please be patient.');
 		else $('#warning').hide();
 		
 		return this;

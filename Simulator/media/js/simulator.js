@@ -1413,7 +1413,7 @@
 	
 	Simulator.prototype.update = function(e){
 	
-		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_b.value) return this;
+		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_l.value) return this;
 		else this.previous = { omega_b: this.omega_b.value, omega_c: this.omega_c.value, omega_l: this.omega_l.value };
 
 		// Hide the error message if the omegas are different to the ones attached to the error message

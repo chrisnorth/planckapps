@@ -804,7 +804,7 @@
 
 		try {
 			
-			var val = 0, p = 0, x, y, scale, re, im;
+			var val = 0, p = 0, x, y, scale, re, im, mx, mn;
 
 			// Get the pre-processed FFT data
 			re = this.re.slice(0);	// We need a copy of the array, not a reference
@@ -834,10 +834,13 @@
 
 			// Loop over the data setting the value
 			// First work out a scaling function
-			scale = 255/Math.max.apply(null,re);
+			mx = Math.max.apply(null,re);
+			mn = Math.min.apply(null,re);
+			scale = 255/(mx-mn);
+
 			for(y = 0,i = 0; y < this.h; y++, i+=this.w) {
 				for(x = 0; x < this.w; x++) {
-					val = re[i + x]*scale;
+					val = (re[i + x]-mn)*scale;
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
 					// Set colour using pre-calculated colour table

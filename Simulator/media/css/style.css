@@ -36,11 +36,11 @@ a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
 #msg { position: absolute; top: 0px; left: 0px; right: 0px; }
-#msg .close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; }
+.close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; }
 #error, #warning { padding: 0.5em 1em; display: none; }
 #error { background-color: #E13F29; color: white; }
 #warning { background-color: #ffc40d; color: black; }
-#advancedtoggle, #help {
+.toggle {
 	line-height: 48px;
 	width: 48px;
 	height: 48px;
@@ -50,19 +50,32 @@ a:active { color: #4D4E53; }
 	margin-left: 8px;
 	float: right;
 }
+.toggle a {
+	background-color: #AAAAAA;
+	width: 48px;
+	height: 48px;
+	display: block;
+	border-radius: 24px;
+	color: inherit;
+	background-image: url("../img/icons.png");
+	background-position: 0 0;
+	background-repeat: no-repeat;
+}
+.toggle img { width: 100%; height: 100%; }
 #help .abouton, #help .aboutoff {
 	line-height: 48px;
 }
 #help a {
 	display: block;
+	background-image: none;
 	font-family: serif;
 	text-decoration: none;
 	text-align: center;
 }
-#help.on .aboutoff a { display: inline-block; }
+#help.on .aboutoff a { display: block; }
 #help.on .abouton a { display: none; }
 #help .aboutoff a {
-	color: inherit;
+	background: none;
 	display: none;
 }
 #help .abouton a {
@@ -82,19 +95,9 @@ a:active { color: #4D4E53; }
 	margin-bottom: 64px;
 	padding: 32px 64px;
 }
-#advancedtoggle a {
-	background-color: #AAAAAA;
-	width: 48px;
-	height: 48px;
-	display: block;
-	border-radius: 24px;
-	background-image: url("../img/icons.png");
-	background-position: 0 0;
-	background-repeat: no-repeat;
-}
-#advancedtoggle img { width: 100%; height: 100%; }
 body.adv #advancedtoggle a { background-color: black; }
-#advancedtoggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
+.toggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
+#configtoggle a { background-position: 0 -48px; }
 
 #app {
 	display: table;
@@ -158,13 +161,22 @@ body.fullscreen #powerspectrum { background-color: white; }
 }
 #map .label.sim { text-align: left; bottom: 0px; left: 0px; }
 #map .label.our { text-align: right; top: 0px; right: 0px; }
-#map .label.scale { text-align: center; background-color: transparent; right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 1px solid black; color: black; }
+#map .label.scale { text-align: center; background-color: transparent; right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid black; color: black; }
 
 .parameter { margin-bottom: 32px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }
 .parameter .ui-slider { margin-top: 0.6em; }
 
 #footer { display: table; width: 100%; }
+
+#config { width: 50%; padding: 2em; display: none; }
+#config form { font-size: 1.2em; }
+#config .configoption { margin-bottom: 1em; }
+#config input[type=checkbox] { width: 2em; height: 2em; }
+#config .close { font-size: 2em; margin-top: -0.5em; }
+.lightbox_bg { z-index: 101; left:0px; top: 0px; right: 0px; bottom: 0px; position: absolute; background-color: rgb(255,255,255); }
+.lightbox_top { z-index: 102; max-width:500px; position: absolute; background-color: white; }
+
 body .column.advanced { display: none; }
 body.adv .column.advanced { display: table-cell; }
 #options, #output { display: table-cell; }
@@ -229,6 +241,7 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		text-align: center;
 	}
 	#output, #options { margin-top: 16px; }
+	#config { width: 80%; height: 100%; border: 0px; box-shadow: none; padding: 1em; }
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {

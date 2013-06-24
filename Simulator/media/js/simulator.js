@@ -702,6 +702,11 @@
 		this.logging = true;
 		this.sluggish = false;
 
+		// Display options
+		this.fixedscale = false;
+		this.showours = true;
+		this.showscale = false;
+
 		this.w = 256,
 		this.h = 256,
 		this.maxang = 10;	// angular diameter of image in degrees
@@ -831,8 +836,13 @@
 
 			// Loop over the data setting the value
 			// First work out a scaling function
-			mx = Math.max.apply(null,re);
-			mn = Math.min.apply(null,re);
+			if(this.fixedscale){
+				mx = 6;
+				mn = -6;
+			}else{
+				mx = Math.max.apply(null,re);
+				mn = Math.min.apply(null,re);
+			}
 
 			scale = 255/(mx-mn);
 
@@ -853,29 +863,31 @@
 			this.canvas.ctx.putImageData(this.src, 0, 0);
 
 
-			// Save the canvas context before defining a clipping region
-			// so we can return to the default state later
-			this.canvas.ctx.save();
-			// Draw a triangular region
-			this.canvas.ctx.beginPath();
-			this.canvas.ctx.moveTo(this.w,0);
-			this.canvas.ctx.lineTo(this.w*0.4,0);
-			this.canvas.ctx.lineTo(this.w,this.h*0.6);
-			this.canvas.ctx.lineTo(this.w,0);
-			this.canvas.ctx.clip();
-
-			// Draw the image for our universe
-			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
-
-			// Restore the canvas context to its original state
-			this.canvas.ctx.restore();
-
-			// Draw a line to help distinguish universes
-			this.canvas.ctx.beginPath();
-			this.canvas.ctx.moveTo(this.w*0.4,0);
-			this.canvas.ctx.lineTo(this.w,this.h*0.6);
-			this.canvas.ctx.strokeStyle = "#fff";
-			this.canvas.ctx.stroke();
+			if(this.showours){
+				// Save the canvas context before defining a clipping region
+				// so we can return to the default state later
+				this.canvas.ctx.save();
+				// Draw a triangular region
+				this.canvas.ctx.beginPath();
+				this.canvas.ctx.moveTo(this.w,0);
+				this.canvas.ctx.lineTo(this.w*0.4,0);
+				this.canvas.ctx.lineTo(this.w,this.h*0.6);
+				this.canvas.ctx.lineTo(this.w,0);
+				this.canvas.ctx.clip();
+	
+				// Draw the image for our universe
+				this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
+	
+				// Restore the canvas context to its original state
+				this.canvas.ctx.restore();
+	
+				// Draw a line to help distinguish universes
+				this.canvas.ctx.beginPath();
+				this.canvas.ctx.moveTo(this.w*0.4,0);
+				this.canvas.ctx.lineTo(this.w,this.h*0.6);
+				this.canvas.ctx.strokeStyle = "#fff";
+				this.canvas.ctx.stroke();
+			}
 
 		} catch(e) {
 			if(this.logging) console.log(e,p,val);
@@ -1356,6 +1368,25 @@
 			})
 		);
 
+		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /> Show scale</a></div><div class="configoption"><input type="checkbox" name="showours" /> Show our universe</a></div><div class="configoption"><input type="checkbox" name="normscale" /> Normalised colour scale</div>');
+		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
+			var sim = e.data.me;
+			sim.sky.showscale = $(this).is(':checked');
+			sim.update();
+		});
+		$('#config form input[name=showours]').attr('checked',this.sky.showours).on('click',{me:this},function(e){
+			var sim = e.data.me;
+			sim.sky.showours = $(this).is(':checked');
+			sim.sky.update();
+			sim.update();
+		});
+		$('#config form input[name=normscale]').attr('checked',!this.sky.fixedscale).on('click',{me:this},function(e){
+			var sim = e.data.me;
+			sim.sky.fixedscale = !$(this).is(':checked');
+			sim.sky.update();
+			sim.update();
+		})
+
 
 		// Bind keyboard events
 		$(document).bind('keypress',{sim:this},function(e){
@@ -1389,13 +1420,16 @@
 			$('#about').slideToggle();
 			return true;
 		}
-		var newdiv = $('<div id="menu"><div id="help"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle"><a href="#powerspectrum"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div></div>');
+		var newdiv = $('<div id="menu"><div id="help" class="toggle"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle" class="toggle"><a href="#powerspectrum"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div><div id="configtoggle" class="toggle"><a href="#config"><img src="media/img/cleardot.gif" alt="Options" title="Toggle options" /></a></div></div>');
 		$('h1').before(newdiv);
 		$('#help .abouton a, #help .aboutoff a').on('click',toggleAbout);
 		$('#advancedtoggle a').on('click',{me:this},function(e){
 			e.preventDefault();
 			e.data.me.ps.toggle();
 			return true;
+		});
+		$('#configtoggle').on('click',{me:this},function(e){
+			lightbox($('#config'),$('#configtoggle'));
 		});
 		// As we are using the hash anchor, we need to monitor it to check for changes
 		var hashstate = "";
@@ -1429,6 +1463,11 @@
 			$('#map .label.scale').css({'margin-right':p,'width': v, 'height': v, 'line-height': v, 'border-radius': v });
 			$('#map .label.sim').css('margin-left',p);
 			$('#map .label.our').css('margin-right',p);
+			if(this.sky.showscale) $('#map .label.scale').show();
+			else $('#map .label.scale').hide();
+
+			if(this.sky.showours) $('.label.our').show();
+			else $('.label.our').hide();
 		}
 	
 		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_l.value) return this;
@@ -1458,11 +1497,7 @@
 			if(tot == 1) $('.button.flatten').hide();
 			else $('.button.flatten').show();
 		}
-		//if(this.omega_b.value == this.our.omega_b && this.omega_c.value == this.our.omega_c && this.omega_l.value == this.our.omega_l){
-		//	$('.label.sim').hide();
-		//}else{
-		//	$('.label.sim').show();		
-		//}
+
 		$('span.omega_b').html(' = '+this.omega_b.value);
 		$('span.omega_c').html(' = '+this.omega_c.value);
 		$('span.omega_l').html(' = '+this.omega_l.value);
@@ -1800,7 +1835,87 @@
 		}
 		zigset(v);
 	}
+		
+	function lightbox(lb,revert,callback){
+		if(!lb.length) return;
+		var l = lb.position().left;
+		var t = lb.position().top;
+		var h = $(document).height();
+		var parent = lb.parent();
+		var me = lb.detach();
+		$("body").append('<div class="lightbox_bg"></div>')
+		me.appendTo('body');
+		lb.addClass('lightbox_top').show().attr('role','dialog');
 	
+		if(lb.find('.close').length==0) lb.prepend('<div class="close">&times;</div>');
+	
+		$('.lightbox_top form').on('submit',{lb:lb,revert:revert},function(e){
+			if(e.data.revert && e.data.revert.length > 0){
+				if(e.data.revert.get(0).nodeName!="A") e.data.revert = e.data.revert.find('a').eq(0);
+				e.data.revert.focus();
+			}
+			closeLightbox(e.data.lb);
+		});
+	
+		$('.lightbox_top .close').show().on('click',{lb:lb,revert:revert,callback:callback},function(e){
+			e.preventDefault();
+			closeLightbox(e.data.lb);
+			e.data.revert.focus();
+			if(typeof e.data.callback==="function") e.data.callback.call();
+		});
+	
+		$('.lightbox_bg').css({'height':''});
+		centre(lb);
+	
+		$('.lightbox_bg').on('click',{lb:lb,revert:revert,callback:callback},function(e){
+			closeLightbox(e.data.lb);
+			e.data.revert.focus();
+			if(typeof e.data.callback==="function") e.data.callback.call();
+		}).css({'height':h+'px'});
+	
+		$(window).resize(function(){
+			if($(window).height() > $('.lightbox_top').height()) centre(lb);
+			else $('.lightbox_top').css('top',0)
+			$('.lightbox_bg').css({'height':$(document).height()+'px'});
+		});
+	
+		$('.lightbox_top form input:visible:first').focus();
+	
+		return;
+	}
+	
+	function closeLightbox(lb){
+		speed = 500;
+		if($('.lightbox_bg').length > 0) $('.lightbox_bg').fadeOut(speed,function() { $(this).remove(); });
+		if(lb.length > 0){
+			lb.attr('role','');
+			var parent = lb.parent();
+			lb.fadeOut(speed,function(){
+				$(this).removeClass('lightbox_top');
+				me = $(this).detach();
+				me.appendTo(parent);
+			});
+		}
+		$('body').css('overflow-y','auto');
+		if(typeof fn=="function") fn.call();
+	}
+	
+	function centre(lb){
+		var wide = $(window).width();
+		var tall = $(window).height();
+		var l = 0;
+		var t = 0;
+		if(lb.css('max-width').indexOf('px') > 0){
+			l = ((wide-lb.outerWidth())/2);
+			lb.css({left:((wide-lb.outerWidth())/2)+'px'});
+			if($(window).height() > lb.height()){
+				//t = (window.scrollY+(tall-lb.outerHeight())/2);
+				t = ((tall-lb.outerHeight())/2 + $(window).scrollTop());
+				$('body').css('overflow-y','hidden');
+			}
+		}
+		lb.css({left:l+"px",top:t+'px'});
+	}
 
 	// END HELPER FUNCTIONS
 

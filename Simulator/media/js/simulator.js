@@ -707,7 +707,7 @@
 		this.maxang = 10;	// angular diameter of image in degrees
 		this.minang = this.maxang/this.w;
 		this.dl = 180/this.maxang;
-		
+
 		this.re = [];
 		this.im = [];
 		this.src = "";
@@ -869,6 +869,11 @@
 			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
 			// Restore the canvas context to its original state
 			this.canvas.ctx.restore();
+			this.canvas.ctx.beginPath();
+			this.canvas.ctx.moveTo(this.w*0.4,0);
+			this.canvas.ctx.lineTo(this.w,this.h*0.6);
+			this.canvas.ctx.strokeStyle = "#fff";
+			this.canvas.ctx.stroke();
 
 		} catch(e) {
 			if(this.logging) console.log(e);

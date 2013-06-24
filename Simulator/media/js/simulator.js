@@ -363,7 +363,7 @@
 
 		}
 		
-		if(this.logging) console.log("Total for PowerSpectrum.prototype.draw(): " + (new Date() - d) + "ms");
+		//if(this.logging) console.log("Total for PowerSpectrum.prototype.draw(): " + (new Date() - d) + "ms");
 
 		return this;
 	}
@@ -706,23 +706,15 @@
 		this.h = 256,
 		this.maxang = 10;	// angular diameter of image in degrees
 		this.minang = this.maxang/this.w;
-		this.dl = 180/this.maxang;
+		this.dl = 180*2/this.maxang;
 
 		this.re = [];
 		this.im = [];
 		this.src = "";
 
-		// Load the initial sky image
-		this.img = new Image();
-		this.img.src = this.el.find('img.sky').attr('src');
-		var _obj = this;
-		// Add a callback for when it is loaded
-		this.img.addEventListener('load', function(){ _obj.load(); }, false);
-
 		// Load the 'our universe' image
 		this.our = new Image();
 		this.our.src = this.el.find('img.our').attr('src');
-		var _obj = this;
 
 		// Set up the class to deal with the <canvas>
 		this.canvas = new Canvas({id:this.id,width:this.w, height: this.h});
@@ -739,18 +731,20 @@
 		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
 
 		// Add the labels
-		this.el.append('<div class="label sim">Current universe</div><div class="label our">Our universe</div>');
+		this.el.append('<div class="label sim">Current universe</div><div class="label our">Our universe</div><div class="label scale"><div class="value">1&deg;</div></div>');
 
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);
 		SpectrumViewer.init(this.spectrum.ctx);
 
+		// Add a callback for when it is loaded
+		this.load();
 	}
 	
 	// Called when the image has been loaded
 	Sky.prototype.load = function(){
 		this.loaded = true;
-		if(this.logging) console.log('Loaded '+this.img.src);
+		//if(this.logging) console.log('Loaded '+this.img.src);
 		this.setupFFT();
 		this.update();
 		this.resize();
@@ -761,35 +755,38 @@
 
 		if(this.logging) var d = new Date();
 
-		// Draw the original image to the spectrum viewer
-		this.spectrum.ctx.drawImage(this.img, 0, 0, this.w, this.h);
-
-		// Read the image data into a blob
+		// Read the blank image data into a blob
 		this.src = this.spectrum.ctx.getImageData(0, 0, this.w, this.h);
 		this.data = this.src.data;
 
-		var i = 0, y, x;
+		// We want the Fourier Transform of a sky with Gaussian distributed power on all scales
 
+		// Class for making Gaussian distributed random numbers. Argument is the seed.
+		var z = new Ziggurat(-1);
+
+		var i = 0, y, x;
 		for(y=0; y<this.h; y++) {
 			i = y*this.w;
 			for(x=0; x<this.w; x++) {
-				this.re[i + x] = this.data[(i << 2) + (x << 2)];
+				this.re[i + x] = z.nextGaussian();
 				this.im[i + x] = 0.0;
 			}
 		}
 
-		// Take the Fourier Transform of the sky
-		FFT.fft2d(this.re, this.im);
-
-		this.colours = colourtable("planck");
-
+		this.setColourTable('planck');
+		
 		if(new Date() - d > 1000) this.sluggish = true;
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
-		if(this.sluggish) this.context.warning('Please be patient. It takes time to rebuild the universe.');
+		if(this.sluggish) this.context.warning('Please be patient. It can take time to rebuild the universe.');
 		else $('#warning').hide();
 		
 		return this;
+	}
+
+	// Update the colour table
+	Sky.prototype.setColourTable = function(ct){
+		this.colours = new colourtable(ct);
 	}
 
 	// Function to resize/reposition the label div
@@ -836,6 +833,7 @@
 			// First work out a scaling function
 			mx = Math.max.apply(null,re);
 			mn = Math.min.apply(null,re);
+
 			scale = 255/(mx-mn);
 
 			for(y = 0,i = 0; y < this.h; y++, i+=this.w) {
@@ -843,8 +841,8 @@
 					val = (re[i + x]-mn)*scale;
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
+					val = Math.round(val);
 					// Set colour using pre-calculated colour table
-					val = parseInt(val);
 					this.data[p] = this.colours[val][0];
 					this.data[p+1] = this.colours[val][1];
 					this.data[p+2] = this.colours[val][2];
@@ -865,10 +863,14 @@
 			this.canvas.ctx.lineTo(this.w,this.h*0.6);
 			this.canvas.ctx.lineTo(this.w,0);
 			this.canvas.ctx.clip();
+
 			// Draw the image for our universe
 			this.canvas.ctx.drawImage(this.our, 0, 0, this.w, this.h);
+
 			// Restore the canvas context to its original state
 			this.canvas.ctx.restore();
+
+			// Draw a line to help distinguish universes
 			this.canvas.ctx.beginPath();
 			this.canvas.ctx.moveTo(this.w*0.4,0);
 			this.canvas.ctx.lineTo(this.w,this.h*0.6);
@@ -876,7 +878,7 @@
 			this.canvas.ctx.stroke();
 
 		} catch(e) {
-			if(this.logging) console.log(e);
+			if(this.logging) console.log(e,p,val);
 		}
 
 		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
@@ -1089,9 +1091,7 @@
 	 */
 	var FrequencyFilter = (function() {
 		var _n = 0,
-		_rs = [],	// The r values for each pixel
-		_rs2 = [],	// The r^2 values for each pixel
-		_ls = [],	// The l values for each pixel
+		_ls = [],	// The corresponding l values for each pixel
 		_init = function(n, dl) {
 			if(n !== 0 && (n & (n - 1)) === 0) {
 				_n = n;
@@ -1100,16 +1100,16 @@
 			}
 
 			var i = 0, p;
-			var n2 = _n >> 1;
+			var n2 = _n >> 1;	// Half the value of n
 			if(!dl || typeof dl!=="number") dl = 0;
+			var _rs = [];	// The r values for each pixel
 	
 			for(var y=-n2; y<n2; y++) {
 				i = n2 + (y + n2)*_n;
 				for(var x=-n2; x<n2; x++) {
 					p = x + i;
-					_rs2[p] = ((x*x) + (y*y));
-					_rs[p] = Math.sqrt(_rs2[p]);
-					_ls[p] = _rs[p]*dl;
+					_rs[p] = Math.sqrt(((x*x) + (y*y)));
+					_ls[p] = (_rs[p]*dl);
 				}
 			}
 		},
@@ -1149,20 +1149,19 @@
 				x = 0,
 				y = 0,
 				z = 0,
-				max = Math.max.apply(null,data[1]),
 				n2 = _n >> 1;	// Bit operator to halve _n
-				nsq = _n << 1;
 
 
 			for(y=-n2; y<n2; y++) {
 				i = n2 + (y + n2)*_n;
 				for(x=-n2; x<n2; x++) {
 					p = x + i;
-					v = 0;
 					for(z = 0 ; z < data[0].length ; z++){
-						if(_ls[p] > data[0][data[0].length-1]) break;
-						else if(data[0][z] > _ls[p]){
-							v = (z == 0) ? data[1][z]/max : (data[1][z-1] + (data[1][z] - data[1][z-1])*(_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]))/max;
+						if(_ls[p] > data[0][data[0].length-1]){
+							v = data[1][data[0].length-1];
+							break;
+						}else if(data[0][z] > _ls[p]){
+							v = (z == 0) ? data[1][z] : (data[1][z-1] + (data[1][z] - data[1][z-1])*(_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]));
 							break;
 						}
 					}
@@ -1300,8 +1299,10 @@
 		// Define a callback for the PowerSpectrum
 		inp.context = this;
 		inp.updated = function(e){
-			_obj.update(e);
-			if(this.sky) this.sky.update();
+			if(this.sky){
+				_obj.update(e);
+				this.sky.update();
+			}
 		}
 
 		// Make an instance of a power spectrum
@@ -1416,10 +1417,19 @@
 	Simulator.prototype.resize = function(){
 		this.ps.resize();
 		this.sky.resize();
+		this.update();
 		return this;
 	}
 	
 	Simulator.prototype.update = function(e){
+
+		if($('#map') && this.sky){
+			var v = Math.round(this.sky.canvas.canvas.outerWidth()/this.sky.maxang)+'px';
+			var p = ((this.sky.canvas.container.outerWidth()-this.sky.canvas.canvas.outerWidth())/2)+'px';
+			$('#map .label.scale').css({'margin-right':p,'width': v, 'height': v, 'line-height': v, 'border-radius': v });
+			$('#map .label.sim').css('margin-left',p);
+			$('#map .label.our').css('margin-right',p);
+		}
 	
 		if(this.previous.omega_b == this.omega_b.value && this.previous.omega_c == this.omega_c.value && this.previous.omega_l == this.omega_l.value) return this;
 		else this.previous = { omega_b: this.omega_b.value, omega_c: this.omega_c.value, omega_l: this.omega_l.value };
@@ -1447,16 +1457,12 @@
 			$('#curvature').html('<span class="property curvature">'+((tot > 1) ? 'closed' : (tot < 1) ? 'open' : 'flat')+'</span> universe');
 			if(tot == 1) $('.button.flatten').hide();
 			else $('.button.flatten').show();
-			/*if(this.omega_b.value == 1 && tot == 1) $('.button.matteronly').hide();
-			else $('.button.matteronly').show();
-			if(this.omega_b.value == our.omega_b && this.omega_c.value == our.omega_c && this.omega_l.value == our.omega_l) $('.button.ouruniverse').hide();
-			else $('.button.ouruniverse').show();*/
 		}
-		if(this.omega_b.value == this.our.omega_b && this.omega_c.value == this.our.omega_c && this.omega_l.value == this.our.omega_l){
-			$('.label.sim').hide();
-		}else{
-			$('.label.sim').show();		
-		}
+		//if(this.omega_b.value == this.our.omega_b && this.omega_c.value == this.our.omega_c && this.omega_l.value == this.our.omega_l){
+		//	$('.label.sim').hide();
+		//}else{
+		//	$('.label.sim').show();		
+		//}
 		$('span.omega_b').html(' = '+this.omega_b.value);
 		$('span.omega_c').html(' = '+this.omega_c.value);
 		$('span.omega_l').html(' = '+this.omega_l.value);
@@ -1614,7 +1620,7 @@
 				dg = -75;
 				db = 0;
 			}
-			return [rgb[0] + dv*dr, rgb[1] + dv*dg, rgb[2] + dv*db];
+			return [Math.round(rgb[0] + dv*dr), Math.round(rgb[1] + dv*dg), Math.round(rgb[2] + dv*db)];
 		}
 	}
 	
@@ -1703,6 +1709,98 @@
 	 *  jquery.ui.mouse.js
 	 */
 	(function(b){b.support.touch="ontouchend" in document;if(!b.support.touch){return;}var c=b.ui.mouse.prototype,e=c._mouseInit,a;function d(g,h){if(g.originalEvent.touches.length>1){return;}g.preventDefault();var i=g.originalEvent.changedTouches[0],f=document.createEvent("MouseEvents");f.initMouseEvent(h,true,true,window,1,i.screenX,i.screenY,i.clientX,i.clientY,false,false,false,false,0,null);g.target.dispatchEvent(f);}c._touchStart=function(g){var f=this;if(a||!f._mouseCapture(g.originalEvent.changedTouches[0])){return;}a=true;f._touchMoved=false;d(g,"mouseover");d(g,"mousemove");d(g,"mousedown");};c._touchMove=function(f){if(!a){return;}this._touchMoved=true;d(f,"mousemove");};c._touchEnd=function(f){if(!a){return;}d(f,"mouseup");d(f,"mouseout");if(!this._touchMoved){d(f,"click");}a=false;};c._mouseInit=function(){var f=this;f.element.bind("touchstart",b.proxy(f,"_touchStart")).bind("touchmove",b.proxy(f,"_touchMove")).bind("touchend",b.proxy(f,"_touchEnd"));e.call(f);};})(jQuery);
+
+	function Ziggurat(v) {
+	
+		var jsr = 123456789;
+		
+		var wn = Array(128);
+		var fn = Array(128);
+		var kn = Array(128);
+		
+		function RNOR(){
+			var hz = SHR3();
+			var iz = hz & 127;
+			return (Math.abs(hz) < kn[iz]) ? hz * wn[iz] : nfix(hz, iz);
+		}
+		
+		this.nextGaussian = function(){
+			return RNOR();
+		}
+		
+		function nfix(hz, iz){
+			var r = 3.442619855899;
+			var r1 = 1.0 / r;
+			var x;
+			var y;
+			while(true){
+				x = hz * wn[iz];
+				if( iz == 0 ){
+					x = (-Math.log(UNI()) * r1); 
+					y = -Math.log(UNI());
+					while( y + y < x * x){
+						x = (-Math.log(UNI()) * r1); 
+						y = -Math.log(UNI());
+					}
+					return ( hz > 0 ) ? r+x : -r-x;
+				}
+			
+				if( fn[iz] + UNI() * (fn[iz-1] - fn[iz]) < Math.exp(-0.5 * x * x) ){
+					return x;
+				}
+				hz = SHR3();
+				iz = hz & 127;
+				
+					if( Math.abs(hz) < kn[iz]){
+					return (hz * wn[iz]);
+				}
+			}
+		}
+		
+		function SHR3(){
+			var jz = jsr;
+			var jzr = jsr;
+			jzr ^= (jzr << 13);
+			jzr ^= (jzr >>> 17);
+			jzr ^= (jzr << 5);
+			jsr = jzr;
+			return (jz+jzr) | 0;
+		}
+		
+		function UNI(){
+			return 0.5 * (1 + SHR3() / -Math.pow(2,31));
+		}
+		
+		function zigset(v){
+			// seed generator based on current time
+			jsr ^= (typeof v==="number") ? v : new Date().getTime();
+			
+			var m1 = 2147483648.0;
+			var dn = 3.442619855899;
+			var tn = dn;
+			var vn = 9.91256303526217e-3;
+			
+			var q = vn / Math.exp(-0.5 * dn * dn);
+			kn[0] = Math.floor((dn/q)*m1);
+			kn[1] = 0;
+			
+			wn[0] = q / m1;
+			wn[127] = dn / m1;
+			
+			fn[0] = 1.0;
+			fn[127] = Math.exp(-0.5 * dn * dn);
+		
+			for(var i = 126; i >= 1; i--){
+				dn = Math.sqrt(-2.0 * Math.log( vn / dn + Math.exp( -0.5 * dn * dn)));
+				kn[i+1] = Math.floor((dn/tn)*m1);
+				tn = dn;
+				fn[i] = Math.exp(-0.5 * dn * dn);
+				wn[i] = dn / m1;
+			}
+		}
+		zigset(v);
+	}
+	
 
 	// END HELPER FUNCTIONS
 

@@ -824,9 +824,11 @@
 			}
 		}
 
+		FFT.ifft2d(this.re, this.im);
+
 		this.setColourTable('planck');
 		
-		if(new Date() - d > 250) this.sluggish = true;
+		if(new Date() - d > 500) this.sluggish = true;
 		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
 		if(this.sluggish) this.context.warning('It may take time to update the universe. Please be patient.');
@@ -1554,10 +1556,10 @@
 		}
 		
 		// Update text labels
-		if($('#firstpeak') && e){
+		if($('#firstpeak')){
 			// Display the first peak along with the roughly equivalent angular size
-			var ang = 180/e.firstpeak;
-			if(e.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+e.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
+			var ang = 180/this.ps.firstpeak;
+			if(this.ps.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+this.ps.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
 			else $('#firstpeak').html('No fluctuations in the CMB'+(this.omega_b.value == 0 ? ' because there<br />was no matter to interact with the photons.' : ''));
 		}else{
 			$('#firstpeak').html('?');

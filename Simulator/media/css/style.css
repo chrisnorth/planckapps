@@ -173,6 +173,7 @@ body.fullscreen #powerspectrum { background-color: white; }
 #config form { font-size: 1.2em; }
 #config .configoption { margin-bottom: 1em; }
 #config input[type=checkbox] { width: 2em; height: 2em; }
+#config label { cursor: pointer; }
 #config .close { font-size: 2em; }
 .lightbox_bg { z-index: 101; left:0px; top: 0px; right: 0px; bottom: 0px; position: absolute; background-color: rgb(255,255,255); }
 .lightbox_top { z-index: 102; max-width:500px; position: absolute; background-color: white; }

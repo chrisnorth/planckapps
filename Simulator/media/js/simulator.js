@@ -1305,6 +1305,12 @@
 		// Keep a copy of the starting values
 		this.our = { omega_b: 0.05, omega_c: 0.25, omega_l: 0.70 };
 
+		// Hide the About section if we aren't at that anchor
+		if(location.hash.substring(1) != "about"){
+			$('#help').addClass('on');
+			$('#about').hide();
+		}
+
 		// Make an instance of a cosmology
 		this.cosmos = new Cosmos(inp.omega_b,inp.omega_c,inp.omega_l);
 
@@ -1368,7 +1374,8 @@
 			})
 		);
 
-		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /> Show angular scale</a></div><div class="configoption"><input type="checkbox" name="showours" /> Show our universe</a></div><div class="configoption"><input type="checkbox" name="normscale" /> Normalised colour scale</div>');
+		// Set up the configuration form
+		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalised colour scale</label></div>');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');
@@ -1386,6 +1393,11 @@
 			sim.sky.update();
 			sim.update();
 		})
+		// Make labels trigger click on their inputs
+		$('label').on('click',{me:this},function(e){
+			var labelID = $(this).attr('for');
+			$('#config form input[name='+labelID+']').trigger('click');
+		});
 
 
 		// Bind keyboard events
@@ -1407,19 +1419,30 @@
 			ev.data.me.resize();
 		});
 		
-		// Hide the About section
-		$('#about').hide();
 		// Function to return the correct page anchor
 		function switchHash(){
 			if(location.hash.substring(1)=="about") return "#";
 			else return "#about";
 		}
 		// Build element that will let the user toggle the About section
+		var lasttoggle = new Date();
 		function toggleAbout(key){
-			$('#help').toggleClass('on');
-			$('#about').slideToggle();
+			var now = new Date();
+			if(now - lasttoggle > 500){
+				$('#help').toggleClass('on');
+				if($('#help').hasClass('on')) $('#about').slideDown();
+				else $('#about').slideUp();
+			}
+			lasttoggle = now;
 			return true;
 		}
+		// As we are using the hash anchor, we need to monitor it to check for changes
+		var hashstate = "";
+		setInterval(function(){
+			if(location.hash.substring(1)=="about" && !$('#help').hasClass('on')) toggleAbout();
+			if(location.hash.substring(1)!="about" && $('#help').hasClass('on')) toggleAbout();
+		},500);
+
 		var newdiv = $('<div id="menu"><div id="help" class="toggle"><div class="abouton"><a href="#about">i</a></div><div class="aboutoff"><a href="#">&#8679;</a></div></div><div id="advancedtoggle" class="toggle"><a href="#powerspectrum"><img src="media/img/cleardot.gif" alt="Plot" title="Toggle power spectrum plot" /></a></div><div id="configtoggle" class="toggle"><a href="#config"><img src="media/img/cleardot.gif" alt="Options" title="Toggle options" /></a></div></div>');
 		$('h1').before(newdiv);
 		$('#help .abouton a, #help .aboutoff a').on('click',toggleAbout);
@@ -1431,15 +1454,7 @@
 		$('#configtoggle').on('click',{me:this},function(e){
 			lightbox($('#config'),$('#configtoggle'));
 		});
-		// As we are using the hash anchor, we need to monitor it to check for changes
-		var hashstate = "";
-		setInterval(function(){
-			if(location.hash.substring(1)=="about"){
-				if(!$('#help').hasClass('on')) toggleAbout();
-			}else{
-				if($('#help').hasClass('on')) toggleAbout();			
-			}
-		},500);
+
 
 		// Update labels, buttons etc
 		this.update();
@@ -1745,6 +1760,7 @@
 	 */
 	(function(b){b.support.touch="ontouchend" in document;if(!b.support.touch){return;}var c=b.ui.mouse.prototype,e=c._mouseInit,a;function d(g,h){if(g.originalEvent.touches.length>1){return;}g.preventDefault();var i=g.originalEvent.changedTouches[0],f=document.createEvent("MouseEvents");f.initMouseEvent(h,true,true,window,1,i.screenX,i.screenY,i.clientX,i.clientY,false,false,false,false,0,null);g.target.dispatchEvent(f);}c._touchStart=function(g){var f=this;if(a||!f._mouseCapture(g.originalEvent.changedTouches[0])){return;}a=true;f._touchMoved=false;d(g,"mouseover");d(g,"mousemove");d(g,"mousedown");};c._touchMove=function(f){if(!a){return;}this._touchMoved=true;d(f,"mousemove");};c._touchEnd=function(f){if(!a){return;}d(f,"mouseup");d(f,"mouseout");if(!this._touchMoved){d(f,"click");}a=false;};c._mouseInit=function(){var f=this;f.element.bind("touchstart",b.proxy(f,"_touchStart")).bind("touchmove",b.proxy(f,"_touchMove")).bind("touchend",b.proxy(f,"_touchEnd"));e.call(f);};})(jQuery);
 
+	// From http://www.filosophy.org/post/35/normaldistributed_random_values_in_javascript_using_the_ziggurat_algorithm/
 	function Ziggurat(v) {
 	
 		var jsr = 123456789;
@@ -1835,7 +1851,8 @@
 		}
 		zigset(v);
 	}
-		
+
+	// Re-cycled from LCOGT's Odin		
 	function lightbox(lb,revert,callback){
 		if(!lb.length) return;
 		var l = lb.position().left;

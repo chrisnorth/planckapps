@@ -161,6 +161,7 @@
 
 		// Define our options
 		this.opts = {
+			'font-size': fs,
 			'font': fs+'px',
 			'offset' : {
 				top: (this.fullscreen ? fs : 1),
@@ -185,7 +186,8 @@
 				'label': {
 					'color': co,
 					'font' : ff
-				}
+				},
+				'ticks' : true
 			},
 			'yaxis': {
 				'min': 0,
@@ -254,6 +256,7 @@
 
 		// Get the ell character
 		var ell = $("<div>").html('&#8467;').text();
+		var deg = $("<div>").html('&deg;').text();
 		
 		// Draw the axes
 		if(this.chart.axes) this.chart.axes.attr({x:l+0.5,y:t-0.5,width:w,height:h});
@@ -261,10 +264,52 @@
 
 		// Draw the axes labels
 		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
-		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.label.font }).rotate(270);
+		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy "+ell+"("+ell+"+1) C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.label.font }).rotate(270);
 		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
 		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.label.font });
 	
+		
+		// Draw angular labels on chart
+		if(this.opts.xaxis.ticks){
+			var path = [];
+			var txt = [];
+			var deglabels = [30,10,3,1,0.3,0.1];
+			var y,x,Xmin,Xmax,Xscale;
+			Xmin = this.scaleX(this.opts.xaxis.min);
+			Xmax = this.scaleX(this.opts.xaxis.max);
+			Xscale = (this.opts.offset.width) / (Xmax - Xmin);
+			for(var i = 0 ; i < deglabels.length ; i++){
+				var l = 180/deglabels[i];
+				var fs = this.opts['font-size']/2;
+				y = (this.opts.offset.top + this.opts.offset.height);
+				x = (this.opts.offset.left + Xscale * (this.scaleX(l) - Xmin) );
+				path = path.concat(["M",x,y,"L",x,y-fs]);
+				txt.push([x,y-fs-fs,deglabels[i]+deg]);
+			}
+			if(this.chart.xlines){
+				this.chart.xlines.attr('path',path);
+				for(var i = 0 ; i < deglabels.length ; i++){
+					this.chart.xtext[i].attr({x:txt[i][0],y:txt[i][1],'font-size':fs});
+				}
+			}else{
+				this.chart.xlines = this.chart.holder.path(path).attr({stroke:'#AAAAAA','stroke-width':1, "stroke-linejoin": "round"});
+				this.chart.xtext = this.chart.holder.set();
+				for(var i = 0 ; i < deglabels.length ; i++){
+					this.chart.xtext.push(this.chart.holder.text(txt[i][0],txt[i][1],txt[i][2]).attr({fill:'black', "text-anchor": "middle"}));
+				}
+			}
+		}
+	}
+
+	PowerSpectrum.prototype.toggleTicks = function(){
+		this.opts.xaxis.ticks = !this.opts.xaxis.ticks;
+		if(this.opts.xaxis.ticks){
+			this.chart.xlines.show();
+			this.chart.xtext.show();
+		}else{
+			this.chart.xlines.hide();
+			this.chart.xtext.hide();		
+		}
 	}
 	
 	// A scaling for the x-axis value
@@ -356,10 +401,11 @@
 				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
 				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
+			
 			// Now we make sure we don't display any parts of the curve that are outside the plot area
-			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height
+			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height;
 			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
-			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip})
+			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip});
 
 		}
 		
@@ -711,7 +757,7 @@
 		this.h = 256,
 		this.maxang = 10;	// angular diameter of image in degrees
 		this.minang = this.maxang/this.w;
-		this.dl = 180*2/this.maxang;
+		this.dl = 360/this.maxang;
 
 		this.re = [];
 		this.im = [];
@@ -749,7 +795,6 @@
 	// Called when the image has been loaded
 	Sky.prototype.load = function(){
 		this.loaded = true;
-		//if(this.logging) console.log('Loaded '+this.img.src);
 		this.setupFFT();
 		this.update();
 		this.resize();
@@ -768,13 +813,14 @@
 
 		// Class for making Gaussian distributed random numbers. Argument is the seed.
 		var z = new Ziggurat(-1);
+		var twopi = 2*Math.PI;
 
 		var i = 0, y, x;
 		for(y=0; y<this.h; y++) {
 			i = y*this.w;
 			for(x=0; x<this.w; x++) {
 				this.re[i + x] = z.nextGaussian();
-				this.im[i + x] = 0.0;
+				this.im[i + x] = 0;//Math.random()*twopi;
 			}
 		}
 
@@ -832,8 +878,8 @@
 
 			// FFT back into real space
 			FrequencyFilter.swap(re, im);
-			FFT.ifft2d(re, im);
 
+			FFT.ifft2d(re, im);
 			// Loop over the data setting the value
 			// First work out a scaling function
 			if(this.fixedscale){
@@ -890,7 +936,7 @@
 			}
 
 		} catch(e) {
-			if(this.logging) console.log(e,p,val);
+			if(this.logging) console.log(e,p,val,re[i + x],i,x);
 		}
 
 		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
@@ -1104,6 +1150,7 @@
 	var FrequencyFilter = (function() {
 		var _n = 0,
 		_ls = [],	// The corresponding l values for each pixel
+		_llpo = [],	// The corresponding l(l+1) values for each pixel
 		_init = function(n, dl) {
 			if(n !== 0 && (n & (n - 1)) === 0) {
 				_n = n;
@@ -1121,7 +1168,9 @@
 				for(var x=-n2; x<n2; x++) {
 					p = x + i;
 					_rs[p] = Math.sqrt(((x*x) + (y*y)));
-					_ls[p] = (_rs[p]*dl);
+					if(_rs[p]==0) _ls[p] = dl;
+					else _ls[p] = _rs[p]*dl;
+					_llpo[p] = _ls[p]*(_ls[p]+1);
 				}
 			}
 		},
@@ -1177,6 +1226,8 @@
 							break;
 						}
 					}
+					v /= _llpo[p];	// We need to reduce the power by a factor l(l+1) as our power spectrum is scaled by that
+					//v /= _ls[p];
 					re[p] *= v;
 					im[p] *= v;
 				}
@@ -1375,7 +1426,7 @@
 		);
 
 		// Set up the configuration form
-		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalised colour scale</label></div>');
+		$('#config form').append('<h3>Sky display</h3><div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div><h3>Power spectrum</h3><div class="configoption"><input type="checkbox" name="xticks" /><label for="xticks">Show &#8467; tick marks on power spectrum</label></a></div>');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');
@@ -1393,6 +1444,15 @@
 			sim.sky.update();
 			sim.update();
 		})
+		$('#config form input[name=xticks]').attr('checked',this.ps.opts.xaxis.ticks).on('click',{me:this},function(e){
+			var sim = e.data.me;
+			sim.ps.toggleTicks();
+		});
+		$('#config form select').on('change',{me:this},function(e){
+			e.data.me.sky.setColourTable($(this).val());
+			e.data.me.sky.update();
+			e.data.me.update();
+		});
 		// Make labels trigger click on their inputs
 		$('label').on('click',{me:this},function(e){
 			var labelID = $(this).attr('for');

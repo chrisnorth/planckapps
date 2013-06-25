@@ -882,11 +882,12 @@
 			FrequencyFilter.swap(re, im);
 
 			FFT.ifft2d(re, im);
+
 			// Loop over the data setting the value
 			// First work out a scaling function
 			if(this.fixedscale){
-				mx = 6;
-				mn = -6;
+				mx = 6e-7;
+				mn = -6e-7;
 			}else{
 				mx = Math.max.apply(null,re);
 				mn = Math.min.apply(null,re);

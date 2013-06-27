@@ -260,3 +260,7 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	}
 	#options a.button:first-child { margin-top: 0px; }
 }
+
+img.logo{
+    width:200px;
+}

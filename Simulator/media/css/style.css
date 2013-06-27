@@ -210,9 +210,10 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 #options a.button:first-child { margin-left: 0px; }
 
 /* Set the colours for the slider bars */
-#omega_b_holder .ui-widget-header { background-color: #F89406; }
-#omega_c_holder .ui-widget-header { background-color: #049CDB; }
-#omega_l_holder .ui-widget-header { background-color: #46a546; }
+.b, #omega_b_holder .ui-widget-header { background-color: #F89406; }
+.c, #omega_c_holder .ui-widget-header { background-color: #049CDB; color: white; }
+.l, #omega_l_holder .ui-widget-header { background-color: #46a546; color: white; }
+.b, .c, .l { padding: 0.25em; }
 .ui-slider .ui-slider-range.ui-slider-range-min { border: 1px solid #777; margin-top: -1px; }
 
 .padded { margin: 32px 0px 0px 0px;}

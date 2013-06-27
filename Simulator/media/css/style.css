@@ -72,20 +72,20 @@ a:active { color: #4D4E53; }
 	text-decoration: none;
 	text-align: center;
 }
-#help.on .aboutoff a { display: block; }
-#help.on .abouton a { display: none; }
-#help .aboutoff a {
+#help.on .aboutoff { display: block; }
+#help.on .abouton { display: none; }
+#help .aboutoff { display: none; }
+#help .abouton { display: block; }
+#help a.aboutoff {
 	background: none;
-	display: none;
 }
-#help .abouton a {
+#help a.abouton {
 	width: 48px;
 	color: white;
 	font-style: italic;
-	border-radius: 24px;
 	background-color: #AAAAAA;
 }
-#help .abouton a:hover { background-color: #049CDB; transition: background-color 0.5s; }
+#help a.abouton:hover { background-color: #049CDB; transition: background-color 0.5s; }
 #about {
 	color: #111111;
 	background-color: #EEEEEE; 
@@ -99,8 +99,10 @@ body.adv #advancedtoggle a { background-color: black; }
 .toggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
 #configtoggle a { background-position: 0 -48px; }
 
+#header { margin-top: 16px; }
 img.logo {
     width: 200px;
+    height: 90px;
     float: left;
     margin-top: -18px;
     margin-right: 8px;
@@ -234,6 +236,11 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	.wide { display: none; }
 }
 
+@media (max-width: 760px), (max-device-width: 760px) {
+	#header { margin-top: 0px; }
+	img.logo { display: block; float: none; text-align: center; margin: 0px auto 16px; }
+}
+
 @media (max-width: 500px), (max-device-width: 500px) {
 	body { padding: 32px; }
 	#map, #powerspectrum { margin-top: 32px; }
@@ -243,15 +250,17 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		margin: 0px -32px 32px -32px;
 		padding: 32px 32px;
 	}
-	img.logo { display: block; float: none; text-align: center; margin: 16px auto; }
 	.padded { margin: 16px 0px 0px 0px; }
 	#footer { display: block; }
 	#output, body.adv #firstpeak.advanced, #options {
 		display: block;
 		text-align: center;
 	}
+	.toggle { margin-left: 4px; }
 	#output, #options { margin-top: 16px; }
 	#config { width: 80%; height: 100%; border: 0px; box-shadow: none; padding: 1em; }
+
+
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {

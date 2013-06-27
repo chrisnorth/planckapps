@@ -820,7 +820,7 @@
 			i = y*this.w;
 			for(x=0; x<this.w; x++) {
 				this.re[i + x] = z.nextGaussian();
-				this.im[i + x] = 0;//Math.random()*twopi;
+				this.im[i + x] = Math.random()*twopi;
 			}
 		}
 

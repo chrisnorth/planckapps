@@ -572,7 +572,7 @@
 	// An error function
 	Simulator.prototype.error = function(txt){
 		// Display the error message and attach the Omega values as data
-		$('#error').html('<div class="close">&times;</div>'+txt).show().data('omega_b',this.omega_b.value).data('omega_c',this.omega_c.value).data('omega_l',this.omega_l.value);
+		$('#error').html('<a class="close">&times;</a>'+txt).show().data('omega_b',this.omega_b.value).data('omega_c',this.omega_c.value).data('omega_l',this.omega_l.value);
 		$('#error .close').on('click',function(e){ $(this).parent().hide(); });
 		return;
 	}
@@ -580,7 +580,7 @@
 	// A warning function
 	Simulator.prototype.warning = function(txt){
 		// Display the error message and attach the Omega values as data
-		$('#warning').html('<div class="close">&times;</div>'+txt).show();
+		$('#warning').html('<a class="close">&times;</a>'+txt).show();
 		$('#warning .close').on('click',function(e){ $(this).parent().hide(); });
 		return;
 	}
@@ -1929,7 +1929,7 @@
 		me.appendTo('body');
 		lb.addClass('lightbox_top').show().attr('role','dialog');
 	
-		if(lb.find('.close').length==0) lb.prepend('<div class="close">&times;</div>');
+		if(lb.find('.close').length==0) lb.prepend('<a href="#" class="close">&times;</a>');
 	
 		$('.lightbox_top form').on('submit',{lb:lb,revert:revert},function(e){
 			if(e.data.revert && e.data.revert.length > 0){
@@ -1940,7 +1940,7 @@
 		});
 	
 		$('.lightbox_top .close').show().on('click',{lb:lb,revert:revert,callback:callback},function(e){
-			e.preventDefault();
+			//e.preventDefault();
 			closeLightbox(e.data.lb);
 			e.data.revert.focus();
 			if(typeof e.data.callback==="function") e.data.callback.call();

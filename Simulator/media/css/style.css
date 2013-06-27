@@ -1,6 +1,7 @@
 body {
 	margin: 0px;
 	padding: 64px;
+	padding-bottom: 48px;
 	color: #4D4E53; /* To match to RS Summer Exhibition 2013 site */
 	font-family: "Helvetica Neue", Helvetica, sans-serif;
 	font-size: 1em;
@@ -36,7 +37,7 @@ a:visited { color: #E13F29; }
 a:active { color: #4D4E53; }
 
 #msg { position: absolute; top: 0px; left: 0px; right: 0px; }
-.close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; }
+a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; text-decoration: none; }
 #error, #warning { padding: 0.5em 1em; display: none; }
 #error { background-color: #E13F29; color: white; }
 #warning { background-color: #ffc40d; color: black; }

@@ -751,7 +751,7 @@
 		// Display options
 		this.fixedscale = false;
 		this.showours = true;
-		this.showscale = false;
+		this.showscale = true;
 
 		this.w = 256,
 		this.h = 256,
@@ -1432,10 +1432,11 @@
 		);
 
 		// Set up the configuration form
-		$('#config form').append('<h3>Sky display</h3><div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div><h3>Power spectrum</h3><div class="configoption"><input type="checkbox" name="xticks" /><label for="xticks">Show &#8467; tick marks</label></a></div>');
+		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><!--<div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div>-->');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');
+			sim.ps.toggleTicks();
 			sim.update();
 		});
 		$('#config form input[name=showours]').attr('checked',this.sky.showours).on('click',{me:this},function(e){
@@ -1450,10 +1451,6 @@
 			sim.sky.update();
 			sim.update();
 		})
-		$('#config form input[name=xticks]').attr('checked',this.ps.opts.xaxis.ticks).on('click',{me:this},function(e){
-			var sim = e.data.me;
-			sim.ps.toggleTicks();
-		});
 		$('#config form select').on('change',{me:this},function(e){
 			e.data.me.sky.setColourTable($(this).val());
 			e.data.me.sky.update();

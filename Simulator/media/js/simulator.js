@@ -886,8 +886,10 @@
 			// Loop over the data setting the value
 			// First work out a scaling function
 			if(this.fixedscale){
-				mx = 6e-7;
-				mn = -6e-7;
+				//mx = 6e-7;
+				//mn = -6e-7;
+				mx = 1.6e-6;
+				mn = -1.6e-6;
 			}else{
 				mx = Math.max.apply(null,re);
 				mn = Math.min.apply(null,re);
@@ -1231,6 +1233,7 @@
 					}
 					v /= _llpo[p];	// We need to reduce the power by a factor l(l+1) as our power spectrum is scaled by that
 					//v /= _ls[p];
+					v = Math.sqrt(v);	// 
 					re[p] *= v;
 					im[p] *= v;
 				}
@@ -1429,7 +1432,7 @@
 		);
 
 		// Set up the configuration form
-		$('#config form').append('<h3>Sky display</h3><div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div><h3>Power spectrum</h3><div class="configoption"><input type="checkbox" name="xticks" /><label for="xticks">Show &#8467; tick marks on power spectrum</label></a></div>');
+		$('#config form').append('<h3>Sky display</h3><div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div><h3>Power spectrum</h3><div class="configoption"><input type="checkbox" name="xticks" /><label for="xticks">Show &#8467; tick marks</label></a></div>');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');

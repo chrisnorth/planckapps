@@ -1,3 +1,12 @@
+/*! CMB Simulator - 2013-06-27
+* Includes:
+*    FFT Copyright © 2012 wellflat Licensed under the MIT License (https://github.com/wellflat/javascript-labs/tree/master/cv/fft)
+*    Ned Wright's Cosmology Calculator (refactored from http://www.astro.ucla.edu/~wright/CosmoCalc.html)
+*    Full Screen API (http://johndyer.name/native-fullscreen-javascript-api-plus-jquery-plugin/)
+*    jQuery UI Touch Punch 0.2.2 (https://github.com/furf/jquery-ui-touch-punch)
+*    Ziggurat (http://www.filosophy.org/post/35/normaldistributed_random_values_in_javascript_using_the_ziggurat_algorithm/)
+*/
+
 (function ($) {
 
 	/*

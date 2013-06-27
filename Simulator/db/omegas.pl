@@ -46,7 +46,8 @@ if(!$omega){
 	print "======\n";
 	print "Before using this create an omega.conf file of the form:\n\n";
 	print "\tRAWDIR = <path to directory containing raw power spectrum files>\n";
-	print "\tDOMEGA = <Omega step size>\n\n";
+	print "\tDOMEGA = <Omega step size>\n";
+	print "Make sure that this omegas.conf file is added to your .gitignore\n\n";
 	exit();
 }
 

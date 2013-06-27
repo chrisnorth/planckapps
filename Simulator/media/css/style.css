@@ -99,6 +99,13 @@ body.adv #advancedtoggle a { background-color: black; }
 .toggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
 #configtoggle a { background-position: 0 -48px; }
 
+img.logo {
+    width: 200px;
+    float: left;
+    margin-top: -18px;
+    margin-right: 8px;
+}
+
 #app {
 	display: table;
 	width: 100%;
@@ -236,6 +243,7 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 		margin: 0px -32px 32px -32px;
 		padding: 32px 32px;
 	}
+	img.logo { display: block; float: none; text-align: center; margin: 16px auto; }
 	.padded { margin: 16px 0px 0px 0px; }
 	#footer { display: block; }
 	#output, body.adv #firstpeak.advanced, #options {
@@ -261,6 +269,3 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 	#options a.button:first-child { margin-top: 0px; }
 }
 
-img.logo{
-    width:200px;
-}

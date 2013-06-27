@@ -123,7 +123,7 @@
 		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
 		this.omega = { b: "", c:"", l:"" };
 		this.fullscreen = false;
-		this.logging = true;
+		this.logging = (console && typeof console.log==="function");
 
 		// Store the callbacks and a context which will be used for the "this"
 		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
@@ -820,11 +820,11 @@
 			i = y*this.w;
 			for(x=0; x<this.w; x++) {
 				this.re[i + x] = z.nextGaussian();
-				this.im[i + x] = Math.random()*twopi;
+				this.im[i + x] = 0;
 			}
 		}
 
-		FFT.ifft2d(this.re, this.im);
+		FFT.fft2d(this.re, this.im);
 
 		this.setColourTable('planck');
 		

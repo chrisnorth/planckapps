@@ -749,7 +749,7 @@
 		this.sluggish = false;
 
 		// Display options
-		this.fixedscale = false;
+		this.fixedscale = true;
 		this.showours = true;
 		this.showscale = true;
 
@@ -888,8 +888,10 @@
 			if(this.fixedscale){
 				//mx = 6e-7;
 				//mn = -6e-7;
-				mx = 1.6e-6;
-				mn = -1.6e-6;
+				//mx = 1.6e-6;
+				//mn = -1.6e-6;
+				mx = 0.12;
+				mn = -0.12;
 			}else{
 				mx = Math.max.apply(null,re);
 				mn = Math.min.apply(null,re);

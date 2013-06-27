@@ -5,7 +5,6 @@ $rawdir = $ARGV[0];
 $omega = $ARGV[1];
 $domega = 0.05;	# Default
 
-
 # Only one argument provided so assume 
 # it is the omega rather than the rawdir
 if(!$omega){
@@ -27,6 +26,7 @@ if(!$omega){
 	}
 }
 
+if($ARGV[2]){ $domega = $ARGV[2]; }
 
 if(!$omega){
 	print "\n";
@@ -52,6 +52,9 @@ if(!$omega){
 }
 
 $n = 1/$domega;
+$dp = dps($domega);
+
+
 
 for($a = 0; $a <= $n ; $a++){
 
@@ -59,16 +62,16 @@ for($a = 0; $a <= $n ; $a++){
 
 		$ofile = "";
 		if($omega eq "b"){
-			$omega_c = sprintf("%0.2f",$a*$domega);
-			$omega_l = sprintf("%0.2f",$b*$domega);
+			$omega_c = sprintf("%0.0f",$a*$domega);
+			$omega_l = sprintf("%0.".$dp."f",$b*$domega);
 			$ofile = "Ob_Oc".$omega_c."_Ol".$omega_l."_lin.json";
 		}elsif($omega eq "c"){
-			$omega_b = sprintf("%0.2f",$a*$domega);
-			$omega_l = sprintf("%0.2f",$b*$domega);
+			$omega_b = sprintf("%0.".$dp."f",$a*$domega);
+			$omega_l = sprintf("%0.".$dp."f",$b*$domega);
 			$ofile = "Ob".$omega_b."_Oc_Ol".$omega_l."_lin.json";
 		}elsif($omega eq "l"){
-			$omega_b = sprintf("%0.2f",$a*$domega);
-			$omega_c = sprintf("%0.2f",$b*$domega);
+			$omega_b = sprintf("%0.".$dp."f",$a*$domega);
+			$omega_c = sprintf("%0.".$dp."f",$b*$domega);
 			$ofile = "Ob".$omega_b."_Oc".$omega_c."_Ol_lin.json";
 		}
 
@@ -77,15 +80,15 @@ for($a = 0; $a <= $n ; $a++){
 		$output = "{\n\t\"extrema\": [\n";
 		
 		# Loop over each Omega file
-		for($i = ($omega eq "b" ? 1 : 0); $i < 21 ; $i++){
+		for($i = ($omega eq "b" ? 1 : 0); $i <= $n ; $i++){
 			if($omega eq "b"){
 				$o = $i*$domega;
-				$omega_b = sprintf("%0.2f",$i*$domega);
+				$omega_b = sprintf("%0.".$dp."f",$i*$domega);
 			}elsif($omega eq "c"){
-				$omega_c = sprintf("%0.2f",$i*$domega);
+				$omega_c = sprintf("%0.".$dp."f",$i*$domega);
 				$o = $i*$domega;
 			}elsif($omega eq "l"){
-				$omega_l = sprintf("%0.2f",$i*$domega);
+				$omega_l = sprintf("%0.".$dp."f",$i*$domega);
 				$o = $i*$domega;
 			}
 	
@@ -120,7 +123,21 @@ for($a = 0; $a <= $n ; $a++){
 		close(FILE);
 	}
 }  
-  
+
+
+sub dps(){
+	my($v,$dp);
+
+	$v = abs($_[0]);
+	
+	$dp = 0;
+
+	while(($v) - int($v) > 1e-6){
+		$v *= 10;
+		$dp++;
+	}
+	return $dp;
+}
 
 sub getFile(){ return "Ob".$_[0]."_Oc".$_[1]."_Ol".$_[2]."_nolensing_totCls.dat"; }
 

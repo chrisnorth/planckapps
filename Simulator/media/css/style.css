@@ -265,7 +265,7 @@ a.button:hover { background-color: #ffc40d; color: black; transition: background
 }
 
 @media (max-width: 350px), (max-device-width: 350px) {
-	body { padding: 16px; }
+	body { padding: 16px 24px; }
 	#about {
 		margin: 0px -16px 16px -16px;
 		padding: 16px;

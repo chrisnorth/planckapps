@@ -252,8 +252,7 @@
 			this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
 			$('#'+this.id).on('dblclick', {me:this}, function(e){ e.data.me.toggleFullScreen(); });
 			$('#'+this.id).on('click', {me:this}, function(e){ e.data.me.draw(); });
-			$('#'+this.id).on('fullscreeneventchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
-			$(document).on('mozfullscreenchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
+			$(document).on('mozfullscreenchange webkitfullscreenchange fullscreeneventchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
 		}
 
 		// Short handles for the chart properties
@@ -447,7 +446,6 @@
 	}
 
 	PowerSpectrum.prototype.updateFullScreen = function(){
-
 			if(fullScreenApi.isFullScreen()){
 				this.fullscreen = true;
 				$("body").addClass('fullscreen');
@@ -455,7 +453,7 @@
 				this.fullscreen = false;
 				$("body").removeClass('fullscreen');
 			}
-			
+
 			// Re-define the options
 			this.setOptions();
 

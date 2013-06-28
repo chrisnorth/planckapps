@@ -5,11 +5,13 @@ Web apps for Planck-related stuff
 
 Simulator
 ---------
-An HTML/Javascript simulator of the CMB power spectrum and map, allowing the user to change Omegas.
+An HTML/Javascript simulator of the CMB power spectrum and map
+allowing the user to change the values of normal matter, dark matter and dark energy
 
 Requires:
  - A reasonably modern browser
- - To run locally, ensure browser can access local files (for Chrome, set flag --allow-file-access-from-files)
+ - To run locally, ensure browser can access local files
+   - e.g. for Chrome, set flag --allow-file-access-from-files
 
 Written by Stuart Lowe & Chris North
 

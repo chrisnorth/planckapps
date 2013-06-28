@@ -133,6 +133,7 @@
 		this.omega = { b: "", c:"", l:"" };
 		this.fullscreen = false;
 		this.logging = (console && typeof console.log==="function");
+		this.fixedscale = (is(inp.fixedscale,"boolean")) ? inp.fixedscale : true;
 
 		// Store the callbacks and a context which will be used for the "this"
 		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
@@ -253,7 +254,6 @@
 			$('#'+this.id).on('click', {me:this}, function(e){ e.data.me.draw(); });
 			$('#'+this.id).on('fullscreeneventchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
 			$(document).on('mozfullscreenchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
-		
 		}
 
 		// Short handles for the chart properties
@@ -275,9 +275,8 @@
 		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
 		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy "+ell+"("+ell+"+1) C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.label.font }).rotate(270);
 		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
-		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Spherical Harmonic "+ell).attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.label.font });
-	
-		
+		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Scale on the sky").attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.label.font });
+
 		// Draw angular labels on chart
 		if(this.opts.xaxis.ticks){
 			var path = [];
@@ -348,10 +347,18 @@
 			data = this.data;
 			Xmin = this.scaleX(this.opts.xaxis.min);
 			Xmax = this.scaleX(this.opts.xaxis.max);
+			if(this.fixedscale){
+				Ymin = this.scaleY(this.opts.xaxis.min,this.opts.yaxis.min);
+				Ymax = this.scaleY(this.opts.xaxis.max,this.opts.yaxis.max);
+			}else{
+				var mn = Math.min.apply(null,data[1]);
+				var mx = Math.max.apply(null,data[1])*1.1;
+				Ymin = this.scaleY(this.opts.xaxis.min,mn);
+				Ymax = this.scaleY(this.opts.xaxis.max,mx);
+			}
+
 			Xrange = (Xmax - Xmin);
 			Xscale = (this.opts.offset.width) / Xrange;
-			Ymin = this.scaleY(this.opts.xaxis.min,this.opts.yaxis.min);
-			Ymax = this.scaleY(this.opts.xaxis.max,this.opts.yaxis.max);
 			Yrange = (Ymax-Ymin);
 			Yscale = (this.opts.offset.height) / Yrange;
 			this.firsttrough = 0;
@@ -758,7 +765,7 @@
 		this.sluggish = false;
 
 		// Display options
-		this.fixedscale = true;
+		this.fixedscale = (is(inp.fixedscale,"boolean")) ? inp.fixedscale : true;
 		this.showours = true;
 		this.showscale = true;
 
@@ -1443,7 +1450,7 @@
 		);
 
 		// Set up the configuration form
-		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise colour scale</label></div><!--<div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div>-->');
+		$('#config form').append('<div class="configoption"><input type="checkbox" name="showscale" /><label for="showscale">Show angular scale</label></a></div><div class="configoption"><input type="checkbox" name="showours" /><label for="showours">Show our universe</label></a></div><div class="configoption"><input type="checkbox" name="normscale" /><label for="normscale">Normalise scale</label></div><!--<div class="configoption"><label for="colourtable">Colour scheme</label>: <select name="colourtable" id="colourtable"><option value="planck">Planck</option><option value="blackbody">Heat</option><option value="A">A</option><option value="B">B</option></select></div>-->');
 		$('#config form input[name=showscale]').attr('checked',this.sky.showscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.showscale = $(this).is(':checked');
@@ -1459,7 +1466,9 @@
 		$('#config form input[name=normscale]').attr('checked',!this.sky.fixedscale).on('click',{me:this},function(e){
 			var sim = e.data.me;
 			sim.sky.fixedscale = !$(this).is(':checked');
+			sim.ps.fixedscale = sim.sky.fixedscale;
 			sim.sky.update();
+			sim.ps.draw();
 			sim.update();
 		})
 		$('#config form select').on('change',{me:this},function(e){
@@ -1959,6 +1968,7 @@
 		centre(lb);
 	
 		$('.lightbox_bg').on('click',{lb:lb,revert:revert,callback:callback},function(e){
+			location.hash = "#";
 			closeLightbox(e.data.lb);
 			e.data.revert.focus();
 			if(typeof e.data.callback==="function") e.data.callback.call();

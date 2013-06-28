@@ -86,7 +86,7 @@ a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; disp
 	font-style: italic;
 	background-color: #AAAAAA;
 }
-#help a.abouton:hover { background-color: #049CDB; transition: background-color 0.5s; }
+#help a.abouton:hover, #help a.abouton:focus { background-color: #049CDB; transition: background-color 0.5s; }
 #about {
 	color: #111111;
 	background-color: #EEEEEE; 
@@ -97,7 +97,7 @@ a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; disp
 	padding: 32px 64px;
 }
 body.adv #advancedtoggle a { background-color: black; }
-.toggle a:hover { background-color: #E13F29; transition: background-color 0.5s; }
+.toggle a:hover, .toggle a:focus { background-color: #E13F29; transition: background-color 0.5s; }
 #configtoggle a { background-position: 0 -48px; }
 
 #header { margin-top: 16px; }
@@ -171,7 +171,7 @@ body.fullscreen #powerspectrum { background-color: white; }
 }
 #map .label.sim { text-align: left; bottom: 0px; left: 0px; }
 #map .label.our { text-align: right; top: 0px; right: 0px; }
-#map .label.scale { text-align: center; font-weight: bold; background-color: rgba(255,255,255,0.4); right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid black; color: black; }
+#map .label.scale { text-align: center; font-weight: bold; background-color: rgba(255,255,255,0.8); right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid #4D4E53; color: #4D4E53; }
 
 .parameter { margin-bottom: 32px; }
 #parameters .parameter:last-child { margin-bottom: 0px; }
@@ -205,7 +205,7 @@ a.button {
 	padding: 0px 32px;
 	text-decoration: none;
 }
-a.button:hover { background-color: #ffc40d; color: black; transition: background-color 0.5s; }
+a.button:hover, a.button:focus { background-color: #ffc40d; color: black; transition: background-color 0.5s; }
 #options a.button { margin-left: 1em; }
 #options a.button:first-child { margin-left: 0px; }
 

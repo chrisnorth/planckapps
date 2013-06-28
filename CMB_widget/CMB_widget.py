@@ -1,6 +1,7 @@
 import numpy as np
-import wx
-import pyfits as fits
+import wx ##wxPython
+#import pyfits as fits ##pyfits now part of astropy
+from astropy.io import fits
 
 import matplotlib
 matplotlib.interactive(False)

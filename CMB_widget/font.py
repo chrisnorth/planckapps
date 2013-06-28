@@ -1,6 +1,6 @@
 # fontEnumDemo.py
  
-import wx
+import wx ##wxPython
  
 ########################################################################
 class TestPanel(wx.Panel):

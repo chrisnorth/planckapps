@@ -1,5 +1,6 @@
 from numpy import *
-import pyfits as fits
+##import pyfits as fits ##pyfits now part of astropy
+from astropy.io import fits
 import sys
 
 prefix = sys.argv[1]

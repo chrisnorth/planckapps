@@ -373,7 +373,7 @@
 				// First point of the curve. Move to the point then use Catmull-Rom 
 				// curveto (Raphael) to join the initial points
 				if(i==0){
-					p = ["M", x, y, "R"];
+					p = ["M", x, y, (data[0].length <= 2 ? "L" : "R")];
 				}else{
 					// If we are not at the first or last points we 
 					// can check if this is a trough or peak
@@ -575,7 +575,7 @@
 			}
 
 		}else{
-			this.error("Something went wrong with the universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
+			this.callback.context.error("Something went wrong with the universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+")");
 		}
 
 		// Fire the callback
@@ -890,7 +890,7 @@
 			FrequencyFilter.filter(re, im, this.context.ps.data);
 
 			// Calculate the 2D FFT but don't bother showing it
-			SpectrumViewer.render(re, im, false);
+			//SpectrumViewer.render(re, im, false);
 
 			// FFT back into real space
 			FrequencyFilter.swap(re, im);
@@ -900,10 +900,6 @@
 			// Loop over the data setting the value
 			// First work out a scaling function
 			if(this.fixedscale){
-				//mx = 6e-7;
-				//mn = -6e-7;
-				//mx = 1.6e-6;
-				//mn = -1.6e-6;
 				mx = 0.11;
 				mn = -0.11;
 			}else{
@@ -915,20 +911,18 @@
 
 			for(y = 0,i = 0; y < this.h; y++, i+=this.w) {
 				for(x = 0; x < this.w; x++) {
-					val = (re[i + x]-mn)*scale;
+					val = Math.round((re[i + x]-mn)*scale);
 					val = val > 255 ? 255 : val < 0 ? 0 : val;
 					p = (i << 2) + (x << 2);
-					val = Math.round(val);
 					// Set colour using pre-calculated colour table
 					this.data[p] = this.colours[val][0];
 					this.data[p+1] = this.colours[val][1];
 					this.data[p+2] = this.colours[val][2];
 				}
 			}
-			
+
 			// Draw the final output
 			this.canvas.ctx.putImageData(this.src, 0, 0);
-
 
 			if(this.showours){
 				// Save the canvas context before defining a clipping region
@@ -1182,15 +1176,14 @@
 			var i = 0, p;
 			var n2 = _n >> 1;	// Half the value of n
 			if(!dl || typeof dl!=="number") dl = 0;
-			var _rs = [];	// The r values for each pixel
+			var r = 0; // The radius value
 	
 			for(var y=-n2; y<n2; y++) {
 				i = n2 + (y + n2)*_n;
 				for(var x=-n2; x<n2; x++) {
 					p = x + i;
-					_rs[p] = Math.sqrt(((x*x) + (y*y)));
-					if(_rs[p]==0) _ls[p] = dl;
-					else _ls[p] = _rs[p]*dl;
+					r = Math.sqrt(((x*x) + (y*y)));
+					_ls[p] = (r==0) ? dl : r*dl;
 					_llpo[p] = _ls[p]*(_ls[p]+1);
 				}
 			}
@@ -1231,6 +1224,8 @@
 				x = 0,
 				y = 0,
 				z = 0,
+				zlen = data[0].length,
+				zlenb = zlen-1;
 				n2 = _n >> 1;	// Bit operator to halve _n
 
 
@@ -1238,18 +1233,18 @@
 				i = n2 + (y + n2)*_n;
 				for(x=-n2; x<n2; x++) {
 					p = x + i;
-					for(z = 0 ; z < data[0].length ; z++){
-						if(_ls[p] > data[0][data[0].length-1]){
-							v = data[1][data[0].length-1];
+					for(z = 0 ; z < zlen ; z++){
+						if(_ls[p] > data[0][zlenb]){
+							v = data[1][zlenb];
 							break;
-						}else if(data[0][z] > _ls[p]){
+						}
+						if(data[0][z] > _ls[p]){
 							v = (z == 0) ? data[1][z] : (data[1][z-1] + (data[1][z] - data[1][z-1])*(_ls[p] - data[0][z-1])/(data[0][z] - data[0][z-1]));
 							break;
 						}
 					}
 					v /= _llpo[p];	// We need to reduce the power by a factor l(l+1) as our power spectrum is scaled by that
-					//v /= _ls[p];
-					v = Math.sqrt(v);	// 
+					v = Math.sqrt(v);
 					re[p] *= v;
 					im[p] *= v;
 				}

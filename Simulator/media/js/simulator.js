@@ -99,6 +99,17 @@
 
 		// Hide the HTML selector element
 		this.select.hide();
+
+		// Calculate the maximum precision of the options
+		this.opts = this.select.children().map(function() {return $(this).val();}).get();
+		this.precision = 0;
+		var prec = 0;
+		for(var i = 0; i < this.opts.length; i++){
+			// Work out how many decimal places
+			prec = (this.opts[i].length - (this.opts[i].indexOf('.')+1));
+			if(prec > this.precision) this.precision = prec;
+		}
+
 	};
 	
 	// Placeholder function to prevent errors if we call it without it being set
@@ -109,7 +120,8 @@
 		// Get the options
 		this.opts = this.select.children().map(function() {return parseFloat($(this).val());}).get();
 		for(var i = 0; i < this.opts.length; i++){
-			if(this.opts[i]==v){
+			// Add zero so that we get the option value to the same precision
+			if((this.opts[i]+0)==v){
 				this.slider.slider("value", i+1);
 				this.updateOptsByIndex(i);
 				break;
@@ -138,6 +150,8 @@
 		// Store the callbacks and a context which will be used for the "this"
 		this.callback = { updated: "", context: (typeof inp.context==="object") ? inp.context : this };
 		if(typeof inp.updated==="function") this.callback.updated = inp.updated;
+
+		this.precision = (is(this.callback.context.omega_b.precision,"number")) ? this.callback.context.omega_b.precision : 2;
 
 		this.chart = {};
 		
@@ -469,9 +483,9 @@
 
 		var file = "";		
 
-		if(id=="omega_b") file = this.dir+"Ob_Oc"+c.toFixed(2)+"_Ol"+l.toFixed(2)+"_lin.json"
-		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(2)+"_Oc_Ol"+l.toFixed(2)+"_lin.json"		
-		else if(id=="omega_l") file = this.dir+"Ob"+b.toFixed(2)+"_Oc"+c.toFixed(2)+"_Ol_lin.json"		
+		if(id=="omega_b") file = this.dir+"Ob_Oc"+c.toFixed(this.precision)+"_Ol"+l.toFixed(this.precision)+"_lin.json"
+		else if(id=="omega_c") file = this.dir+"Ob"+b.toFixed(this.precision)+"_Oc_Ol"+l.toFixed(this.precision)+"_lin.json"		
+		else if(id=="omega_l") file = this.dir+"Ob"+b.toFixed(this.precision)+"_Oc"+c.toFixed(this.precision)+"_Ol_lin.json"		
 
 		if(!file || file == this.lastload){
 			this.getData(id,b,c,l);
@@ -1371,7 +1385,7 @@
 		inp.omega_l = this.omega_l.value;
 
 		// Keep a copy of the starting values
-		this.our = { omega_b: 0.05, omega_c: 0.25, omega_l: 0.70 };
+		this.our = { omega_b: 0.050, omega_c: 0.275, omega_l: 0.675 };
 
 		// Hide the About section if we aren't at that anchor
 		if(location.hash.substring(1) != "about"){
@@ -1421,22 +1435,22 @@
 				var ob = sim.omega_b.value;
 				var oc = sim.omega_c.value;
 				var ol = sim.omega_l.value;
-				var tot = (ob + oc + ol).toFixed(2);
+				var tot = (ob + oc + ol).toFixed(sim.ps.precision);
 				if(tot > 1){
 					// Currently open
 					if(ob + oc <= 1.0){
 						// Reduce dark energy
-						sim.omega_l.setValue((1-oc-ob).toFixed(2));
+						sim.omega_l.setValue(1-oc-ob);
 					}else{
 						// Change Omega_c and remove dark energy
-						sim.omega_c.setValue((1-ob).toFixed(2));
-						sim.omega_l.setValue(0.00);
+						sim.omega_c.setValue(1-ob);
+						sim.omega_l.setValue(0.000);
 					}
 				}else if(tot < 1){
 					// Currently closed
 					if(ob + oc <= 1.0){
-						sim.omega_b.setValue((1-oc-ol).toFixed(2));
-					}else sim.omega_c.setValue((1-ob).toFixed(2));					
+						sim.omega_b.setValue(1-oc-ol);
+					}else sim.omega_c.setValue(1-ob);					
 				}
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
 			})
@@ -1602,7 +1616,7 @@
 	function Cosmos(b,c,l){
 		this.n = 1000;	// number of points in integrals
 		this.nda = 1;	// number of digits in angular size distance
-		this.H0 = 67.8;	// Hubble constant from Planck+WMAP+highL+BAO 68% confidence
+		this.H0 = 67.1;	// Hubble constant from Planck
 		this.WM = b+c;	// Omega(matter)
 		this.WV = l;	// Omega(vacuum) or lambda
 		this.WR = 0;	// Omega(radiation)

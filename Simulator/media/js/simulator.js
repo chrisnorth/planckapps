@@ -117,11 +117,13 @@
 
 	ParameterSlider.prototype.setValue = function(v){
 
+		// Make sure we sort out rounding errors
+		v = v.toFixed(this.precision);
+
 		// Get the options
 		this.opts = this.select.children().map(function() {return parseFloat($(this).val());}).get();
 		for(var i = 0; i < this.opts.length; i++){
-			// Add zero so that we get the option value to the same precision
-			if((this.opts[i]+0)==v){
+			if(this.opts[i]==v){
 				this.slider.slider("value", i+1);
 				this.updateOptsByIndex(i);
 				break;
@@ -1435,7 +1437,7 @@
 				var ob = sim.omega_b.value;
 				var oc = sim.omega_c.value;
 				var ol = sim.omega_l.value;
-				var tot = (ob + oc + ol).toFixed(sim.ps.precision);
+				var tot = (ob + oc + ol);
 				if(tot > 1){
 					// Currently open
 					if(ob + oc <= 1.0){

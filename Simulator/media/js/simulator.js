@@ -1337,7 +1337,13 @@
 		// A place to cache the previous Omega values
 		this.previous = { omega_b: -1, omega_c: -1, omega_l: -1 };
 		this.exhibition = true;
+		this.fs = parseInt($('body').css('font-size'));
 
+		if(this.exhibition){
+			this.fs = parseInt(this.fs*($('body').width()/1200);
+			if($('body').width() > 1000) $('body').css({'font-size':this.fs)+'px'});
+		}
+		
 		// We obviously have Javascript enabled to be here so we will remove the hiding class
 		$('.scriptonly').removeClass('scriptonly');
 
@@ -1556,12 +1562,11 @@
 			// Rescale the Map to make use of the screen
 			var hdiff = $(window).height() - $('body').outerHeight();
 			if(hdiff > 0){
-				var w = ($('#map').outerHeight() + hdiff)-32; // The 20 is just to add some 'give' to stop a vertical scroll bar
+				var w = ($('#map').outerHeight() + hdiff)-(2*this.fs); // The 32 is a fudge to allow for the ell message to stop a vertical scroll bar appearing
 				$('.columnspecific, #map, #fft').css({'width':w+'px','height':w+'px'});
 			}
 			this.ps.resize();
 		}
-
 
 		return this;
 	}

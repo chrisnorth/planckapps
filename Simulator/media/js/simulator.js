@@ -1343,6 +1343,7 @@
 
 		// A place to cache the previous Omega values
 		this.previous = { omega_b: -1, omega_c: -1, omega_l: -1 };
+		this.exhibition = true;
 
 		// We obviously have Javascript enabled to be here so we will remove the hiding class
 		$('.scriptonly').removeClass('scriptonly');
@@ -1394,6 +1395,7 @@
 			$('#help').addClass('on');
 			$('#about').hide();
 		}
+
 
 		// Make an instance of a cosmology
 		this.cosmos = new Cosmos(inp.omega_b,inp.omega_c,inp.omega_l);
@@ -1550,6 +1552,20 @@
 
 		// Update labels, buttons etc
 		this.update();
+
+		// Temporary fixes for Royal Society Summer Exhibition
+		// where there is no internet access
+		if(this.exhibition){
+			$('#about a').on('click',function(e){
+				e.preventDefault();
+			});
+
+			// Rescale the Map to make use of the screen
+			var hdiff = $(window).height() - $('body').outerHeight();
+			var w = ($('#map').outerHeight() + hdiff)-5; // The 5 is just to add some 'give' to stop a vertical scroll bar
+			$('#map').css({'width':w+'px','height':w+'px'});
+		}
+
 
 		return this;
 	}

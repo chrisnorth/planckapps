@@ -241,14 +241,14 @@
 			// Create the new chart
 			this.create();
 
-			// Draw the data
-			this.draw();
-			
 		}
 
 		// Show the contents again
 		this.el.children().show();
 
+		// Draw the data
+		this.draw();
+			
 	}
 
 	// Set up the power spectrum. Draws the axes.
@@ -262,13 +262,16 @@
 		this.opts.offset.width = this.chart.width-this.opts.offset.right-this.opts.offset.left;
 		this.opts.offset.height = this.chart.height-this.opts.offset.bottom-this.opts.offset.top;
 
+		if(this.chart.holder) this.chart.holder.remove();
+		
 		// Create the Raphael object to hold the vector graphics
-		if(this.chart.holder) this.chart.holder.setSize(this.chart.width, this.chart.height)
-		else{
-			this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
+		this.chart.holder = Raphael(this.id, this.chart.width, this.chart.height);
+
+		if(!this.boundfullscreen){
 			$('#'+this.id).on('dblclick', {me:this}, function(e){ e.data.me.toggleFullScreen(); });
 			$('#'+this.id).on('click', {me:this}, function(e){ e.data.me.draw(); });
 			$(document).on('mozfullscreenchange webkitfullscreenchange fullscreeneventchange', {me:this}, function(e){ e.data.me.updateFullScreen(); });
+			this.boundfullscreen = true;
 		}
 
 		// Short handles for the chart properties
@@ -283,14 +286,11 @@
 		var deg = $("<div>").html('&deg;').text();
 		
 		// Draw the axes
-		if(this.chart.axes) this.chart.axes.attr({x:l+0.5,y:t-0.5,width:w,height:h});
-		else this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
+		this.chart.axes = this.chart.holder.rect(l,t,w,h).translate(0.5,-0.5).attr({stroke:'#AAAAAA','stroke-width':1});
 
 		// Draw the axes labels
-		if(this.chart.yLabel) this.chart.yLabel.attr({x: l*0.5, y:t+(h/2),transform:'','font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")}).rotate(270,l*0.5,t+(h/2));
-		else this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy "+ell+"("+ell+"+1) C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.label.font }).rotate(270);
-		if(this.chart.xLabel) this.chart.xLabel.attr({x: l + w/2, y:t + h + b*0.5,'font-size':this.opts.font,fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black")});
-		else this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Scale on the sky").attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.label.font });
+		this.chart.xLabel = this.chart.holder.text(l + w/2, t + h + b*0.5, "Scale on the sky").attr({fill: (this.opts.xaxis.label.color ? this.opts.xaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.xaxis.label.font });
+		this.chart.yLabel = this.chart.holder.text(l*0.5, t+(h/2), "Anisotropy "+ell+"("+ell+"+1) C"+ell+"").attr({fill: (this.opts.yaxis.label.color ? this.opts.yaxis.label.color : "black"),'font-size': this.opts.font,'font-family': this.opts.yaxis.label.font }).rotate(270);
 
 		// Draw angular labels on chart
 		if(this.opts.xaxis.ticks){
@@ -309,17 +309,10 @@
 				path = path.concat(["M",x,y,"L",x,y-fs]);
 				txt.push([x,y-fs-fs,deglabels[i]+deg]);
 			}
-			if(this.chart.xlines){
-				this.chart.xlines.attr('path',path);
-				for(var i = 0 ; i < deglabels.length ; i++){
-					this.chart.xtext[i].attr({x:txt[i][0],y:txt[i][1],'font-size':fs});
-				}
-			}else{
-				this.chart.xlines = this.chart.holder.path(path).attr({stroke:'#AAAAAA','stroke-width':1, "stroke-linejoin": "round"});
-				this.chart.xtext = this.chart.holder.set();
-				for(var i = 0 ; i < deglabels.length ; i++){
-					this.chart.xtext.push(this.chart.holder.text(txt[i][0],txt[i][1],txt[i][2]).attr({fill:'black', "text-anchor": "middle"}));
-				}
+			this.chart.xlines = this.chart.holder.path(path).attr({stroke:'#AAAAAA','stroke-width':1, "stroke-linejoin": "round"});
+			this.chart.xtext = this.chart.holder.set();
+			for(var i = 0 ; i < deglabels.length ; i++){
+				this.chart.xtext.push(this.chart.holder.text(txt[i][0],txt[i][1],txt[i][2]).attr({fill:'black', "text-anchor": "middle"}));
 			}
 		}
 	}
@@ -435,8 +428,8 @@
 			
 			// Now we make sure we don't display any parts of the curve that are outside the plot area
 			var clip = (this.opts.offset.left+0.5)+','+(this.opts.offset.top-0.5)+','+this.opts.offset.width+','+this.opts.offset.height;
-			if(this.chart.line) this.chart.line.attr({'clip-rect':clip,path:p});
-			else this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip});
+			if(this.chart.line) this.chart.line.remove();
+			this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip});
 
 		}
 		

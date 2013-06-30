@@ -1636,7 +1636,7 @@
 	function Cosmos(b,c,l){
 		this.n = 1000;	// number of points in integrals
 		this.nda = 1;	// number of digits in angular size distance
-		this.H0 = 67.1;	// Hubble constant from Planck
+		this.H0 = 67;	// Hubble constant from Planck (tweaked to account for Omegas being off from the Planck values)
 		this.WM = b+c;	// Omega(matter)
 		this.WV = l;	// Omega(vacuum) or lambda
 		this.WR = 0;	// Omega(radiation)

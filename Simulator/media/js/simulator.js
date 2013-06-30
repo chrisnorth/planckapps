@@ -1562,8 +1562,10 @@
 
 			// Rescale the Map to make use of the screen
 			var hdiff = $(window).height() - $('body').outerHeight();
-			var w = ($('#map').outerHeight() + hdiff)-5; // The 5 is just to add some 'give' to stop a vertical scroll bar
-			$('#map').css({'width':w+'px','height':w+'px'});
+			if(hdiff > 0){
+				var w = ($('#map').outerHeight() + hdiff)-5; // The 5 is just to add some 'give' to stop a vertical scroll bar
+				$('#map').css({'width':w+'px','height':w+'px'});
+			}
 		}
 
 

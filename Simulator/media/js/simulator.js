@@ -1340,8 +1340,8 @@
 		this.fs = parseInt($('body').css('font-size'));
 
 		if(this.exhibition){
-			this.fs = parseInt(this.fs*($('body').width()/1200);
-			if($('body').width() > 1000) $('body').css({'font-size':this.fs)+'px'});
+			this.fs = parseInt(this.fs*$('body').width()/1200);
+			if($('body').width() > 1000) $('body').css({'font-size':this.fs+'px'});
 		}
 		
 		// We obviously have Javascript enabled to be here so we will remove the hiding class

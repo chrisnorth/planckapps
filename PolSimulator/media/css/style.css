@@ -1,0 +1,281 @@
+body {
+	margin: 0px;
+	padding: 48px 64px;
+	color: #4D4E53; /* To match to RS Summer Exhibition 2013 site */
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-size: 1em;
+	line-height: 1.4;
+}
+body .advanced { display: none; }
+body.adv .advanced { display: inline-block; }
+
+
+*::-moz-selection {
+	background: none repeat scroll 0 0 #FF5E99;
+	color: white;
+	text-shadow: none;
+}
+
+h1 {
+	margin: 0px;
+	margin-bottom: 32px;
+	font-weight: 500;
+}
+h1 small {
+	color: #aaaaaa;
+	font-weight: 200;
+	font-size: 0.5em;
+}
+h3 { margin-top: 32px; }
+h3:first-child { margin-top: 0px;}
+p { margin-bottom: 0px; }
+/* Colours from RS Summer Exhibition 2013 site */
+a { color: #E13F29; text-decoration: none; }
+a:hover { color: #F16F25; text-decoration: underline; }
+a:visited { color: #E13F29; }
+a:active { color: #4D4E53; }
+
+#msg { position: absolute; top: 0px; left: 0px; right: 0px; }
+a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; display: inline-block; width: 1.5em; text-align: center; text-decoration: none; }
+#error, #warning { padding: 0.5em 1em; display: none; }
+#error { background-color: #E13F29; color: white; }
+#warning { background-color: #ffc40d; color: black; }
+.toggle {
+	line-height: 48px;
+	width: 48px;
+	height: 48px;
+	text-align: center;
+	font-size: 1.6em;
+	margin-top: 0em;
+	margin-left: 8px;
+	float: right;
+}
+.toggle a {
+	background-color: #AAAAAA;
+	width: 48px;
+	height: 48px;
+	display: block;
+	border-radius: 24px;
+	color: inherit;
+	background-image: url("../img/icons.png");
+	background-position: 0 0;
+	background-repeat: no-repeat;
+}
+.toggle img { width: 100%; height: 100%; }
+#help .abouton, #help .aboutoff {
+	line-height: 48px;
+}
+#help a {
+	display: block;
+	background-image: none;
+	font-family: serif;
+	text-decoration: none;
+	text-align: center;
+}
+#help.on .aboutoff { display: block; }
+#help.on .abouton { display: none; }
+#help .aboutoff { display: none; }
+#help .abouton { display: block; }
+#help a.aboutoff {
+	background: none;
+}
+#help a.abouton {
+	width: 48px;
+	color: white;
+	font-style: italic;
+	background-color: #AAAAAA;
+}
+#help a.abouton:hover, #help a.abouton:focus { background-color: #049CDB; transition: background-color 0.5s; }
+#about {
+	color: #111111;
+	background-color: #EEEEEE; 
+	display: block; 
+	margin-left: -64px;
+	margin-right: -64px;
+	margin-bottom: 64px;
+	padding: 32px 64px;
+}
+body.adv #advancedtoggle a { background-color: black; }
+.toggle a:hover, .toggle a:focus { background-color: #E13F29; transition: background-color 0.5s; }
+#configtoggle a { background-position: 0 -48px; }
+
+#header { margin-top: 16px; }
+img.logo {
+    width: 200px;
+    height: 90px;
+    float: left;
+    margin-top: -18px;
+    margin-right: 8px;
+}
+
+#app {
+	display: table;
+	width: 100%;
+}
+
+#container {
+	display: table-row;
+}
+
+#parameters {
+	vertical-align: middle;
+}
+
+#parameters, #powerspectrum, .column, #fft { display: table-cell; }
+
+#powerspectrum{
+	width: 400px;
+	height: 300px;
+	line-height: 0px;
+}
+body.fullscreen { font-size: 1.5em; }
+body.fullscreen #powerspectrum { background-color: white; }
+
+#parameters, #powerspectrum { padding-right: 32px; }
+
+#powerspectrum svg, #map canvas { cursor: pointer; }
+
+#fft { display: none; }
+.columnspecific, #map, #fft {
+	width: 300px;
+	height: 300px;
+}
+#map, #fft {
+	color: black;
+	background-color: white;
+	background: #45484d; /* Old browsers */
+	background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #45484d 0%,#000000 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+	line-height: 0px;
+	text-align: center;
+	position: relative;
+}
+#map { color: white; }
+#map canvas, #map img, #fft canvas {
+	width: auto;
+	margin: auto;
+	height: 100%;
+}
+#map .label {
+	position: absolute;
+	line-height: 1em;
+	background-color: rgba(255,255,255,0.8);
+	color: #4D4E53;
+	padding: 0.25em;
+}
+#map .label.sim { text-align: left; bottom: 0px; left: 0px; }
+#map .label.our { text-align: right; top: 0px; right: 0px; }
+#map .label.scale { text-align: center; font-weight: bold; background-color: rgba(255,255,255,0.8); right: 0.5em; bottom: 0.5em; width: 30px; height: 30px; line-height: 30px; border-radius: 30px; border: 2px solid #4D4E53; color: #4D4E53; }
+
+.parameter { margin-bottom: 32px; }
+#parameters .parameter:last-child { margin-bottom: 0px; }
+.parameter .ui-slider { margin-top: 0.6em; }
+
+#footer { display: table; width: 100%; }
+
+#config { width: 50%; padding: 2em; display: none; }
+#config form { font-size: 1.2em; }
+#config .configoption { margin-bottom: 1em; }
+#config input[type=checkbox] { width: 2em; height: 2em; }
+#config select { font-size: 0.8em; }
+#config label { cursor: pointer; }
+#config .close { font-size: 2em; }
+.lightbox_bg { z-index: 101; left:0px; top: 0px; right: 0px; bottom: 0px; position: absolute; background-color: rgb(255,255,255); }
+.lightbox_top { z-index: 102; max-width:500px; position: absolute; background-color: white; }
+
+body .column.advanced { display: none; }
+body.adv .column.advanced { display: table-cell; }
+#options, #output { display: table-cell; }
+#output { text-align: right; }
+.property { font-weight: bold; font-size: 1.5em; line-height: 1.2em; }
+
+a.button {
+	border-radius: 24px;
+	background-color: #AAAAAA;
+	color: white;
+	line-height: 48px;
+	display: inline-block;
+	height: 48px;
+	padding: 0px 32px;
+	text-decoration: none;
+}
+a.button:hover, a.button:focus { background-color: #ffc40d; color: black; transition: background-color 0.5s; }
+#options a.button { margin-left: 1em; }
+#options a.button:first-child { margin-left: 0px; }
+
+/* Set the colours for the slider bars */
+.b, #omega_b_holder .ui-widget-header { background-color: #F89406; }
+.c, #omega_c_holder .ui-widget-header { background-color: #049CDB; color: white; }
+.l, #omega_l_holder .ui-widget-header { background-color: #46a546; color: white; }
+.b, .c, .l { padding: 0.25em; }
+.ui-slider .ui-slider-range.ui-slider-range-min { border: 1px solid #777; margin-top: -1px; }
+
+.padded { margin: 32px 0px 0px 0px;}
+
+/* Classes to hide things */
+.hidden { display: none; }
+/* We need this one to ensure the display: table-cell doesn't take precedence */
+#powerspectrum.hidden { display: none; }
+.scriptonly { display: none!important; }
+
+
+/* Responsive Styles */
+@media (max-width: 1000px), (max-device-width: 1000px) {
+	#app { display: block; }
+	#container { display: block; }
+	.parameter { margin-bottom: 16px; }
+	#parameters, #powerspectrum, .column {	display: block; padding: 0px; width: 100%; }
+	#map, #powerspectrum { margin-top: 64px; }
+	.column, #map, #map img, #map canvas, #map .labels { width: 100%; height: auto; }
+	h1 { margin-bottom: 32px; }
+	h1 small { display: block; }
+	.wide { display: none; }
+}
+
+@media (max-width: 760px), (max-device-width: 760px) {
+	#header { margin-top: 0px; }
+	img.logo { display: block; float: none; text-align: center; margin: 0px auto 16px; }
+}
+
+@media (max-width: 500px), (max-device-width: 500px) {
+	body { padding: 32px; }
+	#map, #powerspectrum { margin-top: 32px; }
+	h1 { margin-bottom: 16px; }
+	h3 { margin-top: 16px; }
+	#about {
+		margin: 0px -32px 32px -32px;
+		padding: 32px 32px;
+	}
+	.padded { margin: 16px 0px 0px 0px; }
+	#footer { display: block; }
+	#output, body.adv #firstpeak.advanced, #options {
+		display: block;
+		text-align: center;
+	}
+	.toggle { margin-left: 4px; }
+	#output, #options { margin-top: 16px; }
+	#config { width: 80%; height: 100%; border: 0px; box-shadow: none; padding: 1em; }
+
+
+}
+
+@media (max-width: 350px), (max-device-width: 350px) {
+	body { padding: 16px 24px; }
+	#about {
+		margin: 0px -24px 16px -24px;
+		padding: 16px;
+	}
+	.padded { margin: 8px 0px 0px 0px; }
+	#options a.button {
+		margin-left: 0;
+		margin-top: 1em;
+		display: block;
+	}
+	#options a.button:first-child { margin-top: 0px; }
+}
+

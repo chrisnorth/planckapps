@@ -1339,7 +1339,7 @@
 		this.exhibition = true;
 		this.fs = parseInt($('body').css('font-size'));
 
-		if(this.exhibition){
+		if(this.exhibition && $('body').width() > 1200){
 			this.fs = parseInt(this.fs*$('body').width()/1200);
 			if($('body').width() > 1000) $('body').css({'font-size':this.fs+'px'});
 		}

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>CMB Simulator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+	<link rel="shortcut icon" href="media/img/planck_logo.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="media/css/ui.css" />
+	<link rel="stylesheet" href="media/css/style.css" />
+	<script src="media/js/jquery-1.10.0.min.js"></script>
+	<script src="media/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<!--<link rel="stylesheet" href="/resources/demos/style.css" />-->
+	<script src="media/js/raphael-min.js"></script>
+	<script src="media/js/simulator.js"></script>
+	<script>
+	$(document).ready(function(){
+
+		// Load the Simulator 
+		var sim = $.simulator({
+			'omega_b': 'omega_b',	// The ID for the Omega_baryon
+			'omega_c': 'omega_c',	// The ID for the Omega_darkmatter
+			'omega_l': 'omega_l',	// The ID for the Omega_darkenergy
+			'ps': 'powerspectrum',	// The ID for the powerspectrum HTML element
+			'map': 'map',	// The ID for the map HTML element
+			'dir': 'db_0.025/',
+			'fixedscale' : true
+		});
+
+	});
+	</script>
+</head>
+<body>
+
+	<div id="msg">
+		<div id="error"></div>
+		<div id="warning"></div>
+	</div>
+
+	<div id="header">
+		<img class="logo" src="media/img/planck_logo.gif"><h1>CMB Simulator<small><!--<span class="wide"> at the </span><a href="http://sse.royalsociety.org/2013/">Summer Science Exhibition 2013</a>--></small></h1>
+	</div>
+	
+	<div id="about">
+
+		<h3>The cosmic microwave background</h3>
+		<p>For the first 400,000 years after the Big Bang, the Universe was filled with hot, dense plasma that was opaque to light.  As the Universe expanded, the plasma cooled and thinned out, becoming transparent.  The last-scattered light appears as the cosmic microwave background (CMB). The <a href="http://www.esa.int/planck">Planck</a> satellite has been capturing the variations in the brightness of the cosmic microwave background over the entire sky at the highest precision ever achieved.</p>
+
+		<h3>Ingredients of the Universe</h3>
+		<p><strong class="b">Normal matter</strong> - The stuff you see around you: tables, buildings, planets, stars, etc.</p>
+		<p><strong class="c">Dark matter</strong> - Cold, dark, matter can not be seen or felt, and has not been detected in laboratories. Its gravitational influence can be seen in the rotation of galaxies. It is called "dark" because it doesn't give off light.</p>
+		<p><strong class="l">Dark energy</strong> - Dark energy exerts a kind of pressure that is causing the expansion of the Universe to speed up. It is called "dark" because we don't know what it is.</p>
+		
+		<h3>What is the power spectrum?</h3>
+		<p>A power spectrum is a mathematical function that can be used to describe the distribution of a quantity (any quantity) in space. This concept can be illustrated by considering a city with a variety of buildings in it and assessing the different types of people that live in each type of building. A survey like this might start with counting how many buildings there are of each size: how many one-family houses, how many two-family houses, how many skyscraper blocks, and so on. It doesn't matter if, on an individual street, there is a tiny one family house nearby a huge apartment block – what matters is how many of each size of buildings there are in the overall architecture of the city, to study how this influences the behaviour of the population. Plotting the number of buildings as a function of their size is an example of what it means to ‘measure the power spectrum’ of the city's urban development.
+
+		<h3>What is the power spectrum of the distribution of matter in the Universe?</h3>
+		<p>When cosmologists study the formation and evolution of cosmic structure in the Universe, they do something very similar to the analysis of the city's urban structure: they plot the relative number of cosmic structures on different sizes in a power spectrum. The shape of this graph reveals the ‘power’ of structures that populate the Universe on each scale. For example, there may be very few structures at very large scales. But counting all of these very large structures’ contributions together gives a measure of their cumulative power. If the power is to be matched with only smaller structures, a much larger number of them are needed.</p>
+		
+		<h3>Why are cosmologists interested in the power spectrum of cosmic structure?</h3>
+		<p>Cosmic structures – stars, galaxies, galaxy clusters – grow under the influence of gravity, which causes them to become denser and denser. However, other forces may act against the attractive pull of gravity; for example, the expansion of the Universe or radiation pressure – the pressure force exerted by photons. Every structure that we observe in the Universe is the result of the balance between all these effects during the infancy of the Universe. To understand how exactly all of these structures emerged from the almost smooth distribution of matter in the early Universe, it is important to know how many structures of each size there are in the Universe at the present epoch, and how many there were at past times in cosmic history – information that is summarised in the power spectrum.</p>
+		
+		<h3>What was the distribution of these primordial fluctuations?</h3>
+		<p>The simplest model of inflation predicts that at the end of this phase of accelerated expansion (inflation) the fluctuations present in the density of matter are such that their contribution is almost independent of their scale. This means that the cumulative power of all fluctuations of a given scale is the same. Taking the example of the size of buildings in a city, this would mean that, if there is a given number of large apartment blocks, there should be a higher number of smaller, double-family houses and an even higher number of even smaller, single-family houses, to keep the buildings on all scales having the same ‘power’, that is, equal numbers of people living in each kind of structure.</p>
+		<p>If fluctuations in the distribution of matter in the primordial Universe have equal power on all spatial scales, cosmologists say that their power spectrum is 'scale-invariant'. This is characterised with a parameter known as the spectral index, n<sub>s</sub>. For a perfectly scale-invariant spectrum, n<sub>s</sub> = 1. If n<sub>s</sub> is smaller than 1, it means that fluctuations on larger scales are dominant, since they are more abundant (in terms of their cumulative power) than those on smaller scales; vice versa, if n<sub>s</sub> is larger than 1, fluctuations on small scales are the dominant ones.</p>
+		
+		<h3>How does this relate to the fluctuations in the cosmic microwave background?</h3>
+		<p>The fluctuations in the temperature of the cosmic microwave background (CMB) are a snapshot of the distribution of matter at a much later cosmic epoch than inflation, as they date back to 380,000 years after inflation ended. In the meantime, the distribution of matter (the power spectrum) at small scales has been modified, but at very large scales an imprint of the original power spectrum that derives from inflation is still present. In particular, CMB fluctuations on very large scales carry information about the primordial spectral index n<sub>s</sub> and allow cosmologists to constrain the distribution of fluctuations as it was at the time of inflation. Furthermore, by measuring the spectral index and how much it is different from n<sub>s</sub> = 1, cosmologists can learn how long the phase of inflationary expansion lasted and how it ended, before the slower expansion rate began. The end of inflation is a particularly interesting epoch in cosmic history, because it is at this time that particles of matter were created for the first time.</p>
+
+		<h3>About Planck</h3>
+		<p>The <a href="http://www.esa.int/planck">Planck</a> satellite - a European Space Agency (ESA) mission launched in May 2009 - has surveyed the entire sky to search for the origin of the universe. One of the most technologically advanced satellites ever launched, its first cosmological results were released in March 2013.</p>
+
+		<h3>Credits</h3>
+		<p>This CMB Simulator was created for the Royal Society <a href="http://sse.royalsociety.org/2013/">Summer Exhibition 2013</a>. The CMB Simulator <a href="https://github.com/chrisnorth/planckapps/tree/master/Simulator">code is on GitHub</a>. The simulated power spectrum data are from <a href="http://camb.info/">CAMB</a>.</p>
+
+	</div>
+
+	<noscript><p>Oh no! Either you don't have Javascript or it is disabled. This CMB Simulator needs Javascript to let you change the parameters of the Universe. :-(</p><p>This is what our Universe looks like:</p><img src="media/img/ouruniverse.jpg" class="our" /></noscript>
+
+	<div id="app" class="scriptonly">
+
+		<div id="container">
+		
+			<div id="parameters" class="column">
+				<form id="omegas">
+					<div id="omega_b_holder" class="parameter">
+						<label for="omega_b">Normal Matter <span class="advanced">(&Omega;<sub>b</sub><span class="omega_b"></span>)</span></label>
+						<select name="omega_b" id="omega_b">
+							<option>0.000</option>
+							<option>0.025</option>
+							<option selected="selected">0.050</option>
+							<option>0.075</option>
+							<option>0.100</option>
+							<option>0.125</option>
+							<option>0.150</option>
+							<option>0.175</option>
+							<option>0.200</option>
+							<option>0.225</option>
+							<option>0.250</option>
+							<option>0.275</option>
+							<option>0.300</option>
+							<option>0.325</option>
+							<option>0.350</option>
+							<option>0.375</option>
+							<option>0.400</option>
+							<option>0.425</option>
+							<option>0.450</option>
+							<option>0.475</option>
+							<option>0.500</option>
+							<option>0.525</option>
+							<option>0.550</option>
+							<option>0.575</option>
+							<option>0.600</option>
+							<option>0.625</option>
+							<option>0.650</option>
+							<option>0.675</option>
+							<option>0.700</option>
+							<option>0.725</option>
+							<option>0.750</option>
+							<option>0.775</option>
+							<option>0.800</option>
+							<option>0.825</option>
+							<option>0.850</option>
+							<option>0.875</option>
+							<option>0.900</option>
+							<option>0.925</option>
+							<option>0.950</option>
+							<option>0.975</option>
+							<option>1.000</option>
+						</select>
+					</div>
+					<div id="omega_c_holder" class="parameter">
+						<label for="omega_c">Dark Matter <span class="advanced">(&Omega;<sub>c</sub><span class="omega_c"></span>)</span></label>
+						<select name="omega_c" id="omega_c">
+							<option>0.000</option>
+							<option>0.025</option>
+							<option>0.050</option>
+							<option>0.075</option>
+							<option>0.100</option>
+							<option>0.125</option>
+							<option>0.150</option>
+							<option>0.175</option>
+							<option>0.200</option>
+							<option>0.225</option>
+							<option>0.250</option>
+							<option selected="selected">0.275</option>
+							<option>0.300</option>
+							<option>0.325</option>
+							<option>0.350</option>
+							<option>0.375</option>
+							<option>0.400</option>
+							<option>0.425</option>
+							<option>0.450</option>
+							<option>0.475</option>
+							<option>0.500</option>
+							<option>0.525</option>
+							<option>0.550</option>
+							<option>0.575</option>
+							<option>0.600</option>
+							<option>0.625</option>
+							<option>0.650</option>
+							<option>0.675</option>
+							<option>0.700</option>
+							<option>0.725</option>
+							<option>0.750</option>
+							<option>0.775</option>
+							<option>0.800</option>
+							<option>0.825</option>
+							<option>0.850</option>
+							<option>0.875</option>
+							<option>0.900</option>
+							<option>0.925</option>
+							<option>0.950</option>
+							<option>0.975</option>
+							<option>1.000</option>
+						</select>
+					</div>
+					<div id="omega_l_holder" class="parameter">
+						<label for="omega_l">Dark Energy <span class="advanced">(&Omega;<sub>&Lambda;</sub><span class="omega_l"></span>)</span></label>
+						<select name="omega_l" id="omega_l">
+							<option>0.000</option>
+							<option>0.025</option>
+							<option>0.050</option>
+							<option>0.075</option>
+							<option>0.100</option>
+							<option>0.125</option>
+							<option>0.150</option>
+							<option>0.175</option>
+							<option>0.200</option>
+							<option>0.225</option>
+							<option>0.250</option>
+							<option>0.275</option>
+							<option>0.300</option>
+							<option>0.325</option>
+							<option>0.350</option>
+							<option>0.375</option>
+							<option>0.400</option>
+							<option>0.425</option>
+							<option>0.450</option>
+							<option>0.475</option>
+							<option>0.500</option>
+							<option>0.525</option>
+							<option>0.550</option>
+							<option>0.575</option>
+							<option>0.600</option>
+							<option>0.625</option>
+							<option>0.650</option>
+							<option selected="selected">0.675</option>
+							<option>0.700</option>
+							<option>0.725</option>
+							<option>0.750</option>
+							<option>0.775</option>
+							<option>0.800</option>
+							<option>0.825</option>
+							<option>0.850</option>
+							<option>0.875</option>
+							<option>0.900</option>
+							<option>0.925</option>
+							<option>0.950</option>
+							<option>0.975</option>
+							<option>1.000</option>
+						</select>
+					</div>
+				</form>
+			</div>
+
+			<div id="powerspectrum" class="column"></div>
+
+			<div id="fft" class="column columnspecific">
+				<canvas id="spectrum"></canvas>
+			</div>
+
+			<div class="column columnspecific">
+				<div id="map">
+					<canvas id="result"><img src="media/img/ouruniverse.jpg" class="our" /></canvas>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+	
+	<div id="footer" class="padded">
+		<div id="options" class="column"></div>
+		<div id="output" class="column">
+			<div id="age"></div>
+			<div id="curvature"></div>
+			<div id="firstpeak" class="advanced"></div>
+		</div>
+	</div>
+	
+	<div id="config">
+		<h2>Options</h2>
+		<form id="configform"></form>
+	</div>
+	
+</body>
+</html>

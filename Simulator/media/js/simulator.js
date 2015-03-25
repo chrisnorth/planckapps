@@ -966,7 +966,7 @@
 			}
 
 		} catch(e) {
-			if(this.logging) console.log(e,p,val,re[i + x],i,x);
+			if(this.logging) console.log(e);
 		}
 
 		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");

@@ -168,6 +168,8 @@ body.fullscreen #powerspectrum { background-color: white; }
 	line-height: 1em;
 	background-color: rgba(255,255,255,0.8);
 	color: #4D4E53;
+	background-color: #aaaaaa;
+	color: white;
 	padding: 0.25em;
 }
 #map .label.sim { text-align: left; bottom: 0px; left: 0px; }

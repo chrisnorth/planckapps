@@ -1661,13 +1661,12 @@
 		var v;
 		if(!w) w = new Array(p.length);
 		for(var i = 0, j = 0; i < p.length ; i++){
-			if(p[i] && ref[i]){
-				if(!w[i]) w[i] = 2;
-				v = Math.pow( ( 1 - Math.abs( (p[i] - ref[i]) / (p[i] + ref[i]) ) ), w[i]/p.length);
-				if(j==0) s = v;
-				else s *= v;
-				j++;
-			}
+			if(p[i] < 0.01) p[i] = 0.01;	// Fudge to stop us zapping the similarity score when p[i] == 0.0
+			if(!w[i]) w[i] = 1;
+			v = Math.pow( ( 1 - Math.abs( (p[i] - ref[i]) / (p[i] + ref[i]) ) ), w[i]/p.length);
+			if(j==0) s = v;
+			else s *= v;
+			j++;
 		}
 		return s;
 	}

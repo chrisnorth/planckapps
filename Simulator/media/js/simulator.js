@@ -1641,9 +1641,10 @@
 			var sim = this.similarity([this.omega_b.value,this.omega_c.value,this.omega_l.value],[this.our.omega_b,this.our.omega_c,this.our.omega_l]);
 			var txt = "Not like our Universe";
 			if(sim > 0.60) txt = "A bit like our Universe";
-			if(sim > 0.93) txt = "Very similar to our Universe";
+			if(sim > 0.75) txt = "Getting more like our Universe";
+			if(sim > 0.94) txt = "Very similar to our Universe";
 			if(sim == 1) txt = "The same as our Universe";
-			$('#similarity').html('<span class="similarity property">'+txt+'</span>');
+			$('#similarity').html('<span class="similarity property">'+txt+' ('+Math.round(sim*100)+'%)</span>');
 		}
 
 		$('span.omega_b').html(' = '+this.omega_b.value);
@@ -1661,7 +1662,7 @@
 		if(!w) w = new Array(p.length);
 		for(var i = 0, j = 0; i < p.length ; i++){
 			if(p[i] && ref[i]){
-				if(!w[i]) w[i] = 1;
+				if(!w[i]) w[i] = 2;
 				v = Math.pow( ( 1 - Math.abs( (p[i] - ref[i]) / (p[i] + ref[i]) ) ), w[i]/p.length);
 				if(j==0) s = v;
 				else s *= v;

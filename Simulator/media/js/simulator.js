@@ -377,6 +377,7 @@
 			Yscale = (this.opts.offset.height) / Yrange;
 			this.firsttrough = 0;
 			this.firstpeak = 0;
+			this.firstpeakamp = 0;
 
 			//if(!this.chart.dots) this.chart.dots = this.chart.holder.set();
 
@@ -401,8 +402,11 @@
 						// curves through the peak/troughs.
 						if(data[0][i] > 100 && (trough || peak)){
 
-							// Keep a record of where the first peak is just in case we want it
-							if(peak && !this.firstpeak) this.firstpeak = data[0][i];
+							// Keep a record of where the first peak for later
+							if(peak && !this.firstpeak){
+								this.firstpeak = data[0][i];
+								this.firstpeakamp = data[1][i];
+							}
 
 							// Keep a record of where the first trough is for curve fitting
 							if(trough && this.firstpeak && !this.firsttrough) this.firsttrough = data[0][i];
@@ -428,8 +432,6 @@
 					prevy = y;
 				}
 				if(tempy > max) max = tempy;
-				//if(!this.chart.dots[i]) this.chart.dots.push(this.chart.holder.circle(x, y, 3).attr({fill: "#333"}));
-				//else this.chart.dots[i].animate({cx: x, cy: y},100);
 			}
 			
 			// Now we make sure we don't display any parts of the curve that are outside the plot area
@@ -438,8 +440,6 @@
 			this.chart.line = this.chart.holder.path(p).attr({stroke: "#E13F29", "stroke-width": 3, "stroke-linejoin": "round","clip-rect":clip});
 
 		}
-		
-		//if(this.logging) console.log("Total for PowerSpectrum.prototype.draw(): " + (new Date() - d) + "ms");
 
 		return this;
 	}
@@ -1393,7 +1393,7 @@
 		inp.omega_l = this.omega_l.value;
 
 		// Keep a copy of the starting values
-		this.our = { omega_b: 0.050, omega_c: 0.275, omega_l: 0.675 };
+		this.our = { omega_b: 0.050, omega_c: 0.275, omega_l: 0.675, firstpeak: 220,firstpeakamp: 5291.5 };
 
 		// Hide the About section if we aren't at that anchor
 		if(location.hash.substring(1) != "about"){
@@ -1622,14 +1622,26 @@
 		if($('#firstpeak')){
 			// Display the first peak along with the roughly equivalent angular size
 			var ang = 180/this.ps.firstpeak;
-			if(this.ps.firstpeak > 0) $('#firstpeak').html('First peak at <span class="property">&#8467; = '+this.ps.firstpeak+'</span> (~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;)');
+
+			// Construct a message about the location/amplitude of the first peak in the power spectrum
+			var goldilocks = "";
+			if(this.ps.firstpeak > this.our.firstpeak) goldilocks += "too small";
+			if(this.ps.firstpeak < this.our.firstpeak) goldilocks += "too large";
+			if(this.ps.firstpeakamp > this.our.firstpeakamp) goldilocks += (goldilocks ? " and " : "")+"too bright";
+			if(this.ps.firstpeakamp < this.our.firstpeakamp) goldilocks += (goldilocks ? " and " : "")+"too faint";
+			
+			if(this.ps.firstpeak > 0) $('#firstpeak').html('Fundamental scale <span class="advanced">at <span class="property">&#8467; = '+this.ps.firstpeak+'</span></span> <span class="advanced">(</span>~'+(ang > 0.5 ? ang.toFixed(1) : ang.toFixed(2))+'&deg;<span class="advanced">)</span>'+(goldilocks ? ' - '+goldilocks : ''));
 			else $('#firstpeak').html('No fluctuations in the CMB'+(this.omega_b.value == 0 ? ' because there<br />was no matter to interact with the photons.' : ''));
 		}else{
 			$('#firstpeak').html('?');
 		}
 		if($('#age')){
 			this.cosmos.compute(this.omega_b.value, this.omega_c.value, this.omega_l.value);
-			$('#age').html('<span class="age property">'+this.cosmos.age_Gyr.toFixed(1)+'</span> billion years old');
+			var goldilocks = "just right";
+			var age = parseFloat(this.cosmos.age_Gyr.toFixed(1));
+			if(age > 13.8) goldilocks = "too old";
+			if(age < 13.8) goldilocks = "too young";
+			$('#age').html('<span class="age property">'+age+'</span> billion years old - '+goldilocks);
 		}
 		if($('#curvature')){
 			var tot = this.omega_b.value + this.omega_c.value + this.omega_l.value;
@@ -1639,12 +1651,12 @@
 		}
 		if($('#similarity')){
 			var sim = this.similarity([this.omega_b.value,this.omega_c.value,this.omega_l.value],[this.our.omega_b,this.our.omega_c,this.our.omega_l]);
-			var txt = "Not like our Universe";
-			if(sim > 0.60) txt = "A bit like our Universe";
-			if(sim > 0.75) txt = "Getting more like our Universe";
-			if(sim > 0.94) txt = "Very similar to our Universe";
-			if(sim == 1) txt = "The same as our Universe";
-			$('#similarity').html('<span class="similarity property">'+txt+' ('+Math.round(sim*100)+'%)</span>');
+			var txt = "not like our universe";
+			if(sim > 0.60) txt = "a bit like our universe";
+			if(sim > 0.75) txt = "getting more like our universe";
+			if(sim > 0.94) txt = "very similar to our universe";
+			if(sim == 1) txt = "the same as our universe";
+			$('#similarity').html('Universe similarity <span class="similarity property">'+Math.round(sim*100)+'%</span> - '+txt+'');
 		}
 
 		$('span.omega_b').html(' = '+this.omega_b.value);

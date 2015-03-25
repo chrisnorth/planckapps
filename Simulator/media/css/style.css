@@ -1,12 +1,14 @@
 body {
 	margin: 0px;
 	padding: 48px 64px;
+	padding-bottom: 48px;
 	color: #4D4E53; /* To match to RS Summer Exhibition 2013 site */
 	font-family: "Helvetica Neue", Helvetica, sans-serif;
 	font-size: 1em;
 	line-height: 1.4;
 }
 body .advanced { display: none; }
+body #omegas .advanced { display: inline-block; }
 body.adv .advanced { display: inline-block; }
 
 

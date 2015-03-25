@@ -1420,8 +1420,10 @@
 		// Make an instance of a view of part of the sky
 		this.sky = new Sky(inp);
 
+
 		// Make option buttons
 		$('#options').append(
+			/*
 			$('<a class="button ouruniverse" href="#">Our universe</a>').on('click',{me:this},function(e){
 				e.preventDefault();
 				var sim = e.data.me;
@@ -1429,11 +1431,11 @@
 				sim.omega_c.setValue(sim.our.omega_c);
 				sim.omega_l.setValue(sim.our.omega_l);
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
-			}),
+			}),*/
 			$('<a class="button matteronly" href="#">Normal matter only</a>').on('click',{me:this},function(e){
 				e.preventDefault();
 				var sim = e.data.me;
-				sim.omega_b.setValue(0.20);
+				//sim.omega_b.setValue(0.20);
 				sim.omega_c.setValue(0.00);
 				sim.omega_l.setValue(0.00);
 				sim.ps.loadData('omega_b',sim.omega_b.value,sim.omega_c.value,sim.omega_l.value);
@@ -1584,14 +1586,15 @@
 		return this;
 	}
 
-
+	// If the browser changes dimensions
 	Simulator.prototype.resize = function(){
 		this.ps.resize();
 		this.sky.resize();
 		this.update();
 		return this;
 	}
-	
+
+	// Update	
 	Simulator.prototype.update = function(e){
 
 		if($('#map') && this.sky){
@@ -1634,14 +1637,39 @@
 			if(tot == 1) $('.button.flatten').hide();
 			else $('.button.flatten').show();
 		}
+		if($('#similarity')){
+			var sim = this.similarity([this.omega_b.value,this.omega_c.value,this.omega_l.value],[this.our.omega_b,this.our.omega_c,this.our.omega_l]);
+			var txt = "Not like our Universe";
+			if(sim > 0.60) txt = "A bit like our Universe";
+			if(sim > 0.93) txt = "Very similar to our Universe";
+			if(sim == 1) txt = "The same as our Universe";
+			$('#similarity').html('<span class="similarity property">'+txt+'</span>');
+		}
 
 		$('span.omega_b').html(' = '+this.omega_b.value);
 		$('span.omega_c').html(' = '+this.omega_c.value);
 		$('span.omega_l').html(' = '+this.omega_l.value);
 
+
 		return this;
 	}
 
+	// Calculate the similarity of the chosen universe to our universe
+	Simulator.prototype.similarity = function(p,ref,w){
+		var s = 0;
+		var v;
+		if(!w) w = new Array(p.length);
+		for(var i = 0, j = 0; i < p.length ; i++){
+			if(p[i] && ref[i]){
+				if(!w[i]) w[i] = 1;
+				v = Math.pow( ( 1 - Math.abs( (p[i] - ref[i]) / (p[i] + ref[i]) ) ), w[i]/p.length);
+				if(j==0) s = v;
+				else s *= v;
+				j++;
+			}
+		}
+		return s;
+	}
 
 	// Inspired by Ned Wright's Cosmology Calculator
 	// http://www.astro.ucla.edu/~wright/CosmoCalc.html

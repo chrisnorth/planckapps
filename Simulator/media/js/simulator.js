@@ -811,7 +811,7 @@
 		this.spectrum.ctx.fillRect(0, 0, this.w, this.h);
 
 		// Add the labels
-		this.el.append('<div class="label sim">Current universe</div><div class="label our">Our universe</div><div class="label scale"><div class="value">1&deg;</div></div>');
+		this.el.append('<div class="label sim">Your simulated universe</div><div class="label our">Our universe</div><div class="label scale"><div class="value">1&deg;</div></div>');
 
 		FFT.init(this.w);
 		FrequencyFilter.init(this.w, this.dl);

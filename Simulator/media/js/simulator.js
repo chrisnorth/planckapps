@@ -132,6 +132,12 @@
 		return;
 	}
 
+	ParameterSlider.prototype.setRandom = function(){
+		var v = this.opts[Math.floor(this.opts.length*Math.random())];
+		this.setValue(parseFloat(v));
+		return;
+	}
+	
 	// A class to create and display a power spectrum
 	// inp = {
 	//	ps: 'powerspectrum' // ID of the HTML element for the plot
@@ -1567,6 +1573,13 @@
 			}
 			this.ps.resize();
 		}
+
+		// Set the Omega values to random options
+		this.omega_b.setRandom();
+		this.omega_c.setRandom();
+		this.omega_l.setRandom();
+		this.ps.loadData('omega_b',this.omega_b.value,this.omega_c.value,this.omega_l.value);
+
 
 		return this;
 	}

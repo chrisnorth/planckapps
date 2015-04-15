@@ -152,7 +152,6 @@
 		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
 		this.omega = { b: "", c:"", l:"" };
 		this.fullscreen = false;
-		this.logging = (console && typeof console.log==="function");
 		this.fixedscale = (is(inp.fixedscale,"boolean")) ? inp.fixedscale : true;
 
 		// Store the callbacks and a context which will be used for the "this"
@@ -180,6 +179,13 @@
 			ev.data.me.resize();
 		});
 
+		return this;
+	}
+
+	PowerSpectrum.prototype.log = function(){
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) args.push(arguments[i]);
+		if(console && is(console.log,"function")) console.log('LOG',args);
 		return this;
 	}
 
@@ -351,7 +357,7 @@
 		// Check we have somewhere to draw
 		if(!this.chart.holder) return this;
 
-		if(this.logging) var d = new Date();
+		var d = new Date();
 
 		// Build the power spectrum curve
 		if(this.data){
@@ -493,7 +499,7 @@
 			return;
 		}
 
-		if(this.logging) console.log('Getting '+file+' for '+id)
+		this.log('Getting '+file+' for '+id)
 
 		var _obj = this;
 
@@ -501,7 +507,8 @@
 		this.json = "";
 
 		// Bug fix for reading local JSON file in FF3
-		$.ajaxSetup({async:false,'beforeSend': function(xhr){ if (xhr.overrideMimeType) xhr.overrideMimeType("text/plain"); } });
+		// Removed as is deprecated in newer browsers
+		//$.ajaxSetup({async:false,'beforeSend': function(xhr){ if (xhr.overrideMimeType) xhr.overrideMimeType("text/plain"); } });
 
 		// Do the AJAX request for the data file
 		$.ajax({
@@ -516,7 +523,7 @@
 			},
 			error: function(e){
 				this.callback.context.error("We couldn't load the CMB fluctuations of this universe (&Omega;<sub>b</sub> = "+b+", &Omega;<sub>c</sub> = "+c+", &Omega;<sub>&Lambda;</sub> = "+l+"). That sucks. :-(");
-				if(this.logging) console.log(file)
+				this.log(file)
 			},
 			timeout: 4000
 		});
@@ -532,8 +539,6 @@
 
 		// If the values haven't changed we don't need to recalculate the data
 		if(b==this.omega.b && c==this.omega.c && l==this.omega.l) return;
-
-		//console.log('getData',id,b,c,l,this.omega_b,this.omega_c,this.omega_l,this.json)
 
 		// Reset the l value for the first peak
 		this.firstpeak = 0;
@@ -774,7 +779,6 @@
 		this.dir = (is(inp.dir,"string")) ? inp.dir : "db/";
 		this.context = (is(inp.context,"object")) ? inp.context : this;
 		this.loaded = false;
-		this.logging = true;
 		this.sluggish = false;
 
 		// Display options
@@ -794,6 +798,13 @@
 
 		// Load the 'our universe' image
 		this.our = new Image();
+		this.loadedouruniverse = false;	// Have we loaded the image yet?
+		var _obj = this;
+		// Create a callback function for when we've loaded the image
+		this.our.onload = function(e){
+			_obj.loadedouruniverse = true;
+			_obj.load();
+		};
 		this.our.src = this.el.find('img.our').attr('src');
 
 		// Set up the class to deal with the <canvas>
@@ -818,21 +829,30 @@
 		SpectrumViewer.init(this.spectrum.ctx);
 
 		// Add a callback for when it is loaded
-		this.load();
+		return this.load();
 	}
 	
+	Sky.prototype.log = function(){
+		var args = [];
+		for (var i = 0; i < arguments.length; i++) args.push(arguments[i]);
+		if(console && is(console.log,"function")) console.log('LOG',args);
+		return this;
+	}
+
 	// Called when the image has been loaded
 	Sky.prototype.load = function(){
-		this.loaded = true;
-		this.setupFFT();
-		this.update();
-		this.resize();
+		if(this.loadedouruniverse){
+			this.loaded = true;
+			this.setupFFT();
+			this.update();
+			this.resize();
+		}
 		return this;
 	}
 
 	Sky.prototype.setupFFT = function(){
 
-		if(this.logging) var d = new Date();
+		var d = new Date();
 
 		// Read the blank image data into a blob
 		this.src = this.spectrum.ctx.getImageData(0, 0, this.w, this.h);
@@ -858,7 +878,7 @@
 		this.setColourTable('planck');
 		
 		if(new Date() - d > 1000) this.sluggish = true;
-		if(this.logging) console.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
+		this.log("Total for Sky.prototype.setupFFT(): " + (new Date() - d) + "ms");
 
 		if(this.sluggish) this.context.warning('It may take time to update the universe. Please be patient.');
 		else $('#warning').hide();
@@ -966,10 +986,10 @@
 			}
 
 		} catch(e) {
-			if(this.logging) console.log(e);
+			this.log('update() fail');
 		}
 
-		if(this.logging) console.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
+		this.log("Total for Sky.prototype.update():" + (new Date() - d) + "ms");
 	}
 
 	

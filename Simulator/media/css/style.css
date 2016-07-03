@@ -90,8 +90,8 @@ a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; disp
 #help a.abouton:hover, #help a.abouton:focus { background-color: #049CDB; transition: background-color 0.5s; }
 #about {
 	color: #111111;
-	background-color: #EEEEEE; 
-	display: block; 
+	background-color: #EEEEEE;
+	display: block;
 	margin-left: -64px;
 	margin-right: -64px;
 	margin-bottom: 64px;
@@ -100,6 +100,7 @@ a.close { float: right; font-weight: bold; color: inherit; cursor: pointer; disp
 body.adv #advancedtoggle a { background-color: black; }
 .toggle a:hover, .toggle a:focus { background-color: #E13F29; transition: background-color 0.5s; }
 #configtoggle a { background-position: 0 -48px; }
+#refreshtoggle a { background-position: 0 -96px; }
 
 #header { margin-top: 16px; }
 img.logo {
